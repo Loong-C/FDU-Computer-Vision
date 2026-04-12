@@ -1,8 +1,8 @@
-
 import numpy as np
 import pickle
 from train import train_model
 from search_param import grid_search
+from test import test
 from src.dataloader import FashionMNISTDataLoader
 from src.model import MLP
 from src.utils import plot_curves, visualize_first_layer_weights, error_analysis
@@ -16,7 +16,11 @@ def run_pipeline():
     _, history = train_model(best_config, save=True, save_path='checkpoints/best_model.pkl')
     plot_curves(history)
 
-    print("\n测试集与可视化")
+    print("\n测试集评估:")
+    test_acc, _ = test(model_path='checkpoints/best_model.pkl')
+    print(f"测试集准确率: {test_acc:.4f}")
+
+    print("\n可视化")
     loader = FashionMNISTDataLoader()
     model = MLP(hidden_dim=best_config['hidden_dim'])
     

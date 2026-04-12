@@ -8,6 +8,16 @@ from src.model import MLP
 from src.loss import SoftmaxCrossEntropy
 from src.optimizer import SGDOptimizer
 
+DEFAULT_CONFIG = {
+    'hidden_dim': 1024,
+    'activation': 'relu',
+    'lr': 0.01,
+    'weight_decay': 1e-4,
+    'lr_decay': 0.95,
+    'epochs': 500,
+    'batch_size': 512,
+}
+
 def train_model(config, save=True, save_path='checkpoints/best_model.pkl'):
     """
     config: 包含 lr, hidden_dim, weight_decay, epochs 等的字典
@@ -87,4 +97,6 @@ def plot_history(history):
     plt.show()
 
 if __name__ == "__main__":
-    train_model()
+    best_val_acc, history = train_model(DEFAULT_CONFIG, save=True, save_path='checkpoints/best_model.pkl')
+    print(f"Best validation accuracy: {best_val_acc:.4f}")
+    plot_history(history)

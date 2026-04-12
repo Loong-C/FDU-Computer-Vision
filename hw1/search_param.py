@@ -1,6 +1,6 @@
 import numpy as np
 from train import train_model
-
+import os
 def grid_search():
 
     lrs = [1e-2, 1e-2, 1e-3, 1e-4]
@@ -30,6 +30,11 @@ def grid_search():
     for res in results:
         print(f"{res[0]} | {res[1]} | {res[2]} | {res[3]:.4f}")
     print(f"\n最佳配置: {best_config}, Val Acc: {best_acc:.4f}")
+    with open("checkpoints/grid_search_results.txt", "w") as f:
+        f.write("LR | Hidden | WeightDecay | Best Val Acc\n")
+        for res in results:
+            f.write(f"{res[0]} | {res[1]} | {res[2]} | {res[3]:.4f}\n")
+        f.write(f"\n最佳配置: {best_config}, Val Acc: {best_acc:.4f}\n")
     return best_config
 
 if __name__ == "__main__":

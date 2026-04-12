@@ -4,7 +4,7 @@ import numpy as np
 import urllib.request
 
 class FashionMNISTDataLoader:
-    def __init__(self, data_dir='F:\Personal\Code\Computer Vision\hw1\data', batch_size=64, val_split=0.1, shuffle=True):
+    def __init__(self, data_dir='data', batch_size=64, val_split=0.1, shuffle=True):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.val_split = val_split

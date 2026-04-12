@@ -1,0 +1,192 @@
+{
+  "train_size": 54000,
+  "val_size": 6000,
+  "test_size": 10000,
+  "best_search_config": {
+    "hidden_dim": 1024,
+    "activation": "relu",
+    "lr": 0.01,
+    "weight_decay": 0.0001,
+    "lr_decay": 0.95,
+    "epochs": 30,
+    "batch_size": 512,
+    "best_val_acc": 0.8518
+  },
+  "final_training_epochs": 500,
+  "test_accuracy": 0.8422,
+  "parameter_count": 1863690,
+  "top_confusions": [
+    {
+      "count": 142,
+      "true": "Shirt",
+      "pred": "T-shirt/top"
+    },
+    {
+      "count": 137,
+      "true": "Pullover",
+      "pred": "Coat"
+    },
+    {
+      "count": 119,
+      "true": "Shirt",
+      "pred": "Pullover"
+    },
+    {
+      "count": 102,
+      "true": "Shirt",
+      "pred": "Coat"
+    },
+    {
+      "count": 100,
+      "true": "T-shirt/top",
+      "pred": "Shirt"
+    },
+    {
+      "count": 99,
+      "true": "Coat",
+      "pred": "Pullover"
+    },
+    {
+      "count": 80,
+      "true": "Coat",
+      "pred": "Shirt"
+    },
+    {
+      "count": 70,
+      "true": "Pullover",
+      "pred": "Shirt"
+    },
+    {
+      "count": 52,
+      "true": "Sneaker",
+      "pred": "Ankle boot"
+    },
+    {
+      "count": 48,
+      "true": "Sandal",
+      "pred": "Sneaker"
+    }
+  ],
+  "confusion_matrix": [
+    [
+      807,
+      5,
+      17,
+      43,
+      6,
+      4,
+      100,
+      0,
+      18,
+      0
+    ],
+    [
+      5,
+      950,
+      8,
+      28,
+      5,
+      0,
+      2,
+      0,
+      2,
+      0
+    ],
+    [
+      18,
+      5,
+      747,
+      12,
+      137,
+      1,
+      70,
+      0,
+      10,
+      0
+    ],
+    [
+      34,
+      15,
+      14,
+      864,
+      32,
+      0,
+      38,
+      0,
+      3,
+      0
+    ],
+    [
+      0,
+      2,
+      99,
+      35,
+      777,
+      1,
+      80,
+      0,
+      6,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      919,
+      0,
+      48,
+      2,
+      29
+    ],
+    [
+      142,
+      3,
+      119,
+      44,
+      102,
+      0,
+      560,
+      0,
+      30,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      37,
+      0,
+      911,
+      0,
+      52
+    ],
+    [
+      0,
+      1,
+      11,
+      7,
+      2,
+      4,
+      21,
+      7,
+      947,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      13,
+      0,
+      43,
+      2,
+      940
+    ]
+  ]
+}
