@@ -1,7 +1,6 @@
 # HW1：从零开始构建三层神经网络分类器
 
-本仓库为复旦大学《计算机视觉》HW1 的实现，任务是在不使用 PyTorch、TensorFlow、JAX 等自动微分框架的前提下，仅基于 `NumPy` 手工实现三层 MLP，并在 Fashion-MNIST 上完成训练、验证、测试、超参数搜索、权重可视化和错例分析。
-
+本仓库实现复旦大学计算机视觉Homework1，任务是手工实现三层 MLP，并在 Fashion-MNIST 上完成任务
 ## 仓库链接与模型权重
 
 - GitHub Repo: <https://github.com/Loong-C/FDU-Computer-Vision.git>
@@ -30,12 +29,6 @@
 - Python `3.10+`
 - `numpy`
 - `matplotlib`
-
-安装方式：
-
-```bash
-pip install -r requirements.txt
-```
 
 ## 数据集说明
 
@@ -118,7 +111,7 @@ python train.py
 - `checkpoints/best_model.pkl`
 - `results/training_curves.png`
 
-### 4. 跑完整 pipeline
+### 4. 完整流程
 
 ```bash
 python main.py
@@ -132,15 +125,6 @@ python main.py
 4. 绘制训练/验证曲线
 5. 绘制第一层权重可视化
 6. 生成错例分析图
-
-主要输出文件：
-
-- `checkpoints/best_model.pkl`
-- `results/curves.png`
-- `results/weights.png`
-- `results/errors.png`
-- `results/confusion_matrix.png`
-- `results/test_metrics.txt`
 
 ## 当前结果文件
 
@@ -156,10 +140,4 @@ python main.py
 报告源码与生成文件位于 `report/`：
 
 - LaTeX 源码：`report/report.tex`
-- 编译后的 PDF：`report/report.pdf`（若本地编译成功）
-
-## 说明
-
-- 本实现采用两层隐藏层、共三层线性层的 MLP。
-- 训练过程保存验证集准确率最高的模型权重。
-- 测试集准确率来自当前仓库中的 `checkpoints/best_model.pkl`，对应结果已保存到 `results/test_metrics.txt`。
+- 编译后的 PDF：`report/report.pdf`
