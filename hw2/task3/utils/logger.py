@@ -33,3 +33,8 @@ def print_config(config: dict):
         print(f"{key}: {value}")
 
     print("=" * 60)
+
+def save_summary(summary: dict, run_dir: str):
+    path = os.path.join(run_dir, "summary.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=4, ensure_ascii=False)

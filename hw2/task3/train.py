@@ -7,7 +7,7 @@ from datasets.oxford_pet import build_dataloaders
 from models.unet import UNet
 from losses.dice_loss import build_loss
 from utils.metrics import SegmentationMetric
-from utils.logger import save_history
+from utils.logger import save_history, save_summary
 
 
 def train_one_epoch(model, train_loader, criterion, optimizer, device):
@@ -105,6 +105,8 @@ def run_training(config: dict, run_dir: str):
 
     best_miou = 0.0
     best_epoch = 0
+    best_model_path = os.path.join(run_dir, "best_model.pth")
+    last_model_path = os.path.join(run_dir, "last_model.pth")
 
     print()
     print("Start training")
@@ -165,8 +167,10 @@ def run_training(config: dict, run_dir: str):
                     "best_miou": best_miou,
                     "config": config,
                 },
-                best_path,
+                best_model_path,
             )
+
+            print(f"Saved best model to {best_model_path}")
 
             print(f"Saved best model to {best_path}")
 
@@ -180,7 +184,7 @@ def run_training(config: dict, run_dir: str):
                 "best_miou": best_miou,
                 "config": config,
             },
-            last_path,
+            last_model_path,
         )
 
         save_history(history, run_dir)
@@ -188,9 +192,28 @@ def run_training(config: dict, run_dir: str):
         print("-" * 60)
 
     total_time = time.time() - start_time
+    total_time_minutes = total_time / 60
+
+    summary = {
+        "experiment_name": config["experiment_name"],
+        "loss_type": config["train"]["loss_type"],
+        "best_val_miou": best_miou,
+        "best_epoch": best_epoch,
+        "total_time_minutes": total_time_minutes,
+        "final_train_loss": history["train_loss"][-1],
+        "final_val_loss": history["val_loss"][-1],
+        "final_val_pixel_acc": history["val_pixel_acc"][-1],
+        "final_val_miou": history["val_miou"][-1],
+        "final_val_class_iou": history["val_class_iou"][-1],
+        "best_model_path": best_model_path,
+        "last_model_path": last_model_path,
+    }
+
+    save_summary(summary, run_dir)
 
     print()
     print("Training finished")
     print(f"Best Val mIoU: {best_miou:.6f}")
     print(f"Best Epoch: {best_epoch}")
-    print(f"Total time: {total_time / 60:.2f} minutes")
+    print(f"Total time: {total_time_minutes:.2f} minutes")
+    print(f"Summary saved to {os.path.join(run_dir, 'summary.json')}")
