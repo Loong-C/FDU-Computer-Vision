@@ -1,0 +1,11 @@
+{
+    "experiment_name": "resnet18_pretrained_baseline",
+    "model": "resnet18",
+    "pretrained": true,
+    "attention": "none",
+    "num_classes": 37,
+    "best_val_acc": 0.9375,
+    "test_loss": 0.4223366356263144,
+    "test_acc": 0.8800763150722267,
+    "checkpoint": "./checkpoints\\resnet18_pretrained_baseline_best.pth"
+}

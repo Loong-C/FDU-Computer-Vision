@@ -1,0 +1,18 @@
+{
+    "experiment_name": "resnet18_grid_ep15_blr0p0001_clr0p001_bs32",
+    "model": "resnet18",
+    "pretrained": true,
+    "attention": "none",
+    "epochs": 75,
+    "optimizer": "adamw",
+    "backbone_lr": 0.0001,
+    "classifier_lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 32,
+    "image_size": 224,
+    "num_classes": 37,
+    "best_val_acc": 0.9334239130434783,
+    "test_loss": 0.5377996656632482,
+    "test_acc": 0.8724448078495503,
+    "checkpoint": "./checkpoints\\resnet18_grid_ep15_blr0p0001_clr0p001_bs32_best.pth"
+}

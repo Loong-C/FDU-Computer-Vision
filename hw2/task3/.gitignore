@@ -1,0 +1,53 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dataset
+data/
+datasets/data/
+oxford-iiit-pet/
+
+# Training outputs
+runs/
+results/
+checkpoints/
+logs/
+
+# Model weights
+*.pth
+*.pt
+*.ckpt
+*.onnx
+
+# Experiment logs
+*.log
+history.json
+config.json
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Matplotlib / generated figures
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# Temporary files
+tmp/
+temp/

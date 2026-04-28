@@ -1,0 +1,29 @@
+project_name: pet-recognition-finetune
+experiment_name: resnet18_scratch_ablation
+seed: 1015
+device: cuda
+model:
+  name: resnet18
+  pretrained: false
+  attention: none
+
+train:
+  epochs: 75
+  optimizer: adamw
+  backbone_lr: 0.0001
+  classifier_lr: 0.001
+  weight_decay: 0.0001
+
+data:
+  root: ./data
+  image_size: 224
+  batch_size: 32
+  num_workers: 4
+  val_ratio: 0.2
+  num_classes: 37
+scheduler:
+  name: cosine
+  min_lr: 1.0e-06
+save:
+  checkpoint_dir: ./checkpoints
+  result_dir: ./results
