@@ -14,7 +14,7 @@ def main():
     parser.add_argument(
         "--data",
         type=str,
-        default="VisDrone.yaml",
+        default="configs/VisDrone.yaml",
         help="Dataset yaml file.",
     )
     parser.add_argument(

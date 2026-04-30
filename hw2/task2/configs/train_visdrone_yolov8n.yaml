@@ -1,5 +1,5 @@
 model: yolov8n.pt
-data: VisDrone.yaml
+data: configs/VisDrone.yaml
 
 epochs: 50
 imgsz: 640
