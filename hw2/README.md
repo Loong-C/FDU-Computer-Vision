@@ -185,6 +185,19 @@ Useful outputs:
 - Loss and mIoU curves: `task3/results/*.png`
 - Prediction examples: `task3/results/predictions/*.png`
 
+## SwanLab Visualization
+
+The report includes SwanLab local-dashboard screenshots to satisfy the HW2 visualization requirement. Existing JSON/CSV training histories are replayed into local SwanLab runs, so this step does not require an online SwanLab account.
+The screenshot helper starts a local dashboard and uses an installed Chrome or Edge browser in headless mode.
+
+```bash
+pip install "swanlab[dashboard]"
+python report/log_to_swanlab.py
+python report/capture_swanlab_screenshots.py
+```
+
+Generated screenshots are saved under `report/assets/swanlab_dashboard_*.png` and embedded in `report/report.pdf`.
+
 ## Build the Report
 
 The submitted PDF is already generated at `report/report.pdf`. To rebuild it after changing results:

@@ -5,3 +5,8 @@ __pycache__/
 *.out
 *.toc
 *.synctex.gz
+report/swanlab_home/
+report/swanlog*/
+report/chrome-profile/
+report/edge-profile/
+report/swanboard*.log

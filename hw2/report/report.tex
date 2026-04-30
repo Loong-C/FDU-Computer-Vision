@@ -64,6 +64,22 @@ Github: \href{https://github.com/Loong-C/FDU-Computer-Vision.git}{Loong-C/FDU-Co
 
 实验代码按任务拆分在 \texttt{task1}、\texttt{task2}、\texttt{task3} 目录中。报告中的曲线与表格均来自仓库内保存的训练日志、结果 CSV、summary JSON 和输出图像。模型权重未直接放入报告中，而是按提交要求上传至网盘，链接见首页。
 
+\subsection{SwanLab 可视化记录}
+
+作业要求报告中包含 WandB 或 SwanLab 的可视化截图。由于本次实验的原始训练结果已经以 JSON、CSV 和图片文件保存在各任务目录中，本仓库使用 \path{report/log_to_swanlab.py} 将这些历史记录补录为 SwanLab local runs，再使用 \path{report/capture_swanlab_screenshots.py} 启动本地 SwanLab dashboard 并截图。该流程不依赖外网，记录了任务 1 的分类训练曲线、任务 2 的 YOLOv8n 检测训练曲线，以及任务 3 三种损失函数配置下的分割训练曲线。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{assets/swanlab_dashboard_overview.png}
+\caption{SwanLab 本地看板项目页：共补录 7 个实验 run，覆盖分类、检测和分割三类任务。}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{assets/swanlab_dashboard_charts.png}
+\caption{SwanLab 本地看板图表页：展示任务 1 与任务 2 的训练/验证曲线，并可在左侧选择不同 run 进行对比。}
+\end{figure}
+
 \section{任务 1：预训练 CNN 微调实现宠物识别}
 
 \subsection{任务目标与数据集}
