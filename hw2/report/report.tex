@@ -35,8 +35,6 @@
 \title{\textbf{计算机视觉 HW2 实验报告}}
 \author{
 陈家龙 \quad 24300980041\\
-Github: \href{https://github.com/Loong-C/FDU-Computer-Vision.git}{Loong-C/FDU-Computer-Vision}\\
-模型权重网盘: \href{https://drive.google.com/drive/folders/1wvPcY7D8VMv1gOKWnwm_0SI5o_KIZYzv?usp=drive_link}{Google Drive 模型权重目录}
 }
 \date{2026 年 4 月 30 日}
 
@@ -47,8 +45,7 @@ Github: \href{https://github.com/Loong-C/FDU-Computer-Vision.git}{Loong-C/FDU-Co
 \begin{center}
 \begin{tabular}{>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{10.5cm}}
 \toprule
-作业性质 & 组队作业，单人完成 \\
-成员与分工 & 陈家龙：完成全部代码实现、训练验证、可视化、报告撰写与仓库整理 \\
+成员与分工 & 陈家龙 单人完成\\
 代码仓库 & \href{https://github.com/Loong-C/FDU-Computer-Vision.git}{https://github.com/Loong-C/FDU-Computer-Vision.git} \\
 模型权重 & \href{https://drive.google.com/drive/folders/1wvPcY7D8VMv1gOKWnwm_0SI5o_KIZYzv?usp=drive_link}{Google Drive 下载目录} \\
 \bottomrule
@@ -60,24 +57,24 @@ Github: \href{https://github.com/Loong-C/FDU-Computer-Vision.git}{Loong-C/FDU-Co
 
 \section{整体说明}
 
-本报告围绕三项任务展开：第一项是在 Oxford-IIIT Pet Dataset 上微调 ImageNet 预训练 CNN 并完成宠物品种识别；第二项是在 VisDrone 数据集上训练 YOLOv8n 检测器，并在自采校园视频中完成多目标跟踪、遮挡分析和越线计数；第三项是从零搭建 U-Net，在 Oxford-IIIT Pet 三分类分割任务上比较 Cross-Entropy Loss、Dice Loss 与组合损失的 mIoU 表现。
+本报告按要求完成作业中的三项任务：第一项是在 Oxford-IIIT Pet Dataset 上微调 ImageNet 预训练 CNN 并完成宠物品种识别；第二项是在 VisDrone 数据集上训练 YOLOv8n 检测器，并在自采校园视频中完成多目标跟踪、遮挡分析和越线计数；第三项是从零搭建 U-Net，在 Oxford-IIIT Pet 三分类分割任务上比较 Cross-Entropy Loss、Dice Loss 与组合损失的 mIoU 表现。
 
-实验代码按任务拆分在 \texttt{task1}、\texttt{task2}、\texttt{task3} 目录中。报告中的曲线与表格均来自仓库内保存的训练日志、结果 CSV、summary JSON 和输出图像。模型权重未直接放入报告中，而是按提交要求上传至网盘，链接见首页。
+实验代码按任务拆分在 \texttt{task1}、\texttt{task2}、\texttt{task3} 目录中。报告中的曲线与表格均来自仓库内保存的训练日志、结果 CSV、summary JSON 和输出图像。模型权重和视频按提交要求上传至网盘，链接见首页。
 
 \subsection{SwanLab 可视化记录}
 
-作业要求报告中包含 WandB 或 SwanLab 的可视化截图。由于本次实验的原始训练结果已经以 JSON、CSV 和图片文件保存在各任务目录中，本仓库使用 \path{report/log_to_swanlab.py} 将这些历史记录补录为 SwanLab local runs，再使用 \path{report/capture_swanlab_screenshots.py} 启动本地 SwanLab dashboard 并截图。该流程不依赖外网，记录了任务 1 的分类训练曲线、任务 2 的 YOLOv8n 检测训练曲线，以及任务 3 三种损失函数配置下的分割训练曲线。
+作业要求报告中包含 WandB 或 SwanLab 的可视化截图。由于本次实验的原始训练结果已经以 JSON、CSV 和图片文件保存在各任务目录中，本仓库使用 \path{report/log_to_swanlab.py} 将这些历史记录补录为 SwanLab local runs，再使用 \path{report/capture_swanlab_screenshots.py} 启动本地 SwanLab dashboard 并截图记录了任务 1 的分类训练曲线、任务 2 的 YOLOv8n 检测训练曲线，以及任务 3 三种损失函数配置下的分割训练曲线。
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth]{assets/swanlab_dashboard_overview.png}
-\caption{SwanLab 本地看板项目页：共补录 7 个实验 run，覆盖分类、检测和分割三类任务。}
+\caption{SwanLab 本地看板项目页}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth]{assets/swanlab_dashboard_charts.png}
-\caption{SwanLab 本地看板图表页：展示任务 1 与任务 2 的训练/验证曲线，并可在左侧选择不同 run 进行对比。}
+\caption{SwanLab 本地看板图表页：任务 1 与任务 2 的训练/验证曲线}
 \end{figure}
 
 \section{任务 1：预训练 CNN 微调实现宠物识别}
@@ -86,7 +83,7 @@ Github: \href{https://github.com/Loong-C/FDU-Computer-Vision.git}{Loong-C/FDU-Co
 
 任务 1 要求在 Oxford-IIIT Pet Dataset 上修改 ResNet-18 或 ResNet-34 的输出层作为 Baseline，并使用 ImageNet 预训练参数初始化主干网络。新输出层从随机初始化开始训练，其余参数使用较小学习率微调；同时需要完成超参数分析、预训练消融实验，以及在 Baseline 基础上加入注意力机制并比较 Accuracy。
 
-本实验使用 Oxford-IIIT Pet Dataset 的 37 类宠物品种分类数据。官方 \texttt{trainval} 部分按 8:2 划分为训练集和验证集，官方 \texttt{test} 部分作为测试集。所有输入图像统一 resize 到 $224\times224$，训练集使用随机水平翻转、随机旋转和颜色扰动，验证集和测试集仅进行尺寸调整、张量转换和 ImageNet 均值方差归一化。
+本实验使用官方 \texttt{trainval} 部分按 8:2 划分为训练集和验证集，官方 \texttt{test} 部分作为测试集。所有输入图像统一 resize 到 $224\times224$，训练集使用随机水平翻转、随机旋转和颜色扰动，验证集和测试集仅进行尺寸调整、张量转换和 ImageNet 均值方差归一化。
 
 \subsection{模型结构与训练设置}
 
@@ -122,7 +119,7 @@ Weight decay & 0.0001 \\
 
 \subsection{超参数分析}
 
-超参数搜索以 ImageNet 预训练的 ResNet-18 为基础，固定模型结构、数据划分、图像尺寸、优化器和数据增强策略，主要调整 backbone learning rate 与 classifier learning rate。搜索范围为 backbone learning rate $\{0.00005,0.0001,0.0005\}$，classifier learning rate $\{0.0005,0.001,0.005\}$，训练 15 epoch。
+超参数搜索过程中，我们尝试调整 backbone learning rate 与 classifier learning rate。搜索范围为 backbone learning rate $\{0.00005,0.0001,0.0005\}$，classifier learning rate $\{0.0005,0.001,0.005\}$，训练 15 epoch。
 
 \begin{figure}[H]
 \centering
@@ -170,7 +167,7 @@ blr0.0005-clr0.001 & 15 & 0.0005 & 0.0010 & 0.8433 \\
 
 \subsection{预训练消融与注意力机制}
 
-预训练消融实验使用完全相同的 ResNet-18 结构与训练设置，对比 ImageNet 预训练初始化和随机初始化。注意力机制实验在 ResNet-18 的 BasicBlock 中加入手写 SE-block，将 SE-block 放在第二个 BatchNorm 之后、残差连接相加之前：
+预训练消融实验使用完全相同的 ResNet-18 结构与训练设置。注意力机制实验在 ResNet-18 的 BasicBlock 中加入手写 SE-block，将 SE-block 放在第二个 BatchNorm 之后、残差连接相加之前：
 
 \begin{lstlisting}
 conv1 -> bn1 -> relu -> conv2 -> bn2 -> SE-block -> residual add -> relu
@@ -204,13 +201,11 @@ Baseline & ResNet-18 & 是 & 0.9334 & 0.8724 \\
 
 \subsection{任务目标与数据集}
 
-任务 2 要求使用 VisDrone 无人机航拍检测数据集微调 YOLOv8 或同类单阶段检测模型，并将训练好的检测器用于 10--30 秒测试视频，实现逐帧检测、多目标跟踪、遮挡与 ID 跳变分析，以及基于 Tracking ID 的越线计数。
-
-VisDrone 数据集中包含大量密集小目标，类别包括 pedestrian、people、bicycle、car、van、truck、tricycle、awning-tricycle、bus 和 motor。该数据集适合训练面向道路、行人和车辆场景的检测器。本实验使用 YOLOv8n 作为基础模型，主要考虑到其参数量较小、训练和推理开销低，适合在本地 RTX 4060 Ti 8GB 显存环境中完成实验流程。
+任务 2 要求使用 VisDrone 无人机航拍检测数据集微调 YOLOv8 或同类单阶段检测模型，并将训练好的检测器用于 10--30 秒测试视频，实现逐帧检测、多目标跟踪、遮挡与 ID 跳变分析，以及基于 Tracking ID 的越线计数。本实验使用 YOLOv8n 作为基础模型，主要考虑到其参数量较小、训练和推理开销低，适合在本机显存环境中完成实验流程。
 
 \subsection{训练设置与工程实现}
 
-训练前先进行了 1 epoch 测试训练以检查数据集路径、标签格式、GPU 调用和 YOLO 流程。由于 Windows 环境下多进程 DataLoader 在 Mosaic 数据增强中出现内存不足，正式训练采用较保守设置：\texttt{batch=4}、\texttt{workers=0}。正式模型命名为 \texttt{visdrone\_yolov8n\_e50}，训练 50 epoch。
+由于本地环境下多进程 DataLoader 在 Mosaic 数据增强中出现内存不足的情况，正式训练采用较保守设置：\texttt{batch=4}、\texttt{workers=0}。正式模型命名为 \texttt{visdrone\_yolov8n\_e50}，训练 50 epoch。
 
 \begin{table}[H]
 \centering
@@ -284,21 +279,50 @@ motor & 0.414 & 0.370 & 0.310 & 0.119 \\
 
 \subsection{视频多目标跟踪}
 
-完成检测模型训练后，实验使用自采校园道路视频作为测试视频。该视频包含行人、电动车、道路、树木、建筑物、灌木和阴影。测试场景与 VisDrone 存在明显域差异：VisDrone 主要是无人机俯视航拍，而测试视频更接近地面或路边视角；同时树叶、阴影和背景纹理对检测造成干扰。
+完成检测模型训练后，实验使用光华楼西侧道路视频作为测试视频。测试场景与 VisDrone 存在一定差异，其主要原因是我没有无人机，因此视频更接近地面视角；同时树叶、阴影等会对检测造成干扰。
 
 视频推理使用 YOLOv8 内置 tracking，设置 \texttt{persist=True} 保持帧间轨迹连续。输出视频中每个目标包含 bounding box、类别、置信度和 Tracking ID。部分行人在连续帧中能保持稳定 ID，满足多目标跟踪基本要求；但也存在背景误检、类别混淆、检测框抖动和短时漏检。
 
 \subsection{遮挡与 ID 跳变分析}
 
-根据任务要求，实验从跟踪视频中截取了连续遮挡片段。如下图所示，电动车目标在 Frame 586 被检测并分配 ID 29；随后几帧中检测框短暂消失，说明遮挡、背景干扰或置信度下降导致目标丢失。
+根据任务要求，实验从跟踪视频中截取了连续遮挡片段。如下图所示，电动车目标在 Frame 586 被检测并分配 ID 29；随后几帧中检测框短暂消失，在遮挡车辆过去后重新出现，说明遮挡、背景干扰可能会引起置信度下降会导致目标丢失。
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{assets/task2_occlusion_montage.jpg}
+\begin{subfigure}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../task2/outputs/frames/occlusion/frame_000586.jpg}
+  \caption*{Frame 586}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../task2/outputs/frames/occlusion/frame_000587.jpg}
+  \caption*{Frame 587}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../task2/outputs/frames/occlusion/frame_000588.jpg}
+  \caption*{Frame 588}
+\end{subfigure}
+
+\vspace{0.5em}
+\begin{subfigure}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../task2/outputs/frames/occlusion/frame_000589.jpg}
+  \caption*{Frame 589}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../task2/outputs/frames/occlusion/frame_000590.jpg}
+  \caption*{Frame 590}
+\end{subfigure}
 \caption{任务 2 遮挡片段连续帧可视化。}
 \end{figure}
 
-该片段中没有观察到明显的 ID switch：目标重新出现时未被错误分配给另一个已有目标，也没有出现两个目标交换 ID 的情况。主要问题是检测器对遮挡目标召回不足，导致目标框短时中断。多目标跟踪依赖检测结果、运动预测和帧间匹配；当检测框消失时，跟踪器只能依赖短期轨迹缓存维持目标，遮挡较短时可能恢复原有 ID，遮挡较长或相似目标交汇时则更容易发生 ID switch。
+该片段中没有发生ID switch，但检测器对遮挡目标召回不足，导致目标框短时中断。可能的原理或原因：多目标跟踪依赖检测结果、运动预测和帧间匹配；当检测框消失时，跟踪器只能依赖短期轨迹缓存维持目标，遮挡较短时可能恢复原有 ID，遮挡较长或相似目标交汇时则更容易发生 ID switch。
 
 \subsection{越线计数}
 
@@ -306,11 +330,11 @@ motor & 0.414 & 0.370 & 0.310 & 0.119 \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{assets/task2_line_count_logic.png}
-\caption{任务 2 越线计数逻辑示意图。}
+\includegraphics[width=0.85\textwidth]{assets/line_occusion.jpg}
+\caption{任务 2 越线计数关键帧截取。}
 \end{figure}
 
-实际测试视频中，人工观察约有 3 个目标穿过虚拟线，而程序统计结果为 1。偏差主要来自检测和跟踪不稳定：目标靠近虚拟线时若发生漏检、类别突变或 ID 轨迹中断，程序无法获得完整的线前和线后位置，越线逻辑就不会触发。后续可通过提高检测模型性能、调整置信度阈值、优化 tracker 参数、增加轨迹缓存和多帧平滑来提升计数准确性。
+实际测试视频中，人工观察约有 3 个目标穿过虚拟线，而程序统计结果为 1。偏差主要来自检测和跟踪不稳定：目标靠近虚拟线时若发生漏检、类别突变或 ID 轨迹中断，程序无法获得完整的线前和线后位置，越线逻辑就不会触发。
 
 \section{任务 3：从零搭建 U-Net 与损失函数工程}
 
@@ -344,8 +368,31 @@ Skip Connection 的核心是：
 \begin{lstlisting}[language=Python]
 x = torch.cat([skip, x], dim=1)
 \end{lstlisting}
+模型测试中，输入形状 $[2,3,256,256]$ 时输出为 $[2,3,256,256]$，满足逐像素三分类要求。
 
-深层特征提供语义信息，浅层特征保留边缘、轮廓和位置细节，因此 Skip Connection 对像素级分割尤为重要。模型测试中，输入形状 $[2,3,256,256]$ 时输出为 $[2,3,256,256]$，满足逐像素三分类要求。
+\subsection{Cross-Entropy Loss 实现}
+
+仓库中的实现位于 \path{task3/losses/dice_loss.py}。虽然文件名为 \texttt{dice\_loss.py}，其中的 \texttt{build\_loss} 同时负责构建 CE、Dice 和 CE + Dice 三种损失。当配置文件中的 \texttt{train.loss\_type} 为 \texttt{ce} 时，直接返回 PyTorch 的 \texttt{nn.CrossEntropyLoss()}：
+
+\begin{lstlisting}[language=Python]
+def build_loss(config: dict):
+    loss_type = config["train"]["loss_type"]
+    num_classes = config["model"]["num_classes"]
+
+    if loss_type == "ce":
+        return nn.CrossEntropyLoss()
+\end{lstlisting}
+
+训练流程位于 \path{task3/train.py}，三种损失函数都通过同一个接口调用。模型先得到 logits，然后将 logits 与整型 mask 一起送入 criterion：
+
+\begin{lstlisting}[language=Python]
+criterion = build_loss(config)
+
+logits = model(images)
+loss = criterion(logits, masks)
+\end{lstlisting}
+
+因此 CE 组实验对应的实际计算就是 \texttt{CrossEntropyLoss(logits, masks)}。CE 的优势是逐像素分类梯度稳定、实现简单；不足是对像素类别面积不均衡较敏感，尤其边界类像素较少时，模型可能更偏向大面积类别，因此后续进一步比较 Dice Loss 与 CE + Dice 组合损失。
 
 \subsection{Dice Loss 手动实现}
 
@@ -455,12 +502,12 @@ CE + Dice & 0.770272 & 39 & 0.762963 & 0.912962 \\
 
 \section{总结}
 
-任务 1 中，预训练 ResNet-18 在 Oxford-IIIT Pet 细粒度分类上显著优于随机初始化模型，说明迁移学习对中小规模视觉任务非常关键。超参数搜索表明 backbone learning rate 不宜过大，0.0001 与分类头学习率 0.001 是较稳健的组合。SE-block 完成了注意力机制引入要求，但在当前设置下未超过 Baseline。
+任务 1 中，预训练 ResNet-18 在 Oxford-IIIT Pet 细粒度分类上显著优于随机初始化模型，说明迁移学习对中小规模视觉任务非常关键。超参数搜索表明 backbone learning rate 不宜过大。SE-block 完成了注意力机制引入要求，但在当前设置下未超过 Baseline。
 
-任务 2 中，YOLOv8n 在 VisDrone 上完成 50 epoch 微调，获得整体 Precision 0.412、Recall 0.318、mAP50 0.287、mAP50-95 0.162。自采视频中能够输出检测框、类别与 Tracking ID，并实现遮挡分析和越线计数，但受域差异、误检、漏检和 ID 连续性影响，实际计数结果低于人工观察值。
+任务 2 中，YOLOv8n 在 VisDrone 上完成 50 epoch 微调，获得整体 Precision 0.412、Recall 0.318、mAP50 0.287、mAP50-95 0.162。自采视频中能够输出检测框、类别与 Tracking ID，并实现遮挡分析和越线计数，但由各种原因实际效果不佳。
 
-任务 3 中，手写 U-Net 完成了无预训练语义分割训练，并手动实现 Dice Loss。CE + Dice 组合损失取得最高验证 mIoU 0.770272，验证了 Dice Loss 在类别不均衡分割任务中的价值，也说明组合损失能兼顾像素分类准确性和区域重叠质量。
+任务 3 中，手写 U-Net 完成了无预训练语义分割训练，并手动实现 Dice Loss。CE + Dice 组合损失取得最高验证 mIoU 0.770272，验证了 Dice Loss 在类别不均衡分割任务中的价值，说明组合损失能兼顾像素分类准确性和区域重叠质量。
 
-整体来看，本次作业完整覆盖了分类、检测跟踪和分割三类计算机视觉任务，代码、训练结果、可视化图、模型权重与复现说明均已整理到仓库与网盘中。
+本次作业完整完成了作业要求的三类计算机视觉任务，代码、训练结果、可视化图、模型权重与复现说明均已整理到仓库与网盘中。
 
 \end{document}
