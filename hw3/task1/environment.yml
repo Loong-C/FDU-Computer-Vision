@@ -1,0 +1,17 @@
+name: cv_hw3_task1
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - git
+  - numpy
+  - pandas
+  - matplotlib
+  - pyyaml
+  - tqdm
+  - pip:
+      - swanlab
+      - wandb
+      - opencv-python

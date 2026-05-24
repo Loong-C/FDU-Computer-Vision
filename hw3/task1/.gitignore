@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Large data and outputs
+data/raw/
+data/processed/
+outputs/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.ply
+*.obj
+*.fbx
+*.glb
+*.ckpt
+*.pth
+*.pt
+*.bin
+
+# External repositories
+external/2d-gaussian-splatting/
+external/threestudio/
+
+# System / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+wandb/
+runs/
+logs/

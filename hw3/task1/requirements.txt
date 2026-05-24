@@ -1,0 +1,8 @@
+swanlab
+wandb
+numpy
+pandas
+matplotlib
+opencv-python
+tqdm
+pyyaml
