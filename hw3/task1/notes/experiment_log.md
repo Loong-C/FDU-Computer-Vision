@@ -43,3 +43,25 @@ The reconstruction is valid because all 34 images were registered. The sparse po
 
 Next step:
 Use this COLMAP result as the input for Object A 2DGS training.
+
+## 2026-05-30 / WSL GPU Environment Check
+
+Goal:
+Check whether the WSL environment can access the NVIDIA GPU for later 2DGS training.
+
+Result:
+WSL successfully detected the NVIDIA GeForce RTX 4060 Ti through nvidia-smi.
+
+Environment:
+GPU: NVIDIA GeForce RTX 4060 Ti
+Driver version: 581.57
+CUDA version reported by nvidia-smi: 13.0
+Python version in WSL: 3.12.3
+Git version in WSL: 2.43.0
+Conda status: not installed initially
+
+Analysis:
+The GPU is visible inside WSL, so 2DGS training should be performed in WSL instead of native Windows. Conda needs to be installed before creating the 2DGS environment.
+
+Next step:
+Install Miniforge, clone the GitHub repository into the WSL Linux filesystem, copy the Object A COLMAP data into the WSL repository, and install 2DGS.
