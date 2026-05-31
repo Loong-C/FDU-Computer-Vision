@@ -272,17 +272,18 @@ Object C coarse and fine stages in order. It reuses verified completed stages
 when resumed and checks the coarse checkpoint and final OBJ explicitly.
 `continue_after_object_c_full.sh` waits for the formal Object C OBJ, renders
 the formal Blender walkthrough through SwanLab, refreshes report assets and
-the final PDF, publishes the public best-weights package as a GitHub Release,
-runs the strict readiness audit, and commits the generated report figures
-before pushing the `hw3` branch.
+the final PDF, publishes the public best-weights package and formal walkthrough
+video as GitHub Release assets, runs the strict readiness audit, and commits
+the generated report figures before pushing the `hw3` branch.
 
-## Public Best Weights
+## Public Release Assets
 
 The unattended finalizer packages best checkpoints and exported meshes under
 `/mnt/d/PackageCache/cv-hw3-task1-release`, writes a SHA-256 manifest, and
-uploads the archive with the authenticated Windows GitHub CLI. The stable
-public download URL is:
+uploads the archive and formal walkthrough video with the authenticated
+Windows GitHub CLI. The stable public download URLs are:
 
 ```text
 https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz
+https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4
 ```

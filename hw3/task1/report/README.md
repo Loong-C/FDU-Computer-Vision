@@ -21,7 +21,8 @@ performs these steps automatically; the manual equivalent is:
 python scripts/package_best_weights.py
 bash scripts/publish_best_weights_release.sh
 python scripts/finalize_task1_metadata.py \
-  --cloud-weights-url https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz
+  --cloud-weights-url https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz \
+  --public-walkthrough-url https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4
 python report/build_report_assets.py
 python report/generate_report.py --final --publish
 python report/render_report.py report/cv_hw3_task1_report.pdf

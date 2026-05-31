@@ -133,11 +133,16 @@ cp -f -- "${FORMAL_PREVIEW}" "${PROJECT_ROOT}/docs/figures/fusion_walkthrough_pr
 
 RELEASE_METADATA="${PROJECT_ROOT}/logs/${RELEASE_RUN_NAME}.json"
 CLOUD_WEIGHTS_URL_PATH="/mnt/d/PackageCache/cv-hw3-task1-release/cloud_weights_url.txt"
+PUBLIC_WALKTHROUGH_URL_PATH="/mnt/d/PackageCache/cv-hw3-task1-release/public_walkthrough_url.txt"
 CLOUD_WEIGHTS_URL=""
-if wrapper_succeeded "${RELEASE_METADATA}" && [[ -s "${CLOUD_WEIGHTS_URL_PATH}" ]]; then
+PUBLIC_WALKTHROUGH_URL=""
+if wrapper_succeeded "${RELEASE_METADATA}" && [[ -s "${CLOUD_WEIGHTS_URL_PATH}" && -s "${PUBLIC_WALKTHROUGH_URL_PATH}" ]]; then
   CLOUD_WEIGHTS_URL="$(cat -- "${CLOUD_WEIGHTS_URL_PATH}")"
+  PUBLIC_WALKTHROUGH_URL="$(cat -- "${PUBLIC_WALKTHROUGH_URL_PATH}")"
 fi
-if [[ -n "${CLOUD_WEIGHTS_URL}" ]] && public_url_succeeded "${CLOUD_WEIGHTS_URL}"; then
+if [[ -n "${CLOUD_WEIGHTS_URL}" && -n "${PUBLIC_WALKTHROUGH_URL}" ]] \
+  && public_url_succeeded "${CLOUD_WEIGHTS_URL}" \
+  && public_url_succeeded "${PUBLIC_WALKTHROUGH_URL}"; then
   echo "Reusing completed public best-weights release."
 else
   "${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \
@@ -155,11 +160,14 @@ else
 fi
 verify_wrapper_success "${RELEASE_METADATA}"
 verify_nonempty_file "${CLOUD_WEIGHTS_URL_PATH}"
+verify_nonempty_file "${PUBLIC_WALKTHROUGH_URL_PATH}"
 CLOUD_WEIGHTS_URL="$(cat -- "${CLOUD_WEIGHTS_URL_PATH}")"
+PUBLIC_WALKTHROUGH_URL="$(cat -- "${PUBLIC_WALKTHROUGH_URL_PATH}")"
 
 "${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \
   python "${PROJECT_ROOT}/scripts/finalize_task1_metadata.py" \
-  --cloud-weights-url "${CLOUD_WEIGHTS_URL}"
+  --cloud-weights-url "${CLOUD_WEIGHTS_URL}" \
+  --public-walkthrough-url "${PUBLIC_WALKTHROUGH_URL}"
 "${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \
   python "${PROJECT_ROOT}/report/build_report_assets.py"
 "${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \
@@ -174,8 +182,9 @@ verify_strict_readiness
   python "${PROJECT_ROOT}/scripts/log_swanlab_event.py" \
   --run-name task1-post-object-c-formalization-complete \
   --event post_object_c_formalization_complete \
-  --config readiness=17/17 \
-  --config cloud_weights_url="${CLOUD_WEIGHTS_URL}"
+  --config readiness=18/18 \
+  --config cloud_weights_url="${CLOUD_WEIGHTS_URL}" \
+  --config public_walkthrough_url="${PUBLIC_WALKTHROUGH_URL}"
 
 /home/hp/miniforge3/bin/python - "${PROJECT_ROOT}/notes/experiment_log.md" "${FORMAL_VIDEO}" <<'PY'
 import datetime
@@ -196,7 +205,7 @@ if marker not in text:
             "The unattended queue verified the formal Object C fine-stage OBJ, "
             "rendered the Blender walkthrough from the real counter COLMAP camera "
             "path, uploaded the public best-weights package, refreshed report assets "
-            "and the final PDF, and passed the strict Task 1 readiness audit (`17/17`).\n\n"
+            "and the final PDF, and passed the strict Task 1 readiness audit (`18/18`).\n\n"
             f"Formal walkthrough: `{video_path}` ({video_path.stat().st_size} bytes).\n"
         )
 PY

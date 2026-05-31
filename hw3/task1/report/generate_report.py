@@ -201,12 +201,14 @@ def require_final_deliverables(data: dict[str, object]) -> None:
         "object_c.formal_mesh": data["object_c"]["formal_mesh"],
         "object_c.preview": data["object_c"]["preview"],
         "fusion.video": data["fusion"]["video"],
+        "fusion.public_video_url": data["fusion"]["public_video_url"],
         "fusion.preview": data["fusion"]["preview"],
     }
+    local_paths = {"object_c.formal_mesh", "object_c.preview", "fusion.video", "fusion.preview"}
     for label, value in required.items():
         if value in {None, "", "PENDING"}:
             raise RuntimeError(f"Missing final report field: {label}")
-        if label != "cloud_weights_url" and not (ROOT / value).exists():
+        if label in local_paths and not (ROOT / value).exists():
             raise FileNotFoundError(ROOT / value)
     for label in ["coarse_seconds", "fine_seconds"]:
         if data["object_c"][label] is None:
@@ -496,7 +498,8 @@ def make_story(data: dict[str, object], styles: dict[str, ParagraphStyle]) -> li
             ["项目", "链接 / 说明"],
             ["Public GitHub Repository", f"{data['github_url']}  (branch: {data['github_branch']})"],
             ["模型权重下载", data["cloud_weights_url"]],
-            ["融合视频", data["fusion"]["video"]],
+            ["融合视频本地路径", data["fusion"]["video"]],
+            ["融合视频公开下载", data["fusion"]["public_video_url"]],
         ],
         [4.0 * cm, 11.9 * cm],
     )

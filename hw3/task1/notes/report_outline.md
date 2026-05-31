@@ -127,6 +127,7 @@ Insert SwanLab curve screenshots for:
 - Public GitHub repository: `https://github.com/Loong-C/FDU-Computer-Vision`
 - Branch: `hw3`
 - Best model weights cloud link: `PENDING`
+- Public walkthrough video link: `PENDING`
 - SwanLab local dashboard command: `swanlab watch hw3/task1/swanlog`
 
 ## 9. Reproducible PDF Build

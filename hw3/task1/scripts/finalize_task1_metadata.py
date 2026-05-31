@@ -31,6 +31,7 @@ def replace_once(text: str, pattern: str, replacement: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cloud-weights-url", required=True)
+    parser.add_argument("--public-walkthrough-url", required=True)
     args = parser.parse_args()
 
     paths = {
@@ -62,6 +63,7 @@ def main() -> None:
             },
             "fusion": {
                 "video": paths["fusion_video"],
+                "public_video_url": args.public_walkthrough_url,
                 "preview": paths["fusion_preview"],
                 "render_seconds": fusion,
             },
@@ -90,6 +92,7 @@ def main() -> None:
     outline = outline.replace("| Object C | PENDING | PENDING | PENDING |", f"| Object C | `{paths['formal_mesh']}` | `{paths['object_c_preview']}` | {coarse:.2f} s coarse + {fine:.2f} s fine |")
     outline = outline.replace("| Fusion | unified scene | PENDING | PENDING |", f"| Fusion | unified scene | `{paths['fusion_video']}` | {fusion:.2f} s |")
     outline = outline.replace("- Best model weights cloud link: `PENDING`", f"- Best model weights cloud link: `{args.cloud_weights_url}`")
+    outline = outline.replace("- Public walkthrough video link: `PENDING`", f"- Public walkthrough video link: `{args.public_walkthrough_url}`")
     outline_path.write_text(outline, encoding="utf-8")
     print(json.dumps(data, indent=2))
 

@@ -78,6 +78,7 @@ def report_data_check(name, path):
         "object_c.coarse_seconds": data.get("object_c", {}).get("coarse_seconds"),
         "object_c.fine_seconds": data.get("object_c", {}).get("fine_seconds"),
         "fusion.video": data.get("fusion", {}).get("video"),
+        "fusion.public_video_url": data.get("fusion", {}).get("public_video_url"),
         "fusion.preview": data.get("fusion", {}).get("preview"),
         "fusion.render_seconds": data.get("fusion", {}).get("render_seconds"),
     }
@@ -178,6 +179,10 @@ def main():
         ),
         report_data_check("report_data_final", report_data_path),
         url_check("cloud_weights_public_url", report_data.get("cloud_weights_url")),
+        url_check(
+            "walkthrough_public_url",
+            report_data.get("fusion", {}).get("public_video_url"),
+        ),
         command_check(
             "blender_portable_runtime",
             PROJECT_ROOT / "external/blender/blender",

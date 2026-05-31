@@ -1648,3 +1648,32 @@ work. Invoked the same URL checker used by release reuse against the public
 repository URL and received HTTP status `200` on the first attempt. Ran Bash
 syntax checks and Git whitespace validation before reloading the post-Object-C
 watcher.
+
+## 2026-06-01 / Public Walkthrough Release Asset
+
+Delivery audit:
+The formal Blender walkthrough was generated locally under ignored outputs,
+while the public GitHub Release contained only the best-weights archive and
+checksum. Added the walkthrough MP4 to the same persistent Release so the
+video deliverable remains downloadable without committing a binary video to
+Git history.
+
+Implementation:
+Extended `publish_best_weights_release.sh` to require the formal MP4, upload
+`task1-walkthrough.mp4` during both release creation and idempotent updates,
+and write `public_walkthrough_url.txt`. Added the stable URL to final report
+metadata, the PDF external-links table, the report outline, and README
+documentation. Expanded strict readiness from `17/17` to `18/18` with an HTTP
+HEAD check for the public walkthrough URL.
+
+Validation:
+Confirmed that the publisher refuses to proceed before the formal MP4 exists,
+so it cannot create an incomplete final Release. Created a disposable
+three-asset GitHub Release containing archive, checksum, and MP4 fixtures;
+both public asset URLs returned HTTP status `200`, and the temporary release
+and tag were deleted afterward. Ran the real finalizer and PDF generator in an
+isolated D-drive fixture. The first preflight exposed that the final PDF gate
+mistook the public video URL for a local filesystem path; restricted local
+existence checks to actual local deliverables and reran successfully. Visually
+inspected the external-links page with the full production-length GitHub URLs:
+both links wrap inside their table cells without overflow.
