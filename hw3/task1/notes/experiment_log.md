@@ -693,3 +693,35 @@ while the official threestudio dependency `lightning==2.0.0` requires
 runtime and SwanLab event logging both import successfully, so the official
 Lightning runtime is preserved and the optional local SwanBoard UI conflict is
 documented explicitly.
+
+## 2026-05-31 / Object A Clean 2DGS Formal Rerun Completed
+
+Goal:
+Complete a clean 30,000-iteration Object A 2DGS training run after recovering
+the WSL filesystem and moving the Ubuntu VHDX to `D:\WSL\Ubuntu`.
+
+Result:
+Succeeded with exit code `0`.
+
+Runtime:
+Start: `2026-05-31T07:14:20.150270+00:00`
+Finish: `2026-05-31T08:35:15.952232+00:00`
+Elapsed: `4855.769257162` seconds
+
+Dataset and geometry:
+COLMAP images: `34`
+Final Gaussian points: `212465`
+Iteration-30,000 point cloud:
+`outputs/object_a_2dgs/object-a-2dgs-full/point_cloud/iteration_30000/point_cloud.ply`
+
+Evaluation:
+Iteration `7000`: train PSNR `31.827529907226562`, train L1
+`0.015615569427609444`
+
+Iteration `30000`: train PSNR `33.519805908203125`, train L1
+`0.011288780719041824`, normal loss `0.0033516681287437677`, regularization
+loss `0.012270934879779816`, total patch loss `0.027320832014083862`
+
+Tracking:
+The clean formal run logged `10001` scalar steps into SwanLab local mode and
+retained its TensorBoard event stream for report-table export.
