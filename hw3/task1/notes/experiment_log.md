@@ -1045,3 +1045,23 @@ enabled.
 Tracking:
 Recorded the failure as the `public-sd15-prefetch-attempt-1-failure` SwanLab
 pipeline milestone. The resumable D-drive cache remains intact.
+
+## 2026-05-31 / Public SD 1.5 Prefetch Attempt 2
+
+Goal:
+Resume the public SD 1.5 snapshot after keeping mirror metadata requests direct
+and proxying only redirected large-file storage requests through the Windows
+NAT gateway.
+
+Result:
+Succeeded. The single-worker helper fetched all `12/12` required files into
+the D-drive Hugging Face cache. Cache usage reached approximately `4.0G`, and
+no `.incomplete` files remained.
+
+Validated snapshot:
+`/mnt/d/PackageCache/wsl/huggingface/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14`
+
+Tracking:
+Recorded the launch and success as SwanLab pipeline milestones. The cached
+snapshot is ready for the Object B smoke retry and can also be reused by
+Object C where compatible.
