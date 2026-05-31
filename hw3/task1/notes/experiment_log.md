@@ -1715,3 +1715,23 @@ Strict readiness remains `11/18`. The post-Object-C watcher is alive and is
 correctly waiting for successful formal fine-wrapper metadata before launching
 fusion, GitHub Release publication, final metadata generation, PDF generation,
 and the closing Git commit and push.
+
+## 2026-06-01 / Object C Formal Coarse Epoch 4 Checkpoint
+
+Progress audit:
+The resumed formal Magic123 coarse run completed `Epoch 4/5` at step `400/500`
+and wrote
+`outputs/object_c_magic123/object-c-magic123-coarse-full/checkpoints/object-c-magic123-coarse-full_ep0004.pth`
+(`252,722,533` bytes). Evaluation finished at `2026-06-01T03:38:29+08:00`,
+and training continued into the final coarse epoch. At the heartbeat audit,
+TensorBoard had advanced to step `468/500` with full GPU utilization.
+
+Visual inspection:
+Reviewed the epoch-4 four-view Lambertian validation sheet. The medicine-box
+front remains recognizable and the overall box shape is more stable than the
+epoch-2 sheet. The unobserved side and rear surfaces remain soft, so the queued
+fine stage is still required before exporting the formal Object C mesh.
+
+Pipeline status:
+Strict readiness remains `11/18`. The Object C continuation queue and the
+post-Object-C watcher are both alive. No restart is required.
