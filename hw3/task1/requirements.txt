@@ -1,6 +1,7 @@
 swanlab[dashboard]
 wandb
 tensorboard
+huggingface_hub
 numpy
 pandas
 matplotlib

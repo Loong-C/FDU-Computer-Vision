@@ -167,3 +167,17 @@ ETag: `cef2ef3aeaf0c062dbe65130bc249870`
 
 Implementation:
 Added `scripts/download_background_counter.sh`. It resumes partial downloads and extracts only the selected `counter` directory.
+
+## 2026-05-31 / Background Download Strategy Update
+
+Goal:
+Avoid spending hours downloading unused Mip-NeRF 360 scenes.
+
+Observation:
+The official `360_v2.zip` archive download slowed to roughly 100-230 KB/s. The complete archive is approximately 11.7 GiB, while only `counter` is needed.
+
+Decision:
+Stopped the official whole-archive download after approximately 13 MB. Updated `scripts/download_background_counter.sh` to download only `counter/**` from the `nvs-bench/mipnerf360` Hugging Face mirror using `huggingface_hub.snapshot_download`.
+
+Reproducibility:
+The selected scene remains the Mip-NeRF 360 `counter` dataset. The mirror source and selective-download implementation are recorded in Git, and Hugging Face caching supports interrupted-download recovery.

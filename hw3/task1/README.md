@@ -80,7 +80,7 @@ defaults exceeded the available WSL memory on the baseline run.
 
 Download one Mip-NeRF 360 scene and place it at
 `data/processed/background_counter/`. The selected `counter` scene can be
-downloaded from the official archive with resume support:
+downloaded from a selective Hugging Face mirror with resume support:
 
 ```bash
 bash scripts/download_background_counter.sh

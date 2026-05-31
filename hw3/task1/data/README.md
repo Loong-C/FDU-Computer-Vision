@@ -31,11 +31,11 @@ so prepare an RGBA image before running Magic123:
 python scripts/prepare_object_c_image.py --swanlab-mode local
 ```
 
-For the background, download the official Mip-NeRF 360 `360_v2.zip` archive,
-extract only `counter`, and create the processed-data link:
+For the background, download only the Mip-NeRF 360 `counter` scene from the
+`nvs-bench/mipnerf360` Hugging Face mirror and create the processed-data link:
 
 ```bash
 bash scripts/download_background_counter.sh
 ```
 
-The script uses `curl --continue-at -`, so interrupted downloads resume.
+The Hugging Face client caches completed files and resumes partial downloads.

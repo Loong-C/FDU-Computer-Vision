@@ -15,4 +15,5 @@ dependencies:
       - swanlab[dashboard]
       - wandb
       - tensorboard
+      - huggingface_hub
       - opencv-python
