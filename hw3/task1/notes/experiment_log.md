@@ -313,3 +313,36 @@ Running in the background with resumable `.part` files. The first download is th
 
 Notes:
 The download uses the WSL gateway proxy and `curl --continue-at -`, so an interruption can resume without discarding completed bytes.
+
+## 2026-05-31 / TensorBoard Report Summary Helper
+
+Goal:
+Make scalar evidence exportable for the report tables without manually reading event files.
+
+Implementation:
+Added `scripts/summarize_tensorboard.py`. It recursively reads TensorBoard scalar events, reports the latest value per tag, and extracts exact requested steps such as `7000` and `30000` into JSON.
+
+Validation:
+Successfully read the live TensorBoard event file from `outputs/object_a_2dgs/object-a-2dgs-full` while training continued.
+
+## 2026-05-31 / Object A Formal 2DGS Intermediate Evaluation
+
+Goal:
+Record the official `7000`-iteration evaluation checkpoint from the formal Object A run.
+
+Run:
+`object-a-2dgs-full`
+
+Training configuration:
+Iterations: `30000`
+Resolution: `-1`
+Normal regularization: `0.05`
+Distortion regularization: `0.0`
+Depth ratio: `0.0`
+
+TensorBoard metrics at iteration `7000`:
+Validation PSNR: `31.824914932250977 dB`
+Validation L1 loss: `0.015528421849012375`
+Total Gaussian points: `145973`
+Patch total loss: `0.01736341044306755`
+Patch normal loss: `0.0`

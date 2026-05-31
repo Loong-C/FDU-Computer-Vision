@@ -27,6 +27,15 @@ scalars, and records them in `swanlog/`. Generated logs remain local and are
 excluded from Git. Non-training setup milestones are recorded with
 `scripts/log_pipeline_event.py`.
 
+Export TensorBoard scalar summaries for report tables with:
+
+```bash
+python scripts/summarize_tensorboard.py \
+  --input outputs/object_a_2dgs/object-a-2dgs-full \
+  --steps 7000,30000 \
+  --output logs/object-a-2dgs-full-summary.json
+```
+
 ## Repository Structure
 
 ```text
