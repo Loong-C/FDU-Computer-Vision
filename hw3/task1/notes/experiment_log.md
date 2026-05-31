@@ -86,7 +86,10 @@ Goal:
 Prepare the single-image input for the Magic123 asset-generation path.
 
 Result:
-Copied the user-provided `c.png` into `data/raw/object_c_image/c.png`. The image depicts an amoxicillin capsule box and already has a visually isolated foreground. The Magic123 preprocessing step must still verify whether the checkerboard is encoded into RGB pixels or represented as a transparent alpha channel.
+Copied the user-provided `c.png` into `data/raw/object_c_image/c.png`. The image depicts an amoxicillin capsule box with a visually isolated foreground.
+
+Input inspection:
+The PNG is `1448 x 1086`, uses `24bpp RGB`, and has no alpha channel. The checkerboard is encoded into the RGB pixels, so a reproducible background-removal preprocessing step is required before Magic123.
 
 ## 2026-05-31 / 2DGS Tracking Wrapper Smoke Test
 
