@@ -254,3 +254,32 @@ NumPy: `1.26.4`
 
 Compatibility correction:
 The initial PyTorch installation resolved NumPy `2.2.6`. This is newer than the ABI expected by several dependencies in the pinned AIGC repositories. Updated `scripts/setup_aigc_envs.sh` to install `numpy<2` and downgraded both environments to NumPy `1.26.4` before continuing.
+
+## 2026-05-31 / AIGC Execution Scaffolding
+
+Goal:
+Replace the Object B and Object C placeholders with reproducible local execution entry points and SwanLab tracking.
+
+Implementation:
+Added `scripts/run_tracked_experiment.py`, a common subprocess wrapper that tees terminal output, parses Magic123 step losses, recursively imports TensorBoard scalars when available, records timing and exit status, and writes metrics to SwanLab local mode.
+
+Added the threestudio DreamFusion SDS entry point in `scripts/generate_text3d_object_b.sh` with separate smoke and full modes.
+
+Added the Magic123 model downloader, Object C input assembly and MiDaS preprocessing helper, and coarse/fine generation entry point. The Magic123 smoke mode lowers render and marching-cubes resolution for 8 GiB VRAM validation; the full mode preserves the official 5000-step coarse and 5000-step fine schedule.
+
+Tracking dependency:
+Added a dedicated `bash scripts/setup_aigc_envs.sh tracking` stage so both isolated environments receive SwanLab, TensorBoard, and PyYAML without mixing project dependencies into the system Python installation.
+
+## 2026-05-31 / Object C Magic123 Input Assembly
+
+Goal:
+Copy the accepted checkerboard-free Object C RGBA image into the ignored Magic123 working dataset without starting a GPU depth-estimation task during Object A training.
+
+Command:
+`COPY_ONLY=1 bash scripts/prepare_magic123_object_c.sh`
+
+Result:
+Copied the prepared input to `external/Magic123/data/hw3/medicine_box/main.png` and `external/Magic123/data/hw3/medicine_box/rgba.png`.
+
+Verification:
+The source and both copied files share SHA-256 `da9e14a733047109969ddedef78990c5c08131920c56187bda592419d0b1d98a`.

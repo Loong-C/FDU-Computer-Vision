@@ -47,6 +47,14 @@ install_torch() {
     --index-url https://download.pytorch.org/whl/cu118
 }
 
+install_tracking() {
+  local env_name="$1"
+  "${CONDA_BIN}" run -n "${env_name}" python -m pip install \
+    "swanlab[dashboard]" \
+    tensorboard \
+    pyyaml
+}
+
 install_threestudio_deps() {
   local env_prefix="${HOME}/miniforge3/envs/${THREESTUDIO_ENV}"
   "${CONDA_BIN}" run -n "${THREESTUDIO_ENV}" env \
@@ -83,6 +91,10 @@ case "${1:-bootstrap}" in
     install_torch "${THREESTUDIO_ENV}"
     install_torch "${MAGIC123_ENV}"
     ;;
+  tracking)
+    install_tracking "${THREESTUDIO_ENV}"
+    install_tracking "${MAGIC123_ENV}"
+    ;;
   threestudio-deps)
     install_threestudio_deps
     ;;
@@ -90,7 +102,7 @@ case "${1:-bootstrap}" in
     install_magic123_deps
     ;;
   *)
-    echo "Usage: $0 {bootstrap|toolchain|torch|threestudio-deps|magic123-deps}" >&2
+    echo "Usage: $0 {bootstrap|toolchain|torch|tracking|threestudio-deps|magic123-deps}" >&2
     exit 2
     ;;
 esac

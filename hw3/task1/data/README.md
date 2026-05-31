@@ -11,6 +11,7 @@ data/
   processed/
     object_a_2dgs_ready/          undistorted COLMAP dataset for Object A
     background_counter/           selected Mip-NeRF 360 background scene
+    object_c_image/c_rgba.png     checkerboard-free Object C input
 ```
 
 For Object A, place the captured photos in `data/raw/object_a_images/`, then run:
@@ -29,7 +30,12 @@ so prepare an RGBA image before running Magic123:
 
 ```bash
 python scripts/prepare_object_c_image.py --swanlab-mode local
+bash scripts/download_magic123_models.sh
+COPY_ONLY=1 bash scripts/prepare_magic123_object_c.sh
 ```
+
+Run `bash scripts/prepare_magic123_object_c.sh` without `COPY_ONLY=1` after the
+Magic123 environment is installed to generate the MiDaS depth map.
 
 For the background, download only the Mip-NeRF 360 `counter` scene from the
 `nvs-bench/mipnerf360` Hugging Face mirror and create the processed-data link:

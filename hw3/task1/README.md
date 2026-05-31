@@ -63,6 +63,7 @@ provide a system `nvcc`:
 bash scripts/setup_aigc_envs.sh bootstrap
 bash scripts/setup_aigc_envs.sh toolchain
 bash scripts/setup_aigc_envs.sh torch
+bash scripts/setup_aigc_envs.sh tracking
 bash scripts/setup_aigc_envs.sh threestudio-deps
 bash scripts/setup_aigc_envs.sh magic123-deps
 ```
@@ -108,11 +109,35 @@ conda activate cv_hw3_2dgs
 bash scripts/train_2dgs_background.sh
 ```
 
-## AIGC Assets
+## Object B
 
-- Object B: generate a mesh from a text prompt using threestudio and SDS loss.
-- Object C: prepare the RGB checkerboard input, then generate a full 3D asset
-  with Magic123:
-  `python scripts/prepare_object_c_image.py --swanlab-mode local`.
-- Fusion: export assets as meshes and compose them with the background in
-  Blender for the final walkthrough video.
+Generate a text-only 3D asset using threestudio DreamFusion and Stable
+Diffusion SDS loss:
+
+```bash
+MODE=smoke bash scripts/generate_text3d_object_b.sh
+MODE=full bash scripts/generate_text3d_object_b.sh
+```
+
+## Object C
+
+Prepare the RGB checkerboard input, download the official Magic123 weights,
+compute the MiDaS depth image, and run the two Magic123 stages:
+
+```bash
+python scripts/prepare_object_c_image.py --swanlab-mode local
+bash scripts/download_magic123_models.sh
+bash scripts/prepare_magic123_object_c.sh
+MODE=smoke STAGE=coarse bash scripts/generate_image3d_object_c.sh
+MODE=smoke STAGE=fine bash scripts/generate_image3d_object_c.sh
+MODE=full STAGE=coarse bash scripts/generate_image3d_object_c.sh
+MODE=full STAGE=fine bash scripts/generate_image3d_object_c.sh
+```
+
+The smoke path is intended for dependency and VRAM validation. The report asset
+must use the full path.
+
+## Fusion
+
+Export assets as meshes and compose them with the background in Blender for the
+final walkthrough video.

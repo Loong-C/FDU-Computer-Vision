@@ -3,6 +3,20 @@ run_name: object-c-magic123
 input: data/processed/object_c_image/c_rgba.png
 preview: docs/figures/object_c_preprocessed_preview.png
 method: Magic123
+environment: cv_hw3_magic123
+prompt: A high-resolution DSLR product photo of an amoxicillin capsule medicine box
+guidance:
+  - SD
+  - zero123
+full_run:
+  coarse_iterations: 5000
+  fine_iterations: 5000
+  width: 128
+  height: 128
+smoke_run:
+  coarse_iterations: 20
+  width: 64
+  height: 64
 preprocess:
   source: data/raw/object_c_image/c.png
   strategy: convex_hull

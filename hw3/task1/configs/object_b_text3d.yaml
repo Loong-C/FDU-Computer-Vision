@@ -1,0 +1,14 @@
+stage: object_b_text3d
+run_name: object-b-dreamfusion-sd
+method: threestudio DreamFusion with Stable Diffusion SDS loss
+environment: cv_hw3_threestudio
+prompt: A studio product photo of a small red ceramic teapot with a round body, short spout, and curved handle
+official_config: configs/dreamfusion-sd.yaml
+full_run:
+  iterations: 10000
+  width: 64
+  height: 64
+smoke_run:
+  iterations: 20
+  width: 32
+  height: 32
