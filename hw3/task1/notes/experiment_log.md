@@ -1593,3 +1593,20 @@ status `200` and `Content-Length=48` on the second native Python attempt.
 Deleted the temporary release, tag, asset directory, and helper script after
 the test. Re-ran Python bytecode compilation and the draft readiness audit;
 the expected pre-final baseline remains `11/17`.
+
+## 2026-06-01 / Unattended Finalization Retry Hardening
+
+Audit:
+Re-read the post-Object-C queue while the formal coarse run continued on the
+GPU. The queue already reuses completed fine, fusion, and public-release
+metadata, but its strict final readiness audit previously ran only once. A
+single transient GitHub Release CDN timeout could therefore stop the
+unattended queue after otherwise successful work.
+
+Implementation:
+Extended `scripts/continue_after_object_c_full.sh` with three outer strict
+readiness attempts separated by a short delay. Each outer attempt still uses
+the URL checker's four native Python `HEAD` attempts, so the final gate remains
+strict while tolerating short network disturbances. Replaced the hard-coded
+final experiment-log date with the actual UTC completion date while preserving
+an idempotent marker.

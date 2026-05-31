@@ -6,6 +6,8 @@ PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 REPO_ROOT="$(cd -- "${PROJECT_ROOT}/../.." && pwd)"
 CONDA_BIN="${CONDA_BIN:-/home/hp/miniforge3/bin/conda}"
 WAIT_SECONDS="${WAIT_SECONDS:-60}"
+READINESS_ATTEMPTS="${READINESS_ATTEMPTS:-3}"
+READINESS_RETRY_SECONDS="${READINESS_RETRY_SECONDS:-15}"
 FINE_RUN_NAME="${FINE_RUN_NAME:-object-c-magic123-fine-full}"
 FORMAL_RUN_NAME="${FORMAL_RUN_NAME:-task1-fusion-render}"
 RELEASE_RUN_NAME="${RELEASE_RUN_NAME:-task1-best-weights-release}"
@@ -47,6 +49,25 @@ wait_for_file() {
     echo "Waiting for ${path} ($(date --iso-8601=seconds))"
     sleep "${WAIT_SECONDS}"
   done
+}
+
+verify_strict_readiness() {
+  local attempt
+  for ((attempt = 1; attempt <= READINESS_ATTEMPTS; attempt += 1)); do
+    echo "Running strict Task 1 readiness audit (${attempt}/${READINESS_ATTEMPTS})."
+    if "${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \
+      python "${PROJECT_ROOT}/scripts/check_task1_readiness.py" \
+      --strict \
+      --output "${PROJECT_ROOT}/logs/task1-readiness-final.json"; then
+      return 0
+    fi
+    if (( attempt < READINESS_ATTEMPTS )); then
+      echo "Strict readiness audit failed; retrying in ${READINESS_RETRY_SECONDS}s."
+      sleep "${READINESS_RETRY_SECONDS}"
+    fi
+  done
+  echo "Strict Task 1 readiness audit failed after ${READINESS_ATTEMPTS} attempts." >&2
+  return 1
 }
 
 echo "Starting post-Object-C formalization queue at $(date --iso-8601=seconds)"
@@ -112,10 +133,7 @@ CLOUD_WEIGHTS_URL="$(cat -- "${CLOUD_WEIGHTS_URL_PATH}")"
 "${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \
   python "${PROJECT_ROOT}/report/render_report.py" \
   report/cv_hw3_task1_report.pdf
-"${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \
-  python "${PROJECT_ROOT}/scripts/check_task1_readiness.py" \
-  --strict \
-  --output "${PROJECT_ROOT}/logs/task1-readiness-final.json"
+verify_strict_readiness
 "${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \
   python "${PROJECT_ROOT}/scripts/log_swanlab_event.py" \
   --run-name task1-post-object-c-formalization-complete \
@@ -130,13 +148,14 @@ from pathlib import Path
 
 log_path = Path(sys.argv[1])
 video_path = Path(sys.argv[2])
-marker = "## 2026-05-31 / Object C Formal Mesh and Fusion Auto-Finalization"
+marker = "Object C Formal Mesh and Fusion Auto-Finalization"
 text = log_path.read_text(encoding="utf-8")
 if marker not in text:
-    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    now = datetime.datetime.now(datetime.timezone.utc)
+    timestamp = now.isoformat()
     with log_path.open("a", encoding="utf-8") as handle:
         handle.write(
-            f"\n{marker}\n\n"
+            f"\n## {now.date().isoformat()} / {marker}\n\n"
             f"Completed at `{timestamp}`.\n\n"
             "The unattended queue verified the formal Object C fine-stage OBJ, "
             "rendered the Blender walkthrough from the real counter COLMAP camera "
