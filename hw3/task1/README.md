@@ -24,7 +24,8 @@ The project contains the following stages:
 SwanLab is the default tracker. `scripts/run_2dgs_experiment.py` runs the
 official 2DGS trainer, tees terminal output to `logs/`, imports TensorBoard
 scalars, and records them in `swanlog/`. Generated logs remain local and are
-excluded from Git.
+excluded from Git. Non-training setup milestones are recorded with
+`scripts/log_pipeline_event.py`.
 
 ## Repository Structure
 
@@ -78,7 +79,14 @@ defaults exceeded the available WSL memory on the baseline run.
 ## Background
 
 Download one Mip-NeRF 360 scene and place it at
-`data/processed/background_counter/`. Train the selected `counter` scene with:
+`data/processed/background_counter/`. The selected `counter` scene can be
+downloaded from the official archive with resume support:
+
+```bash
+bash scripts/download_background_counter.sh
+```
+
+Train it with:
 
 ```bash
 conda activate cv_hw3_2dgs

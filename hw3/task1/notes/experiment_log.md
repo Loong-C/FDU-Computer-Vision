@@ -140,3 +140,30 @@ Input size: 1448 x 1086
 Foreground seed pixels: 210059
 Convex hull area: 395398.5 px
 Foreground ratio: 0.2521157016
+
+## 2026-05-31 / External AIGC Repositories
+
+Goal:
+Pin the official implementations used by the Object B and Object C paths.
+
+Result:
+Cloned the official threestudio repository from `https://github.com/threestudio-project/threestudio.git` at commit `28d9d80d9d00f308244adfcf3be8b17ca0cb6465`.
+
+Cloned the official Magic123 repository from `https://github.com/guochengqian/Magic123.git` at commit `c2eb289f0b9e03e5cf39cf1417f05ca33e9eb0a5`.
+
+Both clone milestones were recorded as separate SwanLab local runs.
+
+## 2026-05-31 / Background Scene Selection
+
+Goal:
+Prepare an open-source real scene for the unified 2DGS background.
+
+Result:
+Selected the `counter` scene from the official Mip-NeRF 360 `360_v2.zip` archive at `https://storage.googleapis.com/gresearch/refraw360/360_v2.zip`.
+
+Archive metadata:
+Content length: 12535427936 bytes
+ETag: `cef2ef3aeaf0c062dbe65130bc249870`
+
+Implementation:
+Added `scripts/download_background_counter.sh`. It resumes partial downloads and extracts only the selected `counter` directory.
