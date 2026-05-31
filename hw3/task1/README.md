@@ -1,6 +1,8 @@
 # CV HW3 Task 1: 2DGS and AIGC Asset Fusion
 
-This repository is for Task 1 of the final computer vision assignment: multi-source 3D asset generation and real-scene fusion based on 2D Gaussian Splatting and AIGC.
+This directory implements Task 1 of the final computer vision assignment:
+multi-source 3D asset generation and real-scene fusion based on 2D Gaussian
+Splatting (2DGS) and AIGC.
 
 ## Objective
 
@@ -19,7 +21,10 @@ The project contains the following stages:
 
 ## Experiment Tracking
 
-This project will use SwanLab or WandB to record training and optimization curves. The final report will include exported visualization figures, including loss curves and validation or evaluation metrics when available.
+SwanLab is the default tracker. `scripts/run_2dgs_experiment.py` runs the
+official 2DGS trainer, tees terminal output to `logs/`, imports TensorBoard
+scalars, and records them in `swanlog/`. Generated logs remain local and are
+excluded from Git.
 
 ## Repository Structure
 
@@ -31,3 +36,59 @@ external/       third-party repositories
 notes/          experiment logs and time-cost records
 outputs/        trained models, generated assets, rendered images, and videos
 scripts/        runnable scripts for each stage
+```
+
+## WSL Environment
+
+GPU training is run in WSL. The verified Object A environment uses Python 3.8,
+PyTorch 2.1.2 with CUDA 11.8, TensorBoard 2.14, SwanLab 0.7.19, and Open3D
+0.19. Install the official 2DGS repository separately:
+
+```bash
+git clone https://github.com/hbb1/2d-gaussian-splatting.git \
+  external/2d-gaussian-splatting --recursive
+conda env create --file external/2d-gaussian-splatting/environment.yml
+conda activate surfel_splatting
+pip install 'swanlab[dashboard]' tensorboard open3d
+```
+
+The current machine uses an equivalent environment named `cv_hw3_2dgs`.
+
+## Object A
+
+Place phone-captured multi-view images in `data/raw/object_a_images/`. Prepare
+the undistorted COLMAP dataset and train 2DGS:
+
+```bash
+conda activate cv_hw3_2dgs
+bash scripts/prepare_colmap_object_a.sh --force
+bash scripts/train_2dgs_object_a.sh
+```
+
+Render images separately from mesh extraction:
+
+```bash
+bash scripts/render_2dgs_asset.sh outputs/object_a_2dgs/object-a-2dgs-full 30000
+bash scripts/export_2dgs_mesh.sh outputs/object_a_2dgs/object-a-2dgs-full 30000
+```
+
+The mesh helper uses coarse bounded TSDF defaults because the official inferred
+defaults exceeded the available WSL memory on the baseline run.
+
+## Background
+
+Download one Mip-NeRF 360 scene and place it at
+`data/processed/background_counter/`. Train the selected `counter` scene with:
+
+```bash
+conda activate cv_hw3_2dgs
+bash scripts/train_2dgs_background.sh
+```
+
+## Pending AIGC Assets
+
+- Object B: generate a mesh from a text prompt using threestudio and SDS loss.
+- Object C: remove the background from one phone photo of a different object,
+  then generate a full 3D asset with Magic123.
+- Fusion: export assets as meshes and compose them with the background in
+  Blender for the final walkthrough video.

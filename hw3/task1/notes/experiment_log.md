@@ -65,3 +65,17 @@ The GPU is visible inside WSL, so 2DGS training should be performed in WSL inste
 
 Next step:
 Install Miniforge, clone the GitHub repository into the WSL Linux filesystem, copy the Object A COLMAP data into the WSL repository, and install 2DGS.
+
+## 2026-05-31 / Object A 2DGS Baseline
+
+Goal:
+Verify that the Object A COLMAP model can train and render with the official 2DGS implementation in WSL.
+
+Result:
+The WSL `cv_hw3_2dgs` environment successfully trained a baseline model for 3000 iterations and saved `point_cloud/iteration_3000/point_cloud.ply`. Rendering the training viewpoints also succeeded.
+
+Visual analysis:
+The reconstructed figure is recognizable, but the 3000-iteration baseline is visibly blurry and contains background artifacts. A full training run is required.
+
+Mesh export issue:
+The default bounded TSDF settings inferred `voxel_size=0.007367...` and caused WSL to exceed its approximately 15 GiB memory limit during fusion. Future mesh exports must use explicit coarse settings and run separately from image rendering.

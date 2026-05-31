@@ -25,6 +25,7 @@ outputs/
 # External repositories
 external/2d-gaussian-splatting/
 external/threestudio/
+external/Magic123/
 
 # System / editor
 .DS_Store
@@ -35,3 +36,4 @@ external/threestudio/
 wandb/
 runs/
 logs/
+swanlog/

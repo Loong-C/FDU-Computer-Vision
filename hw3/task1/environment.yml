@@ -12,6 +12,7 @@ dependencies:
   - pyyaml
   - tqdm
   - pip:
-      - swanlab
+      - swanlab[dashboard]
       - wandb
+      - tensorboard
       - opencv-python

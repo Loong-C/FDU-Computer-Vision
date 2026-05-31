@@ -1,5 +1,6 @@
-swanlab
+swanlab[dashboard]
 wandb
+tensorboard
 numpy
 pandas
 matplotlib

@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-# Train 2DGS for the background scene.
-# This script should be run inside external/2d-gaussian-splatting.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 
-DATA_PATH="../../data/processed/background_colmap"
-OUTPUT_PATH="../../outputs/background_2dgs"
-
-python train.py \
-  -s "${DATA_PATH}" \
-  -m "${OUTPUT_PATH}"
+python "${PROJECT_ROOT}/scripts/run_2dgs_experiment.py" \
+  --stage background_2dgs \
+  --run-name "${RUN_NAME:-background-counter-2dgs-full}" \
+  --source "${PROJECT_ROOT}/data/processed/background_counter" \
+  --output "${PROJECT_ROOT}/outputs/background_2dgs/${RUN_NAME:-background-counter-2dgs-full}" \
+  --iterations "${ITERATIONS:-30000}" \
+  --resolution "${RESOLUTION:-2}" \
+  --test-iterations "${TEST_ITERATIONS:-7000,30000}" \
+  --save-iterations "${SAVE_ITERATIONS:-7000,30000}" \
+  --depth-ratio "${DEPTH_RATIO:-0.0}" \
+  --lambda-normal "${LAMBDA_NORMAL:-0.05}" \
+  --lambda-distortion "${LAMBDA_DISTORTION:-0.0}" \
+  "$@"

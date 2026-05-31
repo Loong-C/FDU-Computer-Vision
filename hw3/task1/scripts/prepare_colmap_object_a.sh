@@ -1,38 +1,33 @@
-$ErrorActionPreference = "Stop"
+#!/usr/bin/env bash
+set -euo pipefail
 
-$COLMAP = "D:\Program Files\COLMAP\bin\colmap.exe"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+RAW_IMAGES="${PROJECT_ROOT}/data/raw/object_a_images"
+OUTPUT_DIR="${PROJECT_ROOT}/data/processed/object_a_2dgs_ready"
+CONVERTER="${PROJECT_ROOT}/external/2d-gaussian-splatting/convert.py"
 
-if (!(Test-Path $COLMAP)) {
-    Write-Host "COLMAP executable not found at: $COLMAP"
-    Write-Host "Please update the COLMAP path in this script."
-    exit 1
-}
+if [[ "${1:-}" == "--force" ]]; then
+  rm -rf -- "${OUTPUT_DIR}"
+elif [[ -e "${OUTPUT_DIR}" ]]; then
+  echo "Output already exists: ${OUTPUT_DIR}"
+  echo "Re-run with --force to rebuild it."
+  exit 1
+fi
 
-$DATA_PATH = "data/processed/object_a_colmap"
-$IMAGE_PATH = "$DATA_PATH/input"
-$DATABASE_PATH = "$DATA_PATH/database.db"
-$SPARSE_PATH = "$DATA_PATH/sparse"
+if [[ ! -d "${RAW_IMAGES}" ]]; then
+  echo "Missing Object A images: ${RAW_IMAGES}"
+  exit 1
+fi
 
-if (!(Test-Path $SPARSE_PATH)) {
-    New-Item -ItemType Directory -Path $SPARSE_PATH | Out-Null
-}
+if [[ ! -f "${CONVERTER}" ]]; then
+  echo "Missing official 2DGS converter: ${CONVERTER}"
+  exit 1
+fi
 
-Write-Host "Running COLMAP feature extraction..."
-& $COLMAP feature_extractor `
-    --database_path $DATABASE_PATH `
-    --image_path $IMAGE_PATH `
-    --ImageReader.single_camera 1 `
-    --SiftExtraction.use_gpu 1
+mkdir -p -- "${OUTPUT_DIR}/input"
+find "${RAW_IMAGES}" -maxdepth 1 -type f \
+  \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) \
+  -exec cp -- {} "${OUTPUT_DIR}/input/" \;
 
-Write-Host "Running COLMAP exhaustive matching..."
-& $COLMAP exhaustive_matcher `
-    --database_path $DATABASE_PATH `
-    --SiftMatching.use_gpu 1
-
-Write-Host "Running COLMAP mapper..."
-& $COLMAP mapper `
-    --database_path $DATABASE_PATH `
-    --image_path $IMAGE_PATH `
-    --output_path $SPARSE_PATH
-
-Write-Host "COLMAP reconstruction completed."
+python "${CONVERTER}" --source_path "${OUTPUT_DIR}"
