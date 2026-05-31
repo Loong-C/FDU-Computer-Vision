@@ -38,3 +38,15 @@ wandb/
 runs/
 logs/
 swanlog/
+
+# Report build artifacts
+tmp/
+report/output/
+report/assets/manifest.json
+report/assets/background_counter_render_preview.png
+report/assets/object_a_render_preview.png
+report/assets/object_b_final_preview.png
+report/assets/object_c_preprocessed_preview.png
+report/assets/object_c_magic123_smoke_preview.jpg
+report/assets/object_c_magic123_final_preview.jpg
+report/assets/fusion_walkthrough_preview.png

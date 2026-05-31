@@ -8,3 +8,6 @@ matplotlib
 opencv-python
 tqdm
 pyyaml
+reportlab
+pypdf
+pymupdf

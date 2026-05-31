@@ -1,0 +1,20 @@
+{
+  "status": "draft",
+  "student_name": "陈家龙",
+  "student_id": "24300980041",
+  "generated_on": "2026-05-31",
+  "github_url": "https://github.com/Loong-C/FDU-Computer-Vision",
+  "github_branch": "hw3",
+  "cloud_weights_url": "PENDING",
+  "object_c": {
+    "formal_mesh": "PENDING",
+    "preview": "PENDING",
+    "coarse_seconds": null,
+    "fine_seconds": null
+  },
+  "fusion": {
+    "video": "PENDING",
+    "preview": "PENDING",
+    "render_seconds": null
+  }
+}

@@ -1,6 +1,8 @@
 # CV HW3 Task 1 Report Outline
 
-Status: work in progress. Replace each `PENDING` marker with the final measured result before PDF export.
+Status: report scaffold added under `report/`. Replace each `PENDING` marker
+with the final measured result before running
+`python report/generate_report.py --final --publish`.
 
 ## 1. Background and Objective
 
@@ -126,3 +128,15 @@ Insert SwanLab curve screenshots for:
 - Branch: `hw3`
 - Best model weights cloud link: `PENDING`
 - SwanLab local dashboard command: `swanlab watch hw3/task1/swanlog`
+
+## 9. Reproducible PDF Build
+
+```bash
+conda activate cv_hw3_threestudio
+python report/build_report_assets.py
+python report/generate_report.py
+python report/render_report.py report/output/pdf/cv_hw3_task1_report_draft.pdf
+```
+
+The final generator validates the Object C mesh, fusion video, fusion preview,
+cloud-weights link, and measured runtimes before publishing.

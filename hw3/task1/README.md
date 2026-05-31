@@ -42,6 +42,24 @@ Inspect machine-readable completion status with:
 python scripts/check_task1_readiness.py --output logs/task1-readiness.json
 ```
 
+Build the report figures, export a PDF draft, and render its pages for visual
+inspection with:
+
+```bash
+conda activate cv_hw3_threestudio
+python report/build_report_assets.py
+python report/generate_report.py
+python report/render_report.py report/output/pdf/cv_hw3_task1_report_draft.pdf
+```
+
+The final report command is intentionally stricter: it refuses to publish
+while the formal Object C mesh, fusion video, fusion preview, or cloud-weights
+link is still missing.
+
+```bash
+python report/generate_report.py --final --publish
+```
+
 ## Repository Structure
 
 ```text

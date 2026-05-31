@@ -1372,3 +1372,51 @@ CLIP caches, loaded Zero123, and entered `Epoch 1/50`. At the first post-load
 inspection, GPU usage was approximately `7864 MiB / 7941 MiB` at `100%`
 utilization. WSL used approximately `12GiB` RAM and `2.7GiB` of its D-drive
 swap. Kernel logs showed no new OOM event.
+
+## 2026-05-31 / Task 1 PDF Requirement Audit and Reproducible Report Scaffold
+
+Assignment audit:
+Rendered all three pages of `HW3_计算机视觉.pdf` with PyMuPDF and visually
+checked the original Chinese PDF after its text layer proved unsuitable for
+reliable extraction. Task 1 requires three independent 3D assets (Object A:
+phone multiview + COLMAP + 2DGS; Object B: threestudio text-to-3D + SDS;
+Object C: foreground-only phone photo + Magic123), one open-source 2DGS
+background scene, reasonable A/B/C insertion, a multiview walkthrough video,
+and a quality report comparing geometry, texture, compute time, and the
+unified representation used for fusion. Submission also requires a PDF report,
+WandB or SwanLab curves, detailed hyperparameters and metrics, a public GitHub
+repository with a runnable README, and a persistent cloud link for best model
+weights.
+
+Report build:
+Added `report/build_report_assets.py`, `report/generate_report.py`,
+`report/render_report.py`, `report/report_data.json`, and `report/README.md`.
+The draft builder exports charts from TensorBoard-compatible scalar logs,
+generates a Chinese PDF with ReportLab, and renders each PDF page to PNG for
+visual inspection. The final mode rejects publication while Object C, fusion,
+or cloud-link placeholders remain. Added the lightweight `reportlab`, `pypdf`,
+and `pymupdf` dependencies to `requirements.txt`; they were installed into the
+D-drive-backed WSL Conda environment.
+
+Object C formal progress:
+The coarse run reached step `100/5000`, completed epoch `1/50`, and entered
+epoch `2/50` without OOM. The first 100 known-view steps reduced total loss
+from `0.2813` at step `20` to `0.0315` at step `100`. GPU utilization remained
+near `100%`, WSL memory remained stable, and the queue should continue into
+the SD + Zero123 guidance regime.
+
+Draft validation:
+Built an eight-page draft PDF under ignored `report/output/pdf/`, rendered all
+pages to PNG, and visually inspected the result. Corrected mixed Chinese and
+English paragraph alignment, bound each image to its caption, and moved the
+final links section to a dedicated page. Verified that
+`python report/generate_report.py --final --publish` exits non-zero while
+formal deliverable placeholders remain.
+
+Guidance transition:
+The report asset exporter observed non-zero `train/loss_sds` and
+`train/loss_zero123` values immediately after the first `100` known-view
+steps. This confirms that the formal coarse run entered its intended
+SD + Zero123 guidance phase. A direct TensorBoard audit found the first
+non-zero guidance event at step `101`; at the observed step `109`,
+`loss_sds=0.8894558` and `loss_zero123=1.3532970`.
