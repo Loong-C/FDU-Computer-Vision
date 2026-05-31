@@ -181,3 +181,23 @@ Stopped the official whole-archive download after approximately 13 MB. Updated `
 
 Reproducibility:
 The selected scene remains the Mip-NeRF 360 `counter` dataset. The mirror source and selective-download implementation are recorded in Git, and Hugging Face caching supports interrupted-download recovery.
+
+Network note:
+WSL direct access to `huggingface.co` timed out, while access through the Windows host proxy succeeded. The downloader derives the WSL gateway from the default route, exports `HTTP_PROXY` and `HTTPS_PROXY` with port `7890`, and disables Xet so the Hub client uses conventional HTTP transfers.
+
+## 2026-05-31 / Background Download Complete
+
+Goal:
+Validate the selective `counter` scene download.
+
+Result:
+The proxy-enabled Hugging Face download completed successfully in approximately 24 seconds. The processed-data symlink resolves to `data/raw/mipnerf360/counter`.
+
+Downloaded scene:
+Images: 240
+COLMAP sparse model files: 3
+Total files: 243
+Total bytes: 319622230
+
+Tracking:
+Recorded the successful completion as the `background-counter-download-success` SwanLab milestone.
