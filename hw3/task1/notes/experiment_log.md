@@ -283,3 +283,33 @@ Copied the prepared input to `external/Magic123/data/hw3/medicine_box/main.png` 
 
 Verification:
 The source and both copied files share SHA-256 `da9e14a733047109969ddedef78990c5c08131920c56187bda592419d0b1d98a`.
+
+## 2026-05-31 / AIGC Tracking Dependencies
+
+Goal:
+Install the local experiment-tracking packages required by the common AIGC subprocess wrapper.
+
+Command:
+`bash scripts/setup_aigc_envs.sh tracking`
+
+Result:
+Succeeded for both `cv_hw3_threestudio` and `cv_hw3_magic123`. Verified that `scripts/run_tracked_experiment.py --help` launches from both isolated environments.
+
+Installed tracking baseline:
+SwanLab: `0.7.19`
+TensorBoard: `2.20.0`
+PyYAML: installed
+
+## 2026-05-31 / Magic123 Official Weight Download Started
+
+Goal:
+Download the official pretrained models required by Magic123 while the Object A GPU experiment continues.
+
+Command:
+`bash scripts/download_magic123_models.sh`
+
+Status:
+Running in the background with resumable `.part` files. The first download is the official Zero123 `105000.ckpt` from Hugging Face. The server reports approximately 14.4 GiB for this checkpoint. The MiDaS `dpt_beit_large_512.pt` download follows automatically.
+
+Notes:
+The download uses the WSL gateway proxy and `curl --continue-at -`, so an interruption can resume without discarding completed bytes.
