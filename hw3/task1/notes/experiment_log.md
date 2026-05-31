@@ -1760,3 +1760,35 @@ the remaining activity is expected: after `trainer.train(...)`, the official
 entry point runs another Lambertian test render, a normal-shading test render,
 and `save_mesh()` before the tracked wrapper writes success metadata and the
 continuation queue starts fine refinement. Strict readiness remains `11/18`.
+
+## 2026-06-01 / Object C Formal Coarse Export and Fine Queue Recovery
+
+Coarse export:
+The official post-training export completed successfully. The second
+Lambertian render finished at `2026-06-01T06:19:32+08:00`, the 100-view normal
+render finished at `2026-06-01T06:53:36+08:00`, and marching cubes plus xatlas
+UV unwrap finished at `2026-06-01T06:54:13+08:00`. The coarse mesh contains
+`23,659` vertices and `47,322` faces:
+`outputs/object_c_magic123/object-c-magic123-coarse-full/mesh/mesh.obj`
+(`4,575,072` bytes). The tracked wrapper wrote successful metadata with
+`exit_code=0` and `elapsed_seconds=29639.485576688003`.
+
+Recovery audit:
+The original long-lived `continue_object_c_full.sh` process exited immediately
+after coarse success with an unexpected-EOF parser error before launching fine.
+The tracked script file itself is valid: `bash -n` passes for
+`continue_object_c_full.sh`, `generate_image3d_object_c.sh`, and
+`continue_after_object_c_full.sh`. The failure is consistent with updating the
+runner script in place while the old Bash process was suspended inside the
+multi-hour coarse command, after which that process resumed reading from an old
+file offset.
+
+Recovery action:
+Verified that the successful coarse metadata, coarse checkpoint, and coarse
+mesh are present while formal fine metadata and the formal fine mesh are absent.
+Restarted the idempotent Object C continuation queue with a hidden Windows
+`wsl.exe` launcher. The new queue explicitly reported coarse-output reuse and
+launched only `object-c-magic123-fine-full` at
+`2026-06-01T07:00:54+08:00`, with `--dmtet` and the correct coarse
+`--init_ckpt`. The post-Object-C watcher remains alive and continues waiting
+for successful fine-wrapper metadata.
