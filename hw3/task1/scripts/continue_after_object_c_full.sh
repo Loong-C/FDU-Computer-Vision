@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 REPO_ROOT="$(cd -- "${PROJECT_ROOT}/../.." && pwd)"
 CONDA_BIN="${CONDA_BIN:-/home/hp/miniforge3/bin/conda}"
+PYTHON_BIN="${PYTHON_BIN:-/home/hp/miniforge3/envs/cv_hw3_threestudio/bin/python}"
 WAIT_SECONDS="${WAIT_SECONDS:-60}"
 READINESS_ATTEMPTS="${READINESS_ATTEMPTS:-3}"
 READINESS_RETRY_SECONDS="${READINESS_RETRY_SECONDS:-15}"
@@ -34,6 +35,22 @@ print(f"Verified wrapper success: {path}")
 PY
 }
 
+wrapper_succeeded() {
+  local metadata_path="$1"
+  /home/hp/miniforge3/bin/python - "${metadata_path}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+try:
+    metadata = json.loads(path.read_text(encoding="utf-8"))
+except (FileNotFoundError, json.JSONDecodeError, OSError):
+    raise SystemExit(1)
+raise SystemExit(metadata.get("exit_code") != 0)
+PY
+}
+
 verify_nonempty_file() {
   local path="$1"
   if [[ ! -s "${path}" ]]; then
@@ -43,12 +60,27 @@ verify_nonempty_file() {
   echo "Verified output: ${path}"
 }
 
-wait_for_file() {
+wait_for_successful_wrapper() {
   local path="$1"
-  while [[ ! -s "${path}" ]]; do
-    echo "Waiting for ${path} ($(date --iso-8601=seconds))"
+  while ! wrapper_succeeded "${path}"; do
+    echo "Waiting for successful wrapper metadata: ${path} ($(date --iso-8601=seconds))"
     sleep "${WAIT_SECONDS}"
   done
+}
+
+public_url_succeeded() {
+  local url="$1"
+  "${PYTHON_BIN}" - "${PROJECT_ROOT}" "${url}" <<'PY'
+import json
+import sys
+
+sys.path.insert(0, sys.argv[1])
+from scripts.check_task1_readiness import url_check
+
+result = url_check("cloud_weights_public_url", sys.argv[2])
+print(json.dumps(result, indent=2))
+raise SystemExit(not result["ready"])
+PY
 }
 
 verify_strict_readiness() {
@@ -73,7 +105,7 @@ verify_strict_readiness() {
 echo "Starting post-Object-C formalization queue at $(date --iso-8601=seconds)"
 FINE_METADATA="${PROJECT_ROOT}/logs/${FINE_RUN_NAME}.json"
 FINE_MESH="${PROJECT_ROOT}/outputs/object_c_magic123/${FINE_RUN_NAME}/mesh/mesh.obj"
-wait_for_file "${FINE_METADATA}"
+wait_for_successful_wrapper "${FINE_METADATA}"
 verify_wrapper_success "${FINE_METADATA}"
 verify_nonempty_file "${FINE_MESH}"
 
@@ -89,7 +121,7 @@ cp -f -- "${FINE_PREVIEW}" "${PROJECT_ROOT}/docs/figures/object_c_magic123_final
 FORMAL_METADATA="${PROJECT_ROOT}/logs/${FORMAL_RUN_NAME}.json"
 FORMAL_VIDEO="${PROJECT_ROOT}/outputs/fusion/task1-walkthrough.mp4"
 FORMAL_PREVIEW="${PROJECT_ROOT}/outputs/fusion/task1-walkthrough-preview.png"
-if [[ -s "${FORMAL_METADATA}" && -s "${FORMAL_VIDEO}" && -s "${FORMAL_PREVIEW}" ]]; then
+if wrapper_succeeded "${FORMAL_METADATA}" && [[ -s "${FORMAL_VIDEO}" && -s "${FORMAL_PREVIEW}" ]]; then
   echo "Reusing completed formal fusion render."
 else
   MODE=formal RUN_NAME="${FORMAL_RUN_NAME}" bash "${SCRIPT_DIR}/render_fusion_tracked.sh"
@@ -101,7 +133,11 @@ cp -f -- "${FORMAL_PREVIEW}" "${PROJECT_ROOT}/docs/figures/fusion_walkthrough_pr
 
 RELEASE_METADATA="${PROJECT_ROOT}/logs/${RELEASE_RUN_NAME}.json"
 CLOUD_WEIGHTS_URL_PATH="/mnt/d/PackageCache/cv-hw3-task1-release/cloud_weights_url.txt"
-if [[ -s "${RELEASE_METADATA}" && -s "${CLOUD_WEIGHTS_URL_PATH}" ]]; then
+CLOUD_WEIGHTS_URL=""
+if wrapper_succeeded "${RELEASE_METADATA}" && [[ -s "${CLOUD_WEIGHTS_URL_PATH}" ]]; then
+  CLOUD_WEIGHTS_URL="$(cat -- "${CLOUD_WEIGHTS_URL_PATH}")"
+fi
+if [[ -n "${CLOUD_WEIGHTS_URL}" ]] && public_url_succeeded "${CLOUD_WEIGHTS_URL}"; then
   echo "Reusing completed public best-weights release."
 else
   "${CONDA_BIN}" run -n cv_hw3_threestudio --no-capture-output \

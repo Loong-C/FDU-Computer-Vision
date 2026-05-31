@@ -26,6 +26,22 @@ print(f"Verified wrapper success: {path}")
 PY
 }
 
+wrapper_succeeded() {
+  local metadata_path="$1"
+  /home/hp/miniforge3/bin/python - "${metadata_path}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+try:
+    metadata = json.loads(path.read_text(encoding="utf-8"))
+except (FileNotFoundError, json.JSONDecodeError, OSError):
+    raise SystemExit(1)
+raise SystemExit(metadata.get("exit_code") != 0)
+PY
+}
+
 verify_nonempty_file() {
   local path="$1"
   if [[ ! -s "${path}" ]]; then
@@ -40,7 +56,7 @@ COARSE_CHECKPOINT="${PROJECT_ROOT}/outputs/object_c_magic123/${COARSE_RUN_NAME}/
 FINE_METADATA="${PROJECT_ROOT}/logs/${FINE_RUN_NAME}.json"
 FINE_MESH="${PROJECT_ROOT}/outputs/object_c_magic123/${FINE_RUN_NAME}/mesh/mesh.obj"
 
-if [[ -s "${COARSE_METADATA}" ]]; then
+if wrapper_succeeded "${COARSE_METADATA}"; then
   echo "Reusing completed Object C coarse full run."
 else
   echo "Running Object C Magic123 coarse full stage."
@@ -53,7 +69,7 @@ fi
 verify_wrapper_success "${COARSE_METADATA}"
 verify_nonempty_file "${COARSE_CHECKPOINT}"
 
-if [[ -s "${FINE_METADATA}" ]]; then
+if wrapper_succeeded "${FINE_METADATA}"; then
   echo "Reusing completed Object C fine full run."
 else
   echo "Running Object C Magic123 fine full stage."

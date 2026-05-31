@@ -1621,3 +1621,30 @@ runtime propagation, and report-outline placeholder replacement. It also
 revealed that a `time_cost.md` file without a trailing newline could join the
 new Fusion row directly onto the Object C row. Hardened the writer to insert a
 newline before appending Fusion, then removed the disposable fixture tree.
+
+## 2026-06-01 / Failed-Wrapper Recovery Hardening
+
+Audit:
+Reviewed every reuse branch in the unattended Object C and post-Object-C
+queues. The earlier implementation treated a non-empty wrapper metadata file
+as reusable before checking `exit_code`. Because the tracked wrapper writes
+metadata for both success and failure, an interrupted fine, fusion, or release
+stage could leave a failure JSON that prevented an automatic retry.
+
+Implementation:
+Changed the Object C queue to reuse coarse and fine stages only when wrapper
+metadata parses successfully and contains `exit_code=0`. Changed the
+post-Object-C queue to wait for successful fine metadata, reuse Blender output
+only after a successful fusion wrapper, and reuse a public release only after
+both successful release metadata and a live stable download URL check. A
+missing or stale release link now triggers the idempotent package-and-upload
+path again.
+
+Validation:
+Ran `continue_object_c_full.sh` with the completed
+`object-c-magic123-{coarse,fine}-smoke-retry2` fixtures and confirmed both
+successful wrappers and required outputs were reused without launching GPU
+work. Invoked the same URL checker used by release reuse against the public
+repository URL and received HTTP status `200` on the first attempt. Ran Bash
+syntax checks and Git whitespace validation before reloading the post-Object-C
+watcher.
