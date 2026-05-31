@@ -1262,3 +1262,21 @@ healthy and should continue to `10000` steps.
 
 Runtime:
 Observed throughput was approximately `2.75 it/s`.
+
+## 2026-05-31 / Post-Object-B Resumable GPU Queue
+
+Goal:
+Avoid leaving the GPU idle between heartbeat wakeups after the formal Object B
+long run finishes.
+
+Change:
+Added `scripts/continue_after_object_b.sh`. The queue waits for the tracked
+Object B wrapper to exit, validates its JSON `exit_code`, exports the formal
+Object B OBJ, then runs Object C Magic123 coarse and fine smoke checks. Every
+queued stage uses the existing tracked wrappers and aborts immediately on a
+failed or missing metadata file.
+
+Offline behavior:
+The queue exports `HF_HUB_OFFLINE=1`, so Object B export and Object C smoke
+stages must reuse the validated D-drive cache rather than introduce a new
+download path.

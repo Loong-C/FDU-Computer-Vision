@@ -209,3 +209,16 @@ bash scripts/render_fusion.sh
 
 The initial transforms live in `configs/fusion_scene.json`. Adjust them after
 the first visual inspection if the extracted mesh coordinate ranges require it.
+
+## Resumable Queue
+
+For a long unattended Object B run, queue the next GPU stages without skipping
+wrapper validation:
+
+```bash
+bash scripts/continue_after_object_b.sh
+```
+
+The helper waits for the formal Object B wrapper to finish successfully,
+exports the formal OBJ, then runs Object C coarse and fine smoke checks. It
+stops immediately on a failed wrapper and leaves stage logs under `logs/`.
