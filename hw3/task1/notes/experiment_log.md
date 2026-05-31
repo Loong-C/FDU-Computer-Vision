@@ -1611,3 +1611,13 @@ strict while tolerating short network disturbances. Replaced the hard-coded
 final experiment-log date with the actual local completion date while
 preserving an idempotent marker. The final metadata writer now also refreshes
 the report's `generated_on` field from the local completion date.
+
+Finalizer isolation preflight:
+Built a disposable fixture tree under
+`/mnt/d/PackageCache/cv-hw3-task1-finalizer-preflight` and ran the real
+`finalize_task1_metadata.py` against dummy formal outputs and wrapper
+metadata. The preflight verified final status, local `generated_on`, measured
+runtime propagation, and report-outline placeholder replacement. It also
+revealed that a `time_cost.md` file without a trailing newline could join the
+new Fusion row directly onto the Object C row. Hardened the writer to insert a
+newline before appending Fusion, then removed the disposable fixture tree.
