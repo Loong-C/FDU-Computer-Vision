@@ -1608,5 +1608,6 @@ Extended `scripts/continue_after_object_c_full.sh` with three outer strict
 readiness attempts separated by a short delay. Each outer attempt still uses
 the URL checker's four native Python `HEAD` attempts, so the final gate remains
 strict while tolerating short network disturbances. Replaced the hard-coded
-final experiment-log date with the actual UTC completion date while preserving
-an idempotent marker.
+final experiment-log date with the actual local completion date while
+preserving an idempotent marker. The final metadata writer now also refreshes
+the report's `generated_on` field from the local completion date.

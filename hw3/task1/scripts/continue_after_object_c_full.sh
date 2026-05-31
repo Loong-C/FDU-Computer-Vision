@@ -151,7 +151,7 @@ video_path = Path(sys.argv[2])
 marker = "Object C Formal Mesh and Fusion Auto-Finalization"
 text = log_path.read_text(encoding="utf-8")
 if marker not in text:
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now().astimezone()
     timestamp = now.isoformat()
     with log_path.open("a", encoding="utf-8") as handle:
         handle.write(

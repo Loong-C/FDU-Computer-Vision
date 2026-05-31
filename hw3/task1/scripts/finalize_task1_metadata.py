@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import re
 from pathlib import Path
@@ -51,6 +52,7 @@ def main() -> None:
     data.update(
         {
             "status": "final",
+            "generated_on": datetime.datetime.now().astimezone().date().isoformat(),
             "cloud_weights_url": args.cloud_weights_url,
             "object_c": {
                 "formal_mesh": paths["formal_mesh"],
