@@ -1735,3 +1735,28 @@ fine stage is still required before exporting the formal Object C mesh.
 Pipeline status:
 Strict readiness remains `11/18`. The Object C continuation queue and the
 post-Object-C watcher are both alive. No restart is required.
+
+## 2026-06-01 / Object C Formal Coarse Training Complete
+
+Training milestone:
+The formal Magic123 coarse optimizer completed `500/500` steps at
+`2026-06-01T05:09:29+08:00` and wrote
+`outputs/object_c_magic123/object-c-magic123-coarse-full/checkpoints/object-c-magic123-coarse-full_ep0005.pth`
+(`252,722,533` bytes). Magic123 reported `423.2054` minutes for the resumed
+formal training run before export rendering.
+
+Visual inspection:
+Reviewed the epoch-5 four-view Lambertian validation sheet after evaluation
+finished at `2026-06-01T05:10:37+08:00`. The observed medicine-box front
+remains stable and recognizable. The soft unobserved surfaces remain a known
+single-image coarse limitation and are the reason the queued dmtet fine stage
+must still run.
+
+Export audit:
+The first official 100-view test render completed at
+`2026-06-01T05:45:05+08:00` and generated Lambertian, depth, and mask MP4
+artifacts. Re-read the upstream `external/Magic123/main.py` tail to verify that
+the remaining activity is expected: after `trainer.train(...)`, the official
+entry point runs another Lambertian test render, a normal-shading test render,
+and `save_mesh()` before the tracked wrapper writes success metadata and the
+continuation queue starts fine refinement. Strict readiness remains `11/18`.
