@@ -346,3 +346,18 @@ Validation L1 loss: `0.015528421849012375`
 Total Gaussian points: `145973`
 Patch total loss: `0.01736341044306755`
 Patch normal loss: `0.0`
+
+## 2026-05-31 / Delivery Readiness Helper and Report Outline
+
+Goal:
+Make the remaining Task 1 work explicit for both manual review and automated continuation.
+
+Implementation:
+Added `scripts/check_task1_readiness.py` to emit JSON checks for prepared data, official weights, 2DGS checkpoints, Object B and Object C meshes, fusion video, Blender, and FFmpeg.
+
+Expanded `notes/report_outline.md` into the required report structure with dataset description, methods, hyperparameter tables, SwanLab evidence slots, comparison criteria, repository link, and cloud-weight placeholder.
+
+Updated `notes/environment_plan.md` from the early two-environment assumption to the verified three-environment layout.
+
+Validation:
+The first readiness snapshot reports `4 / 14` checks ready: 34 Object A COLMAP images, Object A iteration-7000 checkpoint, 240 background `counter` images, and the prepared Object C RGBA input. The remaining checks correctly identify pending training checkpoints, official Magic123 weights, AIGC meshes, fusion video, Blender, and FFmpeg.

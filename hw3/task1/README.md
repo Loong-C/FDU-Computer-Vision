@@ -36,6 +36,12 @@ python scripts/summarize_tensorboard.py \
   --output logs/object-a-2dgs-full-summary.json
 ```
 
+Inspect machine-readable completion status with:
+
+```bash
+python scripts/check_task1_readiness.py --output logs/task1-readiness.json
+```
+
 ## Repository Structure
 
 ```text
