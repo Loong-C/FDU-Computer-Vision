@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import subprocess
 from pathlib import Path
 
 
@@ -31,6 +32,32 @@ def glob_check(name, root, pattern):
         "pattern": pattern,
         "matches": matches,
     }
+
+
+def command_check(name, path, *args):
+    result = {
+        "name": name,
+        "ready": False,
+        "path": str(path),
+    }
+    if not path.exists():
+        return result
+    try:
+        process = subprocess.run(
+            [str(path), *args],
+            capture_output=True,
+            check=False,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        result["error"] = str(error)
+        return result
+    result["ready"] = process.returncode == 0
+    result["returncode"] = process.returncode
+    result["stdout"] = process.stdout.strip().splitlines()[0] if process.stdout.strip() else ""
+    result["stderr"] = process.stderr.strip()
+    return result
 
 
 def main():
@@ -74,7 +101,11 @@ def main():
         glob_check("object_b_mesh", outputs / "object_b_text3d", "**/*.obj"),
         glob_check("object_c_mesh", outputs / "object_c_magic123", "**/*.obj"),
         glob_check("fusion_video", outputs / "fusion", "*.mp4"),
-        path_check("blender_portable_runtime", PROJECT_ROOT / "external/blender/blender"),
+        command_check(
+            "blender_portable_runtime",
+            PROJECT_ROOT / "external/blender/blender",
+            "--version",
+        ),
     ]
     ready_count = sum(check["ready"] for check in checks)
     summary = {

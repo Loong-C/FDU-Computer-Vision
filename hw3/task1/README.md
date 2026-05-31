@@ -159,6 +159,7 @@ the scene, and render the final walkthrough video:
 
 ```bash
 bash scripts/setup_blender.sh
+bash scripts/install_blender_wsl_deps.sh  # Only needed when setup reports missing WSL libraries.
 bash scripts/render_fusion.sh
 ```
 

@@ -13,8 +13,19 @@ WSL_GATEWAY="$(ip route show default | awk '{print $3; exit}')"
 export HTTP_PROXY="${HTTP_PROXY:-http://${WSL_GATEWAY}:7890}"
 export HTTPS_PROXY="${HTTPS_PROXY:-${HTTP_PROXY}}"
 
+verify_blender() {
+  local output
+  if ! output="$("${INSTALL_DIR}/blender" --version 2>&1)"; then
+    printf '%s\n' "${output}" >&2
+    echo "Blender exists but cannot start. Install the WSL libraries:" >&2
+    echo "  bash scripts/install_blender_wsl_deps.sh" >&2
+    exit 1
+  fi
+  printf '%s\n' "${output}" | head -n 1
+}
+
 if [[ -x "${INSTALL_DIR}/blender" ]]; then
-  "${INSTALL_DIR}/blender" --version | head -n 1
+  verify_blender
   exit
 fi
 
@@ -38,4 +49,4 @@ tar --extract --file "${CACHE_DIR}/${ARCHIVE}" \
   --directory "${INSTALL_DIR}" \
   --strip-components 1
 
-"${INSTALL_DIR}/blender" --version | head -n 1
+verify_blender

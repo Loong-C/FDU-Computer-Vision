@@ -314,6 +314,21 @@ Running in the background with resumable `.part` files. The first download is th
 Notes:
 The download uses the WSL gateway proxy and `curl --continue-at -`, so an interruption can resume without discarding completed bytes.
 
+## 2026-05-31 / Magic123 Official Weight Download Complete
+
+Goal:
+Verify that both official Magic123 pretrained-model downloads completed and were atomically promoted from resumable `.part` files.
+
+Result:
+Succeeded.
+
+Downloaded files:
+Zero123 `pretrained/zero123/105000.ckpt`: `15465973531` bytes
+MiDaS `pretrained/midas/dpt_beit_large_512.pt`: `1581966003` bytes
+
+Notes:
+The downloader process exited after both final paths existed. No `.part` file remains for either model.
+
 ## 2026-05-31 / TensorBoard Report Summary Helper
 
 Goal:
@@ -377,3 +392,57 @@ Implementation complete. Runtime download, first render, and transform tuning re
 
 Validation:
 Bash syntax, Python byte-compilation, and JSON parsing passed. Running `bash scripts/render_fusion.sh` before runtime installation exits with the expected actionable message: `Missing Blender runtime. Run: bash scripts/setup_blender.sh`.
+
+## 2026-05-31 / Blender Portable Runtime Attempt 1
+
+Goal:
+Install and validate the fixed Blender `4.2.15` Linux x64 portable runtime for the final fusion render.
+
+Result:
+Runtime archive download, checksum verification, and extraction succeeded. The first launch failed because the base WSL image does not yet provide `libSM.so.6` and `libICE.so.6`.
+
+Follow-up:
+Added `scripts/install_blender_wsl_deps.sh` for the minimal `libsm6` and `libice6` system packages. Updated the Blender installer to explain this recovery path when an extracted runtime cannot launch.
+
+## 2026-05-31 / WSL Storage Incident and D-Drive Recovery
+
+Goal:
+Recover the Task 1 workspace after the Windows system drive filled during model download and training, then prevent package caches from regrowing on `C:`.
+
+Incident:
+The Windows `C:` drive reached `0 GB` free space while the Ubuntu WSL virtual disk was stored under `C:\Users\hp\AppData\Local\wsl`. WSL began returning `Input/output error` for repository writes and basic files such as `/etc/passwd`.
+
+Impact:
+The formal Object A run `object-a-2dgs-full` stopped before its `30000`-iteration checkpoint. The last readable training-log line is iteration `22120 / 30000`, with `219306` Gaussian points. Its valid iteration-`7000` checkpoint and TensorBoard metrics remain available.
+
+Recovery:
+Removed the verified Windows pip cache directory, recovering approximately `8.75 GB`.
+
+Moved the complete Ubuntu distribution with `wsl --manage Ubuntu --move D:\WSL\Ubuntu`. The WSL VHD is now `D:\WSL\Ubuntu\ext4.vhdx`; Miniforge, both AIGC Conda environments, downloaded Magic123 weights, and repository-local tooling moved with it.
+
+Verified root and user WSL launches, `/etc/passwd` reads, and a temporary-file write probe after relocation. Windows drive free space changed from approximately `0 GB` to `65.77 GB` on `C:`. The destination `D:` drive retained approximately `63.38 GB` free after receiving the WSL VHD.
+
+Cache policy:
+Configured Windows user-level `PIP_CACHE_DIR=D:\PackageCache\pip`, `TORCH_HOME=D:\PackageCache\torch`, and `CONDA_PKGS_DIRS=D:\PackageCache\conda-pkgs`. Preserved the existing `HF_HOME=D:\huggingface_cache`. Moved the small Windows Torch cache to `D:\PackageCache\torch` and left a compatibility junction at its original user-cache path.
+
+Notes:
+The application-managed `C:\Users\hp\.cache\codex-runtimes` directory remains in place because the active desktop application is using it. Installed Windows applications were not manually moved because that could invalidate registrations or update paths.
+
+## 2026-05-31 / Blender WSL Dependencies and Launch Validation
+
+Goal:
+Finish validating the portable Blender runtime after the storage recovery.
+
+Result:
+Succeeded.
+
+Installed packages:
+`libsm6`
+`libice6`
+
+Validation:
+`bash scripts/install_blender_wsl_deps.sh` completed with `Blender 4.2.15 LTS`.
+
+`bash scripts/setup_blender.sh` now recognizes the existing runtime and completes with the same version output.
+
+The updated readiness checker executes `external/blender/blender --version` instead of accepting file existence alone. The post-install snapshot reports `7 / 13` Task 1 checks ready, including the runnable Blender runtime.
