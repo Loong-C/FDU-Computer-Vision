@@ -1248,3 +1248,17 @@ reported that the patch was already applied. A real `HF_HUB_OFFLINE=1`
 Magic123 `StableDiffusion` construction succeeded from the D-drive cache and
 loaded `CLIPTokenizer`, `CLIPTextModel`, `UNet2DConditionModel`,
 `AutoencoderKL`, and the `1000`-step scheduler without network access.
+
+## 2026-05-31 / Object B Full Step 3000 Visual Check
+
+Checkpoint:
+The formal DreamFusion run reached at least step `3147`. Validation previews
+were present through `it3000-0.png`.
+
+Visual check:
+The step-`3000` preview retains the recognizable teapot geometry and has
+stabilized toward the requested red ceramic appearance. The formal run remains
+healthy and should continue to `10000` steps.
+
+Runtime:
+Observed throughput was approximately `2.75 it/s`.

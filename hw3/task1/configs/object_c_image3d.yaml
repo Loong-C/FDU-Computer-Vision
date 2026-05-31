@@ -5,6 +5,7 @@ preview: docs/figures/object_c_preprocessed_preview.png
 method: Magic123
 environment: cv_hw3_magic123
 prompt: A high-resolution DSLR product photo of an amoxicillin capsule medicine box
+sd_model: stable-diffusion-v1-5/stable-diffusion-v1-5
 guidance:
   - SD
   - zero123

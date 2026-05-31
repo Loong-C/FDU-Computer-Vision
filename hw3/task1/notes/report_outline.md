@@ -90,6 +90,14 @@ Use textured meshes as the exchange representation for Object A, Object B, Objec
 
 ### 5.3 Final Asset Outputs
 
+Object B convergence diagnostics:
+
+| Iteration | Preview | Observation |
+|---:|---|---|
+| 20 | `docs/figures/object_b_smoke_preview.png` | Smoke-path density blob; sufficient only for plumbing validation |
+| 1600 | `docs/figures/object_b_full_iter1600_preview.png` | Recognizable teapot silhouette with lid, spout, and handle |
+| 3000 | `docs/figures/object_b_full_iter3000_preview.png` | Red teapot appearance and silhouette continue to stabilize |
+
 | Asset | Mesh Output | Preview / Video | Time Cost |
 |---|---|---|---:|
 | Object A | `outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/object_a_render_preview.png` | 4855.77 s training |
