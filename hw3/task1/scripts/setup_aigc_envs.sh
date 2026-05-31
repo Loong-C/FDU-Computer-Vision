@@ -38,6 +38,7 @@ install_toolchain() {
     -c conda-forge \
     cuda-nvcc=11.8 \
     cuda-cudart-dev=11.8 \
+    cuda-libraries-dev=11.8 \
     gcc_linux-64=11 \
     gxx_linux-64=11 \
     ninja

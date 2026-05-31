@@ -504,3 +504,20 @@ PyTorch `2.0.1` imports `pkg_resources` from setuptools inside `torch.utils.cpp_
 
 Fix:
 Added an explicit build-prerequisite bootstrap to `scripts/setup_aigc_envs.sh`: `setuptools<81`, `wheel`, and `packaging` are installed before either Magic123 or threestudio extension requirements.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 3
+
+Goal:
+Retry the official Magic123 dependency installation after bootstrapping compatible extension-build prerequisites.
+
+Result:
+Progressed past the earlier `nvdiffrast` metadata failure, downloaded the Python requirements, and entered CUDA-extension compilation. Failed while building `cubvh`.
+
+Observed error:
+`fatal error: cusparse.h: No such file or directory`
+
+Diagnosis:
+The initial AIGC toolchain intentionally installed a small CUDA `11.8` subset: `cuda-nvcc` and `cuda-cudart-dev`. Building Magic123's transitive CUDA extensions also requires CUDA libraries development headers.
+
+Fix:
+Added `cuda-libraries-dev=11.8` to the reproducible AIGC toolchain. Conda confirmed that `cuda-libraries-dev 11.8.0` is available from `nvidia/label/cuda-11.8.0`.
