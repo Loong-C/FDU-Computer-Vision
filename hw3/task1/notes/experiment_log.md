@@ -779,3 +779,27 @@ Post-processed mesh bytes: `9908179`
 Tracking:
 Recorded the successful render and bounded-TSDF mesh export as separate SwanLab
 pipeline milestones.
+
+## 2026-05-31 / Object C MiDaS Depth Preprocessing
+
+Goal:
+Prepare the single-image Object C input for Magic123 by copying the processed
+RGBA image into the official Magic123 data directory and generating the MiDaS
+depth prior.
+
+Result:
+Succeeded.
+
+Input:
+`data/processed/object_c_image/c_rgba.png`
+
+Generated depth prior:
+`external/Magic123/data/hw3/medicine_box/depth.png`
+Depth-prior bytes: `67278`
+
+Readiness:
+Task 1 machine-readable readiness increased from `8/13` to `9/13`.
+
+Tracking:
+Recorded the completion as the `object-c-midas-depth-success` SwanLab pipeline
+milestone.
