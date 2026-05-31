@@ -77,6 +77,7 @@ install_threestudio_deps() {
     CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
     CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
     python -m pip install --no-build-isolation \
+    -c "${PROJECT_ROOT}/requirements-threestudio-compatibility.txt" \
     -r "${PROJECT_ROOT}/external/threestudio/requirements.txt"
 }
 

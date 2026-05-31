@@ -1,0 +1,7 @@
+# Keep threestudio compatible with the verified PyTorch 2.0.1 CUDA 11.8 environment.
+numpy<2
+torch==2.0.1
+torchvision==0.15.2
+xformers==0.0.20
+opencv-python<4.12
+huggingface_hub<0.26

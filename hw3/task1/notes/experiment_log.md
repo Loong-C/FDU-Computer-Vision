@@ -600,3 +600,39 @@ Replaced the upstream shell-script invocation with an explicit non-isolated inst
 `python -m pip install --no-build-isolation ./raymarching ./shencoder ./freqencoder ./gridencoder`
 
 Pinned `opencv-python<4.12` and `opencv-python-headless<4.12` in the Magic123 compatibility requirements.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 6
+
+Goal:
+Complete the Magic123 environment with explicit non-isolated builds for the four repository-local CUDA extensions.
+
+Result:
+Succeeded.
+
+Validated runtime:
+NumPy: `1.26.4`
+PyTorch: `2.0.1+cu118`
+CUDA available: `True`
+OpenCV: `4.11.0`
+Diffusers: `0.19.3`
+Transformers: `4.28.1`
+Hugging Face Hub: `0.25.2`
+
+Validated local extensions from the real Magic123 module path:
+`raymarching`
+`shencoder`
+`freqencoder`
+`gridencoder`
+
+Validation:
+`python -m pip check` reports `No broken requirements found.`
+
+## 2026-05-31 / threestudio Compatibility Constraints Prepared
+
+Goal:
+Prevent the threestudio requirements resolver from replacing the verified PyTorch `2.0.1+cu118` stack through its broad `xformers` dependency.
+
+Implementation:
+Added `requirements-threestudio-compatibility.txt` with PyTorch `2.0.1`, Torchvision `0.15.2`, XFormers `0.0.20`, `numpy<2`, `opencv-python<4.12`, and `huggingface_hub<0.26`.
+
+Updated the threestudio dependency installer to resolve the upstream requirements under these constraints.
