@@ -43,6 +43,7 @@ install_torch() {
   "${CONDA_BIN}" run -n "${env_name}" python -m pip install \
     torch==2.0.1 \
     torchvision==0.15.2 \
+    "numpy<2" \
     --index-url https://download.pytorch.org/whl/cu118
 }
 

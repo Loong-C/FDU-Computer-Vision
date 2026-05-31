@@ -234,3 +234,23 @@ Build helper: `ninja`
 
 Notes:
 The toolchain is environment-local. No system package installation or global CUDA path modification was required.
+
+## 2026-05-31 / AIGC PyTorch Install
+
+Goal:
+Install a shared CUDA-enabled PyTorch baseline for the isolated threestudio and Magic123 environments.
+
+Command:
+`bash scripts/setup_aigc_envs.sh torch`
+
+Result:
+Succeeded for both `cv_hw3_threestudio` and `cv_hw3_magic123`.
+
+Verified packages:
+PyTorch: `2.0.1+cu118`
+Torchvision: `0.15.2+cu118`
+PyTorch CUDA build: `11.8`
+NumPy: `1.26.4`
+
+Compatibility correction:
+The initial PyTorch installation resolved NumPy `2.2.6`. This is newer than the ABI expected by several dependencies in the pinned AIGC repositories. Updated `scripts/setup_aigc_envs.sh` to install `numpy<2` and downgraded both environments to NumPy `1.26.4` before continuing.
