@@ -1471,3 +1471,31 @@ MiB` at `100%` utilization. WSL used approximately `13GiB` RAM and `2.6GiB`
 swap with no new kernel OOM event. D-drive free space recovered to
 approximately `49.17G` after sparse swap pages from the interrupted process
 were released.
+
+## 2026-05-31 / Blender Self-Healing Runtime and Fusion Smoke Validation
+
+Blender repair:
+The first bundled Blender extraction contained `3195` zero-byte files,
+including the Python `encodings/__init__.py`, OCIO profile, and bundled font.
+Updated `scripts/setup_blender.sh` so its default cache lives under
+`/mnt/d/PackageCache/wsl/blender`, a cached archive is SHA-256 checked before
+reuse, and an incomplete runtime is detected by a real background Python
+startup rather than `blender --version`. Re-extraction restored the runtime.
+
+Camera path and layout:
+Added `scripts/export_colmap_camera_path.py` and exported all `240` real
+counter COLMAP poses to `configs/counter_camera_path.json`. Blender now samples
+the stable countertop-visible range `152..239` instead of using an arbitrary
+orbit. A/B/C were normalized, rotated `+90` degrees around X so their local
+Z-up axes align with the counter view, and arranged as a compact foreground
+display. Visual calibration used SwanLab-tracked preview-only runs.
+
+Smoke validation:
+Ran `RUN_NAME=task1-fusion-smoke-final-layout MODE=smoke bash
+scripts/render_fusion_tracked.sh`. Blender imported the formal background,
+formal A mesh, formal B OBJ, and verified C smoke OBJ; rendered the preview,
+12-frame walkthrough, and `.blend`; and wrote wrapper metadata with
+`exit_code=0`. The resulting
+`outputs/fusion_smoke/task1-walkthrough-smoke.mp4` is a valid ISO MP4 file.
+Object C local-formal coarse training remained active near `100%` GPU
+utilization throughout the CPU-side Blender calibration.

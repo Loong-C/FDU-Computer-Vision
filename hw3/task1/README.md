@@ -238,11 +238,20 @@ the scene, and render the final walkthrough video:
 ```bash
 bash scripts/setup_blender.sh
 bash scripts/install_blender_wsl_deps.sh  # Only needed when setup reports missing WSL libraries.
-bash scripts/render_fusion.sh
+python scripts/export_colmap_camera_path.py \
+  --images-bin data/raw/mipnerf360/counter/sparse/0/images.bin \
+  --cameras-bin data/raw/mipnerf360/counter/sparse/0/cameras.bin \
+  --output configs/counter_camera_path.json
+MODE=smoke bash scripts/render_fusion_tracked.sh
+MODE=formal bash scripts/render_fusion_tracked.sh
 ```
 
-The initial transforms live in `configs/fusion_scene.json`. Adjust them after
-the first visual inspection if the extracted mesh coordinate ranges require it.
+The Blender archive cache defaults to `/mnt/d/PackageCache/wsl/blender`, and
+`setup_blender.sh` reinstalls an incomplete runtime automatically. The formal
+layout lives in `configs/fusion_scene.json`; it samples a visually stable
+segment of the real counter COLMAP camera path. The smoke config swaps in the
+verified Object C smoke OBJ and renders a short 12-frame MP4 before the formal
+Magic123 mesh is ready.
 
 ## Resumable Queue
 
@@ -252,6 +261,7 @@ wrapper validation:
 ```bash
 bash scripts/continue_after_object_b.sh
 bash scripts/continue_object_c_full.sh
+bash scripts/continue_after_object_c_full.sh
 ```
 
 The helper waits for the formal Object B wrapper to finish successfully,
@@ -260,3 +270,7 @@ stops immediately on a failed wrapper and leaves stage logs under `logs/`.
 After smoke validation, `continue_object_c_full.sh` runs the report-quality
 Object C coarse and fine stages in order. It reuses verified completed stages
 when resumed and checks the coarse checkpoint and final OBJ explicitly.
+`continue_after_object_c_full.sh` waits for the formal Object C OBJ, renders
+the formal Blender walkthrough through SwanLab, refreshes report assets and
+the draft PDF, runs the strict readiness audit, and commits the generated
+report figures before pushing the `hw3` branch.

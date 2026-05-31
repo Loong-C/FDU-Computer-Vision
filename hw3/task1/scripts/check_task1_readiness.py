@@ -112,7 +112,9 @@ def main():
         command_check(
             "blender_portable_runtime",
             PROJECT_ROOT / "external/blender/blender",
-            "--version",
+            "--background",
+            "--python-expr",
+            "import encodings; print('Blender runtime OK')",
         ),
     ]
     ready_count = sum(check["ready"] for check in checks)

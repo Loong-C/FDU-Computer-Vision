@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -78,11 +78,7 @@ def look_at(camera, target):
     camera.rotation_euler = (Vector(target) - camera.location).to_track_quat("-Z", "Y").to_euler()
 
 
-def add_camera_animation(scene, config):
-    camera_data = bpy.data.cameras.new("WalkthroughCamera")
-    camera = bpy.data.objects.new("WalkthroughCamera", camera_data)
-    scene.collection.objects.link(camera)
-    scene.camera = camera
+def add_orbit_camera_animation(scene, camera, config):
     target = config["target"]
     radius = config["radius"]
     height = config["height"]
@@ -96,6 +92,33 @@ def add_camera_animation(scene, config):
         look_at(camera, target)
         camera.keyframe_insert(data_path="location", frame=frame)
         camera.keyframe_insert(data_path="rotation_euler", frame=frame)
+
+
+def add_colmap_camera_animation(scene, camera, config):
+    path = PROJECT_ROOT / config["path"]
+    frames = json.loads(path.read_text(encoding="utf-8"))["frames"]
+    frames = frames[config.get("start_index", 0) : config.get("end_index", len(frames) - 1) + 1]
+    for frame in range(1, scene.frame_end + 1):
+        if scene.frame_end == 1:
+            path_index = 0
+        else:
+            path_index = round((frame - 1) * (len(frames) - 1) / (scene.frame_end - 1))
+        path_frame = frames[path_index]
+        camera.data.angle_x = path_frame["angle_x_radians"]
+        camera.matrix_world = Matrix(path_frame["matrix_world"])
+        camera.keyframe_insert(data_path="location", frame=frame)
+        camera.keyframe_insert(data_path="rotation_euler", frame=frame)
+
+
+def add_camera_animation(scene, config):
+    camera_data = bpy.data.cameras.new("WalkthroughCamera")
+    camera = bpy.data.objects.new("WalkthroughCamera", camera_data)
+    scene.collection.objects.link(camera)
+    scene.camera = camera
+    if "path" in config:
+        add_colmap_camera_animation(scene, camera, config)
+    else:
+        add_orbit_camera_animation(scene, camera, config)
 
 
 def add_lighting(scene):
@@ -115,6 +138,24 @@ def add_lighting(scene):
     scene.collection.objects.link(area)
 
 
+def configure_video_render(scene, output_video):
+    scene.render.image_settings.file_format = "FFMPEG"
+    scene.render.ffmpeg.format = "MPEG4"
+    scene.render.ffmpeg.codec = "H264"
+    scene.render.filepath = str(output_video)
+
+
+def normalize_video_output(output_video, previous_candidates):
+    if output_video.exists():
+        return
+    candidates = set(output_video.parent.glob(f"{output_video.name}*")) - previous_candidates
+    if len(candidates) != 1:
+        raise RuntimeError(f"Expected one rendered video for {output_video}, found: {sorted(candidates)}")
+    generated_video = candidates.pop()
+    generated_video.replace(output_video)
+    print(f"Normalized walkthrough filename: {generated_video.name} -> {output_video.name}")
+
+
 def main():
     args = parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
@@ -132,20 +173,32 @@ def main():
     scene.render.fps = config["fps"]
     scene.frame_start = 1
     scene.frame_end = config["frames"]
-    scene.render.image_settings.file_format = "FFMPEG"
-    scene.render.ffmpeg.format = "MPEG4"
-    scene.render.ffmpeg.codec = "H264"
-
     output_video = PROJECT_ROOT / config["output_video"]
     output_blend = PROJECT_ROOT / config["output_blend"]
     output_video.parent.mkdir(parents=True, exist_ok=True)
-    scene.render.filepath = str(output_video)
+    configure_video_render(scene, output_video)
 
     add_lighting(scene)
     add_camera_animation(scene, config["camera"])
     bpy.ops.wm.save_as_mainfile(filepath=str(output_blend))
-    bpy.ops.render.render(animation=True)
-    print(f"Rendered walkthrough: {output_video}")
+
+    output_preview = config.get("output_preview")
+    if output_preview:
+        preview_path = PROJECT_ROOT / output_preview
+        preview_path.parent.mkdir(parents=True, exist_ok=True)
+        scene.frame_set(config.get("preview_frame", 1))
+        scene.render.image_settings.file_format = "PNG"
+        scene.render.filepath = str(preview_path)
+        bpy.ops.render.render(write_still=True)
+        print(f"Rendered preview: {preview_path}")
+
+    if config.get("render_animation", True):
+        configure_video_render(scene, output_video)
+        output_video.unlink(missing_ok=True)
+        previous_candidates = set(output_video.parent.glob(f"{output_video.name}*"))
+        bpy.ops.render.render(animation=True)
+        normalize_video_output(output_video, previous_candidates)
+        print(f"Rendered walkthrough: {output_video}")
 
 
 if __name__ == "__main__":

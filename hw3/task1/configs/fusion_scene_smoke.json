@@ -1,12 +1,13 @@
 {
-  "output_blend": "outputs/fusion/task1-fusion.blend",
-  "output_video": "outputs/fusion/task1-walkthrough.mp4",
-  "output_preview": "outputs/fusion/task1-walkthrough-preview.png",
-  "preview_frame": 90,
-  "resolution_x": 640,
-  "resolution_y": 480,
-  "fps": 30,
-  "frames": 180,
+  "output_blend": "outputs/fusion_smoke/task1-fusion-smoke.blend",
+  "output_video": "outputs/fusion_smoke/task1-walkthrough-smoke.mp4",
+  "output_preview": "outputs/fusion_smoke/task1-walkthrough-smoke-preview.png",
+  "preview_frame": 6,
+  "render_animation": true,
+  "resolution_x": 480,
+  "resolution_y": 360,
+  "fps": 12,
+  "frames": 12,
   "camera": {
     "path": "configs/counter_camera_path.json",
     "start_index": 152,
@@ -36,7 +37,7 @@
     },
     {
       "name": "object_c",
-      "glob": "outputs/object_c_magic123/object-c-magic123-fine-full/**/*.obj",
+      "path": "outputs/object_c_magic123/object-c-magic123-fine-smoke-retry2/mesh/mesh.obj",
       "location": [0.719, 2.012, -0.315],
       "rotation_deg": [90.0, 0.0, 0.0],
       "scale": [0.60, 0.60, 0.60]
