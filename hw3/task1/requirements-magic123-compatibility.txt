@@ -4,3 +4,5 @@ diffusers<0.20
 transformers==4.28.1
 huggingface_hub<0.26
 accelerate<0.21
+opencv-python<4.12
+opencv-python-headless<4.12

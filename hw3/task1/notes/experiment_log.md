@@ -580,3 +580,23 @@ Fix:
 Added `requirements-magic123-compatibility.txt` to restore a compatible stack after the official requirements install: `numpy<2`, `diffusers<0.20`, `transformers==4.28.1`, `huggingface_hub<0.26`, and `accelerate<0.21`.
 
 Updated `scripts/setup_aigc_envs.sh` to run the local-extension installer from `external/Magic123`, pass non-isolated pip builds, and limit local extension compilation to two concurrent jobs.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 5
+
+Goal:
+Apply the compatibility constraints and compile Magic123's four repository-local CUDA extensions.
+
+Result:
+The compatibility pins were applied successfully. The local extension step still failed because pip continued to isolate each build, hiding PyTorch from `raymarching`, `shencoder`, `freqencoder`, and `gridencoder`.
+
+Observed error:
+`ModuleNotFoundError: No module named 'torch'`
+
+Additional compatibility finding:
+OpenCV `4.13` requires NumPy `>=2` on Python `3.9+`, conflicting with the verified PyTorch `2.0.1` environment and the new `numpy<2` pin.
+
+Fix:
+Replaced the upstream shell-script invocation with an explicit non-isolated install:
+`python -m pip install --no-build-isolation ./raymarching ./shencoder ./freqencoder ./gridencoder`
+
+Pinned `opencv-python<4.12` and `opencv-python-headless<4.12` in the Magic123 compatibility requirements.

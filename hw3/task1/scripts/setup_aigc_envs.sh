@@ -88,6 +88,7 @@ install_magic123_deps() {
     CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
     CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
     python -m pip install --no-build-isolation \
+    -c "${PROJECT_ROOT}/requirements-magic123-compatibility.txt" \
     -r "${PROJECT_ROOT}/external/Magic123/requirements.txt"
   "${CONDA_BIN}" run -n "${MAGIC123_ENV}" python -m pip install \
     -r "${PROJECT_ROOT}/requirements-magic123-compatibility.txt"
@@ -98,8 +99,11 @@ install_magic123_deps() {
       CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
       CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
       MAX_JOBS="${MAX_JOBS:-2}" \
-      PIP_NO_BUILD_ISOLATION=1 \
-      bash scripts/install_ext.sh
+      python -m pip install --no-build-isolation \
+      ./raymarching \
+      ./shencoder \
+      ./freqencoder \
+      ./gridencoder
   )
 }
 
