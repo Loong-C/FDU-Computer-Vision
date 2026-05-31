@@ -195,6 +195,9 @@ must use the full path. The helper explicitly passes the public
 reuses the same D-drive SD 1.5 cache as Object B. It also applies an idempotent
 local Magic123 compatibility patch that disables unused safety-checker
 components, keeping the required cache identical to Object B's core snapshot.
+The generation helper also links `~/.cache/clip` to
+`/mnt/d/PackageCache/wsl/clip`, so the Zero123 `ViT-L-14.pt` auxiliary model is
+stored with the other D-drive package caches.
 
 Magic123 loads Stable Diffusion 1.5 and Zero123 into host memory together. On a
 32 GB Windows host, the default WSL cap can OOM-kill the process while Zero123
@@ -224,8 +227,12 @@ wrapper validation:
 
 ```bash
 bash scripts/continue_after_object_b.sh
+bash scripts/continue_object_c_full.sh
 ```
 
 The helper waits for the formal Object B wrapper to finish successfully,
 exports the formal OBJ, then runs Object C coarse and fine smoke checks. It
 stops immediately on a failed wrapper and leaves stage logs under `logs/`.
+After smoke validation, `continue_object_c_full.sh` runs the report-quality
+Object C coarse and fine stages in order. It reuses verified completed stages
+when resumed and checks the coarse checkpoint and final OBJ explicitly.

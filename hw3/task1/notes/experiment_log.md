@@ -1324,3 +1324,36 @@ Added `configs/wslconfig.magic123.example` for a 32 GB Windows host. It raises
 the WSL memory cap to `26GB` and places a `32GB` WSL swap file at
 `D:\WSL\swap.vhdx`, preserving the earlier C-drive cleanup. Apply the template,
 restart WSL, then rerun the tracked Object C coarse smoke check.
+
+## 2026-05-31 / Object C Magic123 Smoke Recovery Success
+
+WSL recovery:
+Applied the tracked `.wslconfig` template and restarted WSL. The restarted
+instance exposed approximately `25GiB` RAM and `32GiB` swap, with the sparse
+swap file created at `D:\WSL\swap.vhdx`. C-drive free space returned to
+approximately `64.94G`.
+
+Coarse smoke:
+`object-c-magic123-coarse-smoke-retry2` completed with `exit_code=0` in
+`285.68679493900004` seconds. It loaded Stable Diffusion and Zero123, exported
+a checkpoint, and wrote a mesh with `25002` vertices and `50000` faces.
+
+Fine smoke:
+`object-c-magic123-fine-smoke-retry2` initialized DMTet from the coarse
+checkpoint and completed with `exit_code=0` in `194.61161550499997` seconds.
+Its OBJ contains `24996` vertices and `50000` faces. Copied the smoke
+validation montage to `docs/figures/object_c_magic123_smoke_preview.jpg`; the
+front medicine-box texture and expected view orientation are visible, while
+side and rear views remain rough as expected before full SDS optimization.
+
+Cache cleanup:
+Zero123 downloaded the `932768134`-byte `ViT-L-14.pt` auxiliary checkpoint on
+its first successful initialization. Added
+`scripts/relocate_magic123_clip_cache.sh` and invoked it from the Object C
+generator so `~/.cache/clip` resolves to `/mnt/d/PackageCache/wsl/clip`.
+
+Full-run queue:
+Added `scripts/continue_object_c_full.sh`. It runs the report-quality `5000`
+step coarse and `5000` step fine stages sequentially, validates wrapper JSON
+metadata, checks the coarse checkpoint and final OBJ, and reuses successful
+stages when resumed.

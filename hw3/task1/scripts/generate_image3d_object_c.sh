@@ -14,6 +14,7 @@ TEXT_PROMPT="${TEXT_PROMPT:-A high-resolution DSLR product photo of an amoxicill
 MAGIC123_SD_MODEL="${MAGIC123_SD_MODEL:-stable-diffusion-v1-5/stable-diffusion-v1-5}"
 
 source "${SCRIPT_DIR}/configure_aigc_cache_env.sh"
+"${SCRIPT_DIR}/relocate_magic123_clip_cache.sh"
 "${SCRIPT_DIR}/apply_magic123_patches.sh"
 
 case "${MODE}" in
