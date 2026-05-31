@@ -1280,3 +1280,8 @@ Offline behavior:
 The queue exports `HF_HUB_OFFLINE=1`, so Object B export and Object C smoke
 stages must reuse the validated D-drive cache rather than introduce a new
 download path.
+
+Launch validation:
+Started the hidden queue after commit `6d5bd98`. The queue log reported
+`Waiting for Object B formal wrapper: object-b-dreamfusion-sd-full`, and the
+WSL worker remained alive while Object B continued past step `3813`.
