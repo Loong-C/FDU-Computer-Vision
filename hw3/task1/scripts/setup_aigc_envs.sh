@@ -12,6 +12,11 @@ WSL_GATEWAY="$(ip route show default | awk '{print $3; exit}')"
 export HTTP_PROXY="${HTTP_PROXY:-http://${WSL_GATEWAY}:7890}"
 export HTTPS_PROXY="${HTTPS_PROXY:-${HTTP_PROXY}}"
 export HF_HUB_DISABLE_XET="${HF_HUB_DISABLE_XET:-1}"
+if [[ -d /mnt/d ]]; then
+  WSL_PIP_CACHE_DIR="${WSL_PIP_CACHE_DIR:-/mnt/d/PackageCache/wsl/pip}"
+  mkdir -p "${WSL_PIP_CACHE_DIR}"
+  export PIP_CACHE_DIR="${PIP_CACHE_DIR:-${WSL_PIP_CACHE_DIR}}"
+fi
 
 env_exists() {
   "${CONDA_BIN}" env list | awk '{print $1}' | grep -Fxq "$1"
@@ -61,7 +66,8 @@ install_threestudio_deps() {
     CUDA_HOME="${env_prefix}" \
     CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
     CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
-    python -m pip install -r "${PROJECT_ROOT}/external/threestudio/requirements.txt"
+    python -m pip install --no-build-isolation \
+    -r "${PROJECT_ROOT}/external/threestudio/requirements.txt"
 }
 
 install_magic123_deps() {
@@ -70,7 +76,8 @@ install_magic123_deps() {
     CUDA_HOME="${env_prefix}" \
     CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
     CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
-    python -m pip install -r "${PROJECT_ROOT}/external/Magic123/requirements.txt"
+    python -m pip install --no-build-isolation \
+    -r "${PROJECT_ROOT}/external/Magic123/requirements.txt"
   "${CONDA_BIN}" run -n "${MAGIC123_ENV}" env \
     CUDA_HOME="${env_prefix}" \
     CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \

@@ -470,3 +470,20 @@ Validation:
 The new run passed initialization and reached at least iteration `270 / 30000`.
 
 The RTX 4060 Ti reported approximately `2634 / 8188 MiB` GPU memory in use and `93%` GPU utilization during the early training phase.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 1
+
+Goal:
+Install the official Magic123 Python and CUDA-extension dependencies while the Object A rerun uses the GPU.
+
+Result:
+Failed early during `nvdiffrast` metadata preparation.
+
+Observed error:
+`ERROR! Cannot compile nvdiffrast CUDA extension. Please ensure that ... you run 'pip install' with --no-build-isolation flag`
+
+Diagnosis:
+The current `nvdiffrast` package uses a PEP 517 build path. Its isolated build environment cannot import the PyTorch package already installed in `cv_hw3_magic123`.
+
+Fix:
+Updated `scripts/setup_aigc_envs.sh` to pass `--no-build-isolation` for both Magic123 and threestudio requirements installs. The same script now defaults WSL pip caching to `/mnt/d/PackageCache/wsl/pip` when the `D:` mount exists.
