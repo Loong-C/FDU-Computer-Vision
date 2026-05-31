@@ -215,3 +215,22 @@ Created the Python 3.10 Conda environments `cv_hw3_threestudio` and `cv_hw3_magi
 
 Decision:
 Use Conda-local CUDA 11.8 compiler packages and GCC 11 for extension builds. This avoids modifying the WSL system toolchain and matches the CUDA 11.8 PyTorch wheels used by the project.
+
+## 2026-05-31 / AIGC Conda Toolchain Install
+
+Goal:
+Install a reproducible CUDA extension build toolchain for threestudio and Magic123.
+
+Command:
+`bash scripts/setup_aigc_envs.sh toolchain`
+
+Result:
+Succeeded for both `cv_hw3_threestudio` and `cv_hw3_magic123`.
+
+Verified toolchain:
+CUDA compiler: `nvcc V11.8.89`
+Conda C++ compiler: `x86_64-conda-linux-gnu-c++ 11.4.0`
+Build helper: `ninja`
+
+Notes:
+The toolchain is environment-local. No system package installation or global CUDA path modification was required.
