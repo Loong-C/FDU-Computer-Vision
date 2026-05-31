@@ -1694,3 +1694,24 @@ exist, and a completed fine run is reusable only when both successful metadata
 and its mesh OBJ exist. If outputs are deleted after a prior success, the
 resumable generation script now launches the stage again instead of stopping
 after a stale metadata reuse decision.
+
+## 2026-06-01 / Object C Formal Coarse Epoch 2 Checkpoint
+
+Progress audit:
+The resumed formal Magic123 coarse run completed `Epoch 2/5` at step `200/500`
+and wrote
+`outputs/object_c_magic123/object-c-magic123-coarse-full/checkpoints/object-c-magic123-coarse-full_ep0002.pth`
+(`203,909,231` bytes). Evaluation finished at `2026-06-01T00:33:28+08:00`,
+and the same healthy GPU process continued into `Epoch 3/5`.
+
+Visual inspection:
+Reviewed the four-view Lambertian validation sheet for epoch 2. The visible
+medicine-box front remains recognizable with the main printed region preserved.
+The unseen side and rear views are still coarse and soft, which is expected for
+the single-image coarse stage before fine refinement.
+
+Pipeline status:
+Strict readiness remains `11/18`. The post-Object-C watcher is alive and is
+correctly waiting for successful formal fine-wrapper metadata before launching
+fusion, GitHub Release publication, final metadata generation, PDF generation,
+and the closing Git commit and push.
