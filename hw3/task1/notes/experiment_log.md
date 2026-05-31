@@ -1446,3 +1446,28 @@ The existing coarse workspace contains a safe epoch-1 checkpoint with
 `global_step=100`. Stop the impractical reference-budget process gently,
 archive its wrapper metadata and terminal log, then resume the same workspace
 from that checkpoint under the local-formal budget.
+
+## 2026-05-31 / Object C Local-Formal Resume Launch
+
+Official-reference archive:
+Sent `SIGTERM` only to the old Magic123 main process after the epoch-1
+checkpoint was present. The tracked wrapper exited cleanly enough to write
+metadata with `exit_code=-15`, `elapsed_seconds=2321.6715`, and
+`tensorboard_steps_imported=113`. Archived the metadata, wrapper terminal log,
+launch log, and a copy of the workspace log under the ignored `logs/`
+directory with suffix `official5000-interrupted-20260531-223931`.
+
+Local-formal resume:
+Launched `scripts/continue_object_c_full.sh` again through hidden Windows
+`wsl.exe` process ID `42540`. The new tracked command passes `--iters 500`.
+Magic123 found
+`checkpoints/object-c-magic123-coarse-full_ep0001.pth`, restored the model,
+EMA, optimizer, scheduler, and scaler, printed `load at epoch 1, global step
+100`, and entered `Epoch 2/5`.
+
+Runtime validation:
+After checkpoint restore, GPU use returned to approximately `7853 MiB / 7941
+MiB` at `100%` utilization. WSL used approximately `13GiB` RAM and `2.6GiB`
+swap with no new kernel OOM event. D-drive free space recovered to
+approximately `49.17G` after sparse swap pages from the interrupted process
+were released.
