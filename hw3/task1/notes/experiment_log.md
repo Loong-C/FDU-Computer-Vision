@@ -636,3 +636,26 @@ Implementation:
 Added `requirements-threestudio-compatibility.txt` with PyTorch `2.0.1`, Torchvision `0.15.2`, XFormers `0.0.20`, `numpy<2`, `opencv-python<4.12`, and `huggingface_hub<0.26`.
 
 Updated the threestudio dependency installer to resolve the upstream requirements under these constraints.
+
+## 2026-05-31 / threestudio Dependency Installation Attempt 1
+
+Goal:
+Install the official threestudio requirements under the verified PyTorch `2.0.1+cu118` compatibility constraints.
+
+Result:
+The resolver entered CUDA-extension compilation and built much of `nerfacc` and `tiny-cuda-nn`, then failed on two missing build inputs.
+
+Observed errors:
+`cannot find -lcuda: No such file or directory`
+
+`ModuleNotFoundError: No module named 'pybind11'`
+
+Diagnosis:
+Conda installed the CUDA driver stub at `cv_hw3_threestudio/lib/stubs/libcuda.so`, but the extension linker did not search that directory. The non-isolated `pysdf` build also needs `pybind11` installed before requirements resolution.
+
+Fix:
+Added `pybind11` to the AIGC build-prerequisite bootstrap.
+
+Added the Conda CUDA stub directory to `LIBRARY_PATH` and `LDFLAGS` during threestudio dependency builds.
+
+Limited extension builds to `MAX_JOBS=2` to reduce contention with the active Object A training run.

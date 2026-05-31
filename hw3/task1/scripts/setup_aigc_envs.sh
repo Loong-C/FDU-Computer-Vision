@@ -66,7 +66,8 @@ install_build_prereqs() {
   "${CONDA_BIN}" run -n "${env_name}" python -m pip install \
     "setuptools<81" \
     wheel \
-    packaging
+    packaging \
+    pybind11
 }
 
 install_threestudio_deps() {
@@ -76,6 +77,9 @@ install_threestudio_deps() {
     CUDA_HOME="${env_prefix}" \
     CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
     CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
+    LIBRARY_PATH="${env_prefix}/lib/stubs:${LIBRARY_PATH:-}" \
+    LDFLAGS="-L${env_prefix}/lib/stubs ${LDFLAGS:-}" \
+    MAX_JOBS="${MAX_JOBS:-2}" \
     python -m pip install --no-build-isolation \
     -c "${PROJECT_ROOT}/requirements-threestudio-compatibility.txt" \
     -r "${PROJECT_ROOT}/external/threestudio/requirements.txt"
