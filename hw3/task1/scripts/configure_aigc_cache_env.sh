@@ -14,4 +14,5 @@ if [[ -n "${WINDOWS_PROXY_PORT:-}" ]]; then
   WINDOWS_PROXY_URL="http://${WINDOWS_PROXY_HOST}:${WINDOWS_PROXY_PORT}"
   export HTTP_PROXY="${HTTP_PROXY:-${WINDOWS_PROXY_URL}}"
   export HTTPS_PROXY="${HTTPS_PROXY:-${WINDOWS_PROXY_URL}}"
+  export NO_PROXY="${NO_PROXY:+${NO_PROXY},}hf-mirror.com"
 fi

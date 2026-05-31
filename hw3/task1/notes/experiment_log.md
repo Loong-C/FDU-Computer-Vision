@@ -1019,3 +1019,29 @@ Tracking:
 The tracked wrapper recorded the failed run and its exit code. Recorded the
 partial-download failure as the
 `object-b-dreamfusion-sd-smoke-attempt-3-failure` SwanLab pipeline milestone.
+
+## 2026-05-31 / Public SD 1.5 Prefetch Attempt 1
+
+Goal:
+Resume the partial SD 1.5 cache with the new single-worker prefetch helper and
+the Windows NAT gateway proxy.
+
+Result:
+Failed during Hugging Face metadata validation before large-file transfer
+resumed.
+
+Observed error:
+`FileMetadataError: Distant resource does not seem to be on huggingface.co`
+
+Diagnosis:
+The global proxy also intercepted requests to `hf-mirror.com`. The mirror
+metadata request should stay direct; only redirected Xet storage requests need
+the Windows gateway proxy.
+
+Fix:
+Added `NO_PROXY=hf-mirror.com` when optional Windows gateway proxy support is
+enabled.
+
+Tracking:
+Recorded the failure as the `public-sd15-prefetch-attempt-1-failure` SwanLab
+pipeline milestone. The resumable D-drive cache remains intact.

@@ -160,7 +160,8 @@ bash scripts/prefetch_public_sd15.sh
 ```
 
 When the mirror's large-file storage path is unstable from WSL, reuse a
-Windows-side proxy exposed on the WSL NAT gateway:
+Windows-side proxy exposed on the WSL NAT gateway. The helper keeps mirror
+metadata requests direct and proxies only redirected storage requests:
 
 ```bash
 WINDOWS_PROXY_PORT=7890 bash scripts/prefetch_public_sd15.sh
