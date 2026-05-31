@@ -1143,3 +1143,28 @@ Tracking:
 The tracked wrapper and the `object-b-smoke-export-attempt-2-success` SwanLab
 pipeline milestone recorded the successful plumbing check. Formal Object B
 export retains the default threshold of `25.0`.
+
+## 2026-05-31 / Object B DreamFusion SD Full Launch
+
+Goal:
+Generate the formal text-to-3D Object B asset after validating the public SD
+1.5 cache, threestudio smoke path, and OBJ exporter.
+
+Command:
+`WINDOWS_PROXY_PORT=7890 MODE=full RUN_NAME=object-b-dreamfusion-sd-full bash scripts/generate_text3d_object_b.sh`
+
+Configuration:
+- Prompt: `A studio product photo of a small red ceramic teapot with a round body, short spout, and curved handle`
+- SD model: `stable-diffusion-v1-5/stable-diffusion-v1-5`
+- Iterations: `10000`
+- Resolution: `64x64`
+- Validation interval: `200`
+- Trial: `outputs/object_b_text3d/object-b-dreamfusion-sd-full/object-b-dreamfusion-sd-full/full@20260531-180217`
+
+Launch validation:
+Stable Diffusion loaded from the D-drive cache, training reached at least step
+`7`, and GPU usage was approximately `6048 MiB` at `96%` utilization.
+
+Tracking:
+The tracked wrapper opened the formal SwanLab local run. The hourly automation
+will continue monitoring this long-running stage.
