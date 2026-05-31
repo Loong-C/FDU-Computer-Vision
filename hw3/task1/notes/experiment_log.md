@@ -1357,3 +1357,18 @@ Added `scripts/continue_object_c_full.sh`. It runs the report-quality `5000`
 step coarse and `5000` step fine stages sequentially, validates wrapper JSON
 metadata, checks the coarse checkpoint and final OBJ, and reuses successful
 stages when resumed.
+
+## 2026-05-31 / Object C Magic123 Full Queue Launch
+
+Launch:
+Committed the recovered smoke path and full queue as `8918bb3`, then launched
+`scripts/continue_object_c_full.sh` through a hidden Windows `wsl.exe`
+process. The Windows process ID is `36204`, and the queue log reports
+`Running Object C Magic123 coarse full stage.`
+
+Runtime validation:
+The formal `object-c-magic123-coarse-full` process reused the D-drive SD and
+CLIP caches, loaded Zero123, and entered `Epoch 1/50`. At the first post-load
+inspection, GPU usage was approximately `7864 MiB / 7941 MiB` at `100%`
+utilization. WSL used approximately `12GiB` RAM and `2.7GiB` of its D-drive
+swap. Kernel logs showed no new OOM event.
