@@ -8,7 +8,7 @@ fi
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-MODEL_DIR="$1"
+MODEL_DIR="$(realpath -- "$1")"
 ITERATION="${2:--1}"
 
 cd "${PROJECT_ROOT}/external/2d-gaussian-splatting"

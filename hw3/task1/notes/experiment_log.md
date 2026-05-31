@@ -725,3 +725,26 @@ loss `0.012270934879779816`, total patch loss `0.027320832014083862`
 Tracking:
 The clean formal run logged `10001` scalar steps into SwanLab local mode and
 retained its TensorBoard event stream for report-table export.
+
+## 2026-05-31 / Object A Render Attempt 1
+
+Goal:
+Render the completed Object A `iteration_30000` 2DGS asset before TSDF mesh
+export.
+
+Result:
+Failed before rendering started.
+
+Observed error:
+`FileNotFoundError: outputs/object_a_2dgs/object-a-2dgs-full/cfg_args`
+
+Diagnosis:
+Both 2DGS asset-export helpers changed directory into
+`external/2d-gaussian-splatting` before invoking `render.py`, while forwarding
+the model directory as a project-root-relative path. The completed model and
+its `cfg_args` file exist under the Task 1 root.
+
+Fix:
+Resolve the model directory to an absolute path before changing into the
+external 2DGS repository in both `scripts/render_2dgs_asset.sh` and
+`scripts/export_2dgs_mesh.sh`.
