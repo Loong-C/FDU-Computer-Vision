@@ -11,6 +11,7 @@ MODE="${MODE:-smoke}"
 STAGE="${STAGE:-coarse}"
 GPU="${GPU:-0}"
 TEXT_PROMPT="${TEXT_PROMPT:-A high-resolution DSLR product photo of an amoxicillin capsule medicine box}"
+MAGIC123_SD_MODEL="${MAGIC123_SD_MODEL:-stable-diffusion-v1-5/stable-diffusion-v1-5}"
 
 source "${SCRIPT_DIR}/configure_aigc_cache_env.sh"
 
@@ -48,6 +49,7 @@ COMMON_ARGS=(
   --vram_O
   --text "${TEXT_PROMPT}"
   --sd_version 1.5
+  --hf_key "${MAGIC123_SD_MODEL}"
   --image "${DATA_DIR}/rgba.png"
   --workspace "${WORKSPACE}"
   --optim adam
@@ -109,5 +111,6 @@ CUDA_VISIBLE_DEVICES="${GPU}" "${CONDA_BIN}" run -n "${MAGIC123_ENV}" --no-captu
   --config "width=${WIDTH}" \
   --config "height=${HEIGHT}" \
   --config "prompt=${TEXT_PROMPT}" \
+  --config "sd_model=${MAGIC123_SD_MODEL}" \
   --swanlab-mode "${SWANLAB_MODE:-local}" \
   -- "${COMMAND[@]}"

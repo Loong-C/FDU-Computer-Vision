@@ -1183,3 +1183,25 @@ readiness to `outputs/object_c_magic123/object-c-magic123-fine-full/**/*.obj`.
 Reason:
 The previous broad globs allowed the diagnostic Object B smoke mesh, and would
 have allowed an Object C smoke mesh, to satisfy formal delivery checks.
+
+## 2026-05-31 / Object C Public SD 1.5 Cache Reuse
+
+Goal:
+Prevent Magic123 from requesting a second legacy SD 1.5 repository after the
+Object B public snapshot has already been prefetched to the D drive.
+
+Finding:
+Magic123 maps `--sd_version 1.5` to the legacy
+`runwayml/stable-diffusion-v1-5` repository by default. Its CLI supports an
+explicit `--hf_key` override.
+
+Change:
+Updated `scripts/generate_image3d_object_c.sh` to pass
+`--hf_key stable-diffusion-v1-5/stable-diffusion-v1-5` by default and expose
+`MAGIC123_SD_MODEL` for overrides. Added the selected model to tracked
+experiment configuration.
+
+Validation:
+An offline `snapshot_download(..., local_files_only=True)` probe from the
+`cv_hw3_magic123` environment resolved the existing D-drive snapshot
+`451f4fe16113bff5a5d2269ed5ad43b0592e9a14`.
