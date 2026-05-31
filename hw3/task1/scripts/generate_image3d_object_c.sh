@@ -12,11 +12,7 @@ STAGE="${STAGE:-coarse}"
 GPU="${GPU:-0}"
 TEXT_PROMPT="${TEXT_PROMPT:-A high-resolution DSLR product photo of an amoxicillin capsule medicine box}"
 
-if [[ -d /mnt/d ]]; then
-  export HF_HOME="${HF_HOME:-/mnt/d/PackageCache/wsl/huggingface}"
-  mkdir -p -- "${HF_HOME}"
-fi
-export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
+source "${SCRIPT_DIR}/configure_aigc_cache_env.sh"
 
 case "${MODE}" in
   smoke)

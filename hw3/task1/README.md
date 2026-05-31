@@ -152,6 +152,20 @@ The helper defaults to the public
 `HF_ENDPOINT=https://hf-mirror.com`. Override `SD_MODEL` or `HF_ENDPOINT`
 explicitly when another accessible model source is preferred.
 
+Prefetch the required SD 1.5 components with single-worker resumable downloads
+before the first AIGC run:
+
+```bash
+bash scripts/prefetch_public_sd15.sh
+```
+
+When the mirror's large-file storage path is unstable from WSL, reuse a
+Windows-side proxy exposed on the WSL NAT gateway:
+
+```bash
+WINDOWS_PROXY_PORT=7890 bash scripts/prefetch_public_sd15.sh
+```
+
 ## Object C
 
 Prepare the RGB checkerboard input, download the official Magic123 weights,

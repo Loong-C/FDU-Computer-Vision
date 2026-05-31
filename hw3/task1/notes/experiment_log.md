@@ -985,3 +985,37 @@ Tracking:
 The tracked wrapper recorded the failed run and its exit code. Recorded the
 network diagnosis as the `object-b-dreamfusion-sd-smoke-attempt-2-failure`
 SwanLab pipeline milestone.
+
+## 2026-05-31 / Object B threestudio Smoke Attempt 3
+
+Goal:
+Run the Object B smoke test with the public SD 1.5 repository and the D-drive
+Hugging Face cache.
+
+Result:
+The mirror metadata, tokenizer, and text-encoder downloads succeeded. The
+guidance-model download then failed while fetching large UNet and VAE files
+from the mirror's Xet storage backend.
+
+Observed errors:
+`HTTPSConnectionPool(host='cas-bridge.xethub.hf.co', port=443): Read timed out`
+
+`Temporary failure in name resolution`
+
+Recovery state:
+The resumable D-drive cache retained approximately `481M` of completed and
+partial files under `/mnt/d/PackageCache/wsl/huggingface`.
+
+Fix:
+Added `scripts/configure_aigc_cache_env.sh` to centralize the D-drive cache,
+mirror endpoint, long Hugging Face download timeout, and optional Windows NAT
+gateway proxy configuration.
+
+Added `scripts/prefetch_public_sd15.sh` and
+`scripts/prefetch_public_sd15.py` to prefetch only the SD 1.5 components used
+by Task 1 with one resumable download worker.
+
+Tracking:
+The tracked wrapper recorded the failed run and its exit code. Recorded the
+partial-download failure as the
+`object-b-dreamfusion-sd-smoke-attempt-3-failure` SwanLab pipeline milestone.

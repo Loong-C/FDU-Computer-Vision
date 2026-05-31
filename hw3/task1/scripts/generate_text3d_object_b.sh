@@ -11,11 +11,7 @@ GPU="${GPU:-0}"
 PROMPT="${PROMPT:-A studio product photo of a small red ceramic teapot with a round body, short spout, and curved handle}"
 SD_MODEL="${SD_MODEL:-stable-diffusion-v1-5/stable-diffusion-v1-5}"
 
-if [[ -d /mnt/d ]]; then
-  export HF_HOME="${HF_HOME:-/mnt/d/PackageCache/wsl/huggingface}"
-  mkdir -p -- "${HF_HOME}"
-fi
-export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
+source "${SCRIPT_DIR}/configure_aigc_cache_env.sh"
 
 case "${MODE}" in
   smoke)
