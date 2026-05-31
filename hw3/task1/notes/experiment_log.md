@@ -1569,3 +1569,27 @@ fusion-results page, and external-links page. Chinese fonts render correctly;
 tables, charts, representative fusion frame, footer, and long public-release
 URL remain readable without overflow. Removed the temporary PDF directory
 after visual QA.
+
+## 2026-06-01 / Public URL Readiness Reliability Hardening
+
+Observation:
+A WSL-side `curl HEAD` request to a temporary GitHub Release asset hit a
+transient CDN receive failure. A subsequent Python `urllib` probe also
+demonstrated that the WSL NAT path can time out intermittently even though the
+same public URL remains reachable from the Windows host.
+
+Implementation:
+Hardened `scripts/check_task1_readiness.py` so the public cloud-weights URL
+check makes up to four short native Python `HEAD` attempts and records
+failures for audit. Evaluated Windows `curl.exe` and PowerShell interop
+fallbacks, but rejected both because starting those clients through WSL did
+not provide a consistently independent network path. The final `17/17` gate
+therefore stays strict without retaining an unverified fallback branch.
+
+Validation:
+Created another temporary public GitHub Release asset and called the same
+`url_check` function used by final readiness. The probe passed with HTTP
+status `200` and `Content-Length=48` on the second native Python attempt.
+Deleted the temporary release, tag, asset directory, and helper script after
+the test. Re-ran Python bytecode compilation and the draft readiness audit;
+the expected pre-final baseline remains `11/17`.

@@ -4,6 +4,7 @@
 import argparse
 import json
 import subprocess
+import time
 import urllib.request
 from pathlib import Path
 
@@ -88,7 +89,7 @@ def report_data_check(name, path):
     return result
 
 
-def url_check(name, url):
+def url_check(name, url, attempts=4, retry_delay=3):
     result = {
         "name": name,
         "ready": False,
@@ -96,14 +97,23 @@ def url_check(name, url):
     }
     if not url or url == "PENDING":
         return result
-    try:
-        request = urllib.request.Request(url, method="HEAD")
-        with urllib.request.urlopen(request, timeout=30) as response:
-            result["status"] = response.status
-            result["content_length"] = response.headers.get("Content-Length")
-            result["ready"] = 200 <= response.status < 400
-    except Exception as error:  # noqa: BLE001
-        result["error"] = str(error)
+    errors = []
+    for attempt in range(1, attempts + 1):
+        try:
+            request = urllib.request.Request(url, method="HEAD")
+            with urllib.request.urlopen(request, timeout=15) as response:
+                result["attempts"] = attempt
+                result["status"] = response.status
+                result["content_length"] = response.headers.get("Content-Length")
+                result["ready"] = 200 <= response.status < 400
+                return result
+        except Exception as error:  # noqa: BLE001
+            errors.append(str(error))
+            if attempt < attempts:
+                time.sleep(retry_delay)
+    result["attempts"] = attempts
+    result["urllib_errors"] = errors
+    result["error"] = errors[-1]
     return result
 
 
