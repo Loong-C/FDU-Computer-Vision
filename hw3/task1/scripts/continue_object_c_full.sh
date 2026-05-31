@@ -56,7 +56,7 @@ COARSE_CHECKPOINT="${PROJECT_ROOT}/outputs/object_c_magic123/${COARSE_RUN_NAME}/
 FINE_METADATA="${PROJECT_ROOT}/logs/${FINE_RUN_NAME}.json"
 FINE_MESH="${PROJECT_ROOT}/outputs/object_c_magic123/${FINE_RUN_NAME}/mesh/mesh.obj"
 
-if wrapper_succeeded "${COARSE_METADATA}"; then
+if wrapper_succeeded "${COARSE_METADATA}" && [[ -s "${COARSE_CHECKPOINT}" ]]; then
   echo "Reusing completed Object C coarse full run."
 else
   echo "Running Object C Magic123 coarse full stage."
@@ -69,7 +69,7 @@ fi
 verify_wrapper_success "${COARSE_METADATA}"
 verify_nonempty_file "${COARSE_CHECKPOINT}"
 
-if wrapper_succeeded "${FINE_METADATA}"; then
+if wrapper_succeeded "${FINE_METADATA}" && [[ -s "${FINE_MESH}" ]]; then
   echo "Reusing completed Object C fine full run."
 else
   echo "Running Object C Magic123 fine full stage."

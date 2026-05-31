@@ -1677,3 +1677,20 @@ mistook the public video URL for a local filesystem path; restricted local
 existence checks to actual local deliverables and reran successfully. Visually
 inspected the external-links page with the full production-length GitHub URLs:
 both links wrap inside their table cells without overflow.
+
+## 2026-06-01 / Object C Reuse Output Audit
+
+Staging audit:
+Verified with `git check-ignore` and `git ls-files` that the final Object C and
+fusion previews under `docs/figures/` are eligible for commit. The copied
+preview files and manifest under `report/assets/` remain intentionally ignored
+build cache, while tracked charts and the montage are refreshed through
+`git add -u`.
+
+Recovery hardening:
+Tightened the Object C queue's reuse predicates again: a completed coarse run
+is reusable only when both successful wrapper metadata and its checkpoint
+exist, and a completed fine run is reusable only when both successful metadata
+and its mesh OBJ exist. If outputs are deleted after a prior success, the
+resumable generation script now launches the stage again instead of stopping
+after a stale metadata reuse decision.
