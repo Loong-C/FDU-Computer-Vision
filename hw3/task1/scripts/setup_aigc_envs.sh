@@ -60,8 +60,17 @@ install_tracking() {
     pyyaml
 }
 
+install_build_prereqs() {
+  local env_name="$1"
+  "${CONDA_BIN}" run -n "${env_name}" python -m pip install \
+    "setuptools<81" \
+    wheel \
+    packaging
+}
+
 install_threestudio_deps() {
   local env_prefix="${HOME}/miniforge3/envs/${THREESTUDIO_ENV}"
+  install_build_prereqs "${THREESTUDIO_ENV}"
   "${CONDA_BIN}" run -n "${THREESTUDIO_ENV}" env \
     CUDA_HOME="${env_prefix}" \
     CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
@@ -72,6 +81,7 @@ install_threestudio_deps() {
 
 install_magic123_deps() {
   local env_prefix="${HOME}/miniforge3/envs/${MAGIC123_ENV}"
+  install_build_prereqs "${MAGIC123_ENV}"
   "${CONDA_BIN}" run -n "${MAGIC123_ENV}" env \
     CUDA_HOME="${env_prefix}" \
     CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \

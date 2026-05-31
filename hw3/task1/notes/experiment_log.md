@@ -487,3 +487,20 @@ The current `nvdiffrast` package uses a PEP 517 build path. Its isolated build e
 
 Fix:
 Updated `scripts/setup_aigc_envs.sh` to pass `--no-build-isolation` for both Magic123 and threestudio requirements installs. The same script now defaults WSL pip caching to `/mnt/d/PackageCache/wsl/pip` when the `D:` mount exists.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 2
+
+Goal:
+Retry the official Magic123 dependency installation after enabling non-isolated package builds.
+
+Result:
+Failed early during the same `nvdiffrast` metadata step.
+
+Diagnosis:
+The upstream `nvdiffrast` error message catches a broad import error. Reproducing its import directly exposed the missing module:
+`ModuleNotFoundError: No module named 'pkg_resources'`
+
+PyTorch `2.0.1` imports `pkg_resources` from setuptools inside `torch.utils.cpp_extension`. The AIGC environment did not yet include this build prerequisite.
+
+Fix:
+Added an explicit build-prerequisite bootstrap to `scripts/setup_aigc_envs.sh`: `setuptools<81`, `wheel`, and `packaging` are installed before either Magic123 or threestudio extension requirements.
