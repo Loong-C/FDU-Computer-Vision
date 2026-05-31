@@ -748,3 +748,34 @@ Fix:
 Resolve the model directory to an absolute path before changing into the
 external 2DGS repository in both `scripts/render_2dgs_asset.sh` and
 `scripts/export_2dgs_mesh.sh`.
+
+## 2026-05-31 / Object A Render Attempt 2 and Mesh Export
+
+Goal:
+Render the completed Object A asset and export a mesh suitable for Blender
+fusion after normalizing the model path.
+
+Result:
+Succeeded.
+
+Render output:
+Iteration: `30000`
+Rendered predictions: `34`
+Rendered ground-truth images: `34`
+Estimated bounding radius: `3.77`
+
+Mesh-export configuration:
+Voxel size: `0.03`
+Depth truncation: `7.5`
+SDF truncation: `0.15`
+
+Mesh output:
+Raw vertices: `202489`
+Post-processed vertices: `189968`
+Post-processed mesh:
+`outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply`
+Post-processed mesh bytes: `9908179`
+
+Tracking:
+Recorded the successful render and bounded-TSDF mesh export as separate SwanLab
+pipeline milestones.
