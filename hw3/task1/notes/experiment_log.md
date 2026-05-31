@@ -1205,3 +1205,19 @@ Validation:
 An offline `snapshot_download(..., local_files_only=True)` probe from the
 `cv_hw3_magic123` environment resolved the existing D-drive snapshot
 `451f4fe16113bff5a5d2269ed5ad43b0592e9a14`.
+
+## 2026-05-31 / Object B Full Intermediate Visual Check
+
+Checkpoint:
+The formal DreamFusion run reached at least step `1662`. Validation previews
+were present at intervals of `200` steps through `it1600-0.png`.
+
+Visual check:
+The step-`1600` preview has a recognizable teapot silhouette with a lid,
+spout, and curved handle. Color and surface cleanup are still evolving, so the
+formal `10000`-step run should continue.
+
+Runtime:
+Observed throughput was approximately `2.73 it/s`, with GPU usage around
+`6109 MiB` at `98%` utilization. Disk free space remained stable at
+approximately `65.11G` on C and `53.57G` on D.
