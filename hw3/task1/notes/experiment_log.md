@@ -796,6 +796,8 @@ Input:
 Generated depth prior:
 `external/Magic123/data/hw3/medicine_box/depth.png`
 Depth-prior bytes: `67278`
+RGBA dimensions: `1448 x 1086`
+Depth-prior dimensions: `1448 x 1448`
 
 Readiness:
 Task 1 machine-readable readiness increased from `8/13` to `9/13`.
@@ -803,3 +805,29 @@ Task 1 machine-readable readiness increased from `8/13` to `9/13`.
 Tracking:
 Recorded the completion as the `object-c-midas-depth-success` SwanLab pipeline
 milestone.
+
+## 2026-05-31 / Background Counter 2DGS Formal Run Launch
+
+Goal:
+Train a clean 30,000-iteration background-scene 2DGS model from the prepared
+Mip-NeRF 360 `counter` scene while retaining TensorBoard and SwanLab metrics.
+
+Configuration:
+Scene: `counter`
+Images: `240`
+Iterations: `30000`
+Resolution divisor: `2`
+Depth ratio: `0.0`
+Normal-loss weight: `0.05`
+Distortion-loss weight: `0.0`
+
+Launch validation:
+The run reached iteration `4860` after approximately three minutes with
+`536822` Gaussian points and approximately `1.95 GiB` of GPU memory in use.
+
+Tracking:
+The formal training wrapper created SwanLab run
+`run-20260531_164308-47ff9tn8kh0z7xm05goqx`.
+
+Recorded a separate `background-counter-2dgs-full-launch` SwanLab pipeline
+milestone for the validated launch.
