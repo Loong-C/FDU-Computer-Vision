@@ -446,3 +446,27 @@ Validation:
 `bash scripts/setup_blender.sh` now recognizes the existing runtime and completes with the same version output.
 
 The updated readiness checker executes `external/blender/blender --version` instead of accepting file existence alone. The post-install snapshot reports `7 / 13` Task 1 checks ready, including the runnable Blender runtime.
+
+## 2026-05-31 / Object A Formal 2DGS Clean Rerun Started
+
+Goal:
+Restart the formal Object A `30000`-iteration run after restoring reliable WSL storage.
+
+Restart policy:
+The interrupted run produced a valid iteration-`7000` PLY asset but no optimizer `.pth` checkpoint. A clean rerun is required for a rigorous final checkpoint.
+
+Preserved evidence:
+Moved the interrupted output directory to `outputs/object_a_2dgs/object-a-2dgs-full-interrupted-eio-20260531`.
+
+Moved its terminal log to `logs/object-a-2dgs-full-interrupted-eio-20260531.log`.
+
+New run:
+`object-a-2dgs-full`
+
+SwanLab local run:
+`run-20260531_151420-jyj0y12ibvekjlf6u9rw0`
+
+Validation:
+The new run passed initialization and reached at least iteration `270 / 30000`.
+
+The RTX 4060 Ti reported approximately `2634 / 8188 MiB` GPU memory in use and `93%` GPU utilization during the early training phase.
