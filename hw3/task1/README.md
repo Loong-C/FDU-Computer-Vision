@@ -86,6 +86,13 @@ bash scripts/setup_aigc_envs.sh magic123-deps
 The two environments are named `cv_hw3_threestudio` and `cv_hw3_magic123`.
 CUDA 11.8 and GCC 11 are used for locally compiled PyTorch extensions.
 
+On the current machine, Ubuntu's WSL VHDX lives under `D:\WSL\Ubuntu`. When
+`/mnt/d` is available, the AIGC setup helper redirects pip downloads to
+`/mnt/d/PackageCache/wsl/pip`. The same path is configured as the WSL user's
+global pip cache to avoid regrowing `~/.cache/pip`. The Object B and Object C
+generation helpers also default Hugging Face downloads to
+`/mnt/d/PackageCache/wsl/huggingface`.
+
 The official threestudio stack pins `lightning==2.0.0`, which requires
 `fastapi<0.89`. SwanLab's optional local `swanboard` dashboard requires
 `fastapi>=0.110.1`, so `pip check` reports that known dashboard-only conflict

@@ -77,15 +77,22 @@ Use textured meshes as the exchange representation for Object A, Object B, Objec
 
 | Iteration | Validation PSNR | Validation L1 | Gaussian Points | Patch Total Loss |
 |---:|---:|---:|---:|---:|
-| 7000 | 31.8249149 dB | 0.0155284 | 145973 | 0.0173634 |
-| 30000 | PENDING | PENDING | PENDING | PENDING |
+| 7000 | 31.8275299 dB | 0.0156156 | 149488 | not retained at exact evaluation event |
+| 30000 | 33.5198059 dB | 0.0112888 | 212465 | 0.0273208 |
 
-### 5.2 Final Asset Outputs
+### 5.2 Background Intermediate Evaluation
+
+| Iteration | Validation PSNR | Validation L1 | Gaussian Points | Patch Total Loss |
+|---:|---:|---:|---:|---:|
+| 7000 | 28.0689182 dB | 0.0215513 | 482345 | not retained at exact evaluation event |
+| 30000 | 29.9138107 dB | 0.0169862 | 533358 | 0.0242750 |
+
+### 5.3 Final Asset Outputs
 
 | Asset | Mesh Output | Preview / Video | Time Cost |
 |---|---|---|---:|
-| Object A | PENDING | PENDING | PENDING |
-| Background | PENDING | PENDING | PENDING |
+| Object A | `outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/object_a_render_preview.png` | 4855.77 s training |
+| Background | `outputs/background_2dgs/background-counter-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/background_counter_render_preview.png` | 1368.52 s training |
 | Object B | PENDING | PENDING | PENDING |
 | Object C | PENDING | PENDING | PENDING |
 | Fusion | unified scene | PENDING | PENDING |

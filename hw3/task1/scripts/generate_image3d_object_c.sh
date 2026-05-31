@@ -12,6 +12,11 @@ STAGE="${STAGE:-coarse}"
 GPU="${GPU:-0}"
 TEXT_PROMPT="${TEXT_PROMPT:-A high-resolution DSLR product photo of an amoxicillin capsule medicine box}"
 
+if [[ -d /mnt/d ]]; then
+  export HF_HOME="${HF_HOME:-/mnt/d/PackageCache/wsl/huggingface}"
+  mkdir -p -- "${HF_HOME}"
+fi
+
 case "${MODE}" in
   smoke)
     ITERS="${ITERS:-20}"

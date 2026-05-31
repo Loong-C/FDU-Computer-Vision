@@ -10,6 +10,11 @@ MODE="${MODE:-smoke}"
 GPU="${GPU:-0}"
 PROMPT="${PROMPT:-A studio product photo of a small red ceramic teapot with a round body, short spout, and curved handle}"
 
+if [[ -d /mnt/d ]]; then
+  export HF_HOME="${HF_HOME:-/mnt/d/PackageCache/wsl/huggingface}"
+  mkdir -p -- "${HF_HOME}"
+fi
+
 case "${MODE}" in
   smoke)
     STEPS="${STEPS:-20}"

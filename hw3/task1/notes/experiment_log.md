@@ -831,3 +831,70 @@ The formal training wrapper created SwanLab run
 
 Recorded a separate `background-counter-2dgs-full-launch` SwanLab pipeline
 milestone for the validated launch.
+
+## 2026-05-31 / Background Counter 2DGS Formal Run Completed
+
+Goal:
+Complete the 30,000-iteration background reconstruction, export report metrics,
+render the training viewpoints, and extract a Blender-ready bounded-TSDF mesh.
+
+Result:
+Succeeded with exit code `0`.
+
+Runtime:
+Start: `2026-05-31T08:43:08.619239+00:00`
+Finish: `2026-05-31T09:05:57.172923+00:00`
+Elapsed: `1368.5191473309999` seconds
+
+Evaluation:
+Iteration `7000`: train PSNR `28.068918228149414`, train L1
+`0.02155132219195366`, Gaussian points `482345`
+
+Iteration `30000`: train PSNR `29.91381072998047`, train L1
+`0.016986243426799774`, Gaussian points `533358`, normal loss
+`0.00477592833340168`, regularization loss `0.014817075803875923`, total patch
+loss `0.024274971336126328`
+
+Render output:
+Rendered predictions: `240`
+Rendered ground-truth images: `240`
+Estimated bounding radius: `3.54`
+
+Mesh-export configuration:
+Voxel size: `0.03`
+Depth truncation: `7.5`
+SDF truncation: `0.15`
+
+Mesh output:
+Raw vertices: `253172`
+Post-processed vertices: `220950`
+Post-processed mesh:
+`outputs/background_2dgs/background-counter-2dgs-full/train/ours_30000/fuse_post.ply`
+Post-processed mesh bytes: `11296426`
+
+Tracking:
+The formal run imported `10001` scalar steps into SwanLab local mode.
+
+Recorded the successful training completion, render, and bounded-TSDF mesh
+export as separate SwanLab pipeline milestones.
+
+## 2026-05-31 / WSL Pip Cache Consolidation
+
+Goal:
+Keep package caches off the constrained Windows system drive and prevent
+duplicate WSL pip caches from growing inside the moved Ubuntu VHDX.
+
+Result:
+Succeeded.
+
+Validation:
+Resolved cleanup target: `/home/hp/.cache/pip`
+Removed legacy cache: `5.3G`
+Configured WSL global pip cache: `/mnt/d/PackageCache/wsl/pip`
+Current redirected cache size: `930M`
+Configured AIGC Hugging Face cache:
+`/mnt/d/PackageCache/wsl/huggingface`
+
+Storage note:
+The Ubuntu VHDX already resides under `D:\WSL\Ubuntu`, so Conda environments
+and remaining WSL filesystem content are physically stored on `D:`.
