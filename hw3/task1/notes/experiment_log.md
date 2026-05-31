@@ -1168,3 +1168,18 @@ Stable Diffusion loaded from the D-drive cache, training reached at least step
 Tracking:
 The tracked wrapper opened the formal SwanLab local run. The hourly automation
 will continue monitoring this long-running stage.
+
+## 2026-05-31 / Readiness Full-Asset Tightening
+
+Goal:
+Keep automated readiness aligned with the formal fusion assets rather than
+diagnostic smoke outputs.
+
+Change:
+Restricted Object B readiness to
+`outputs/object_b_text3d/object-b-dreamfusion-sd-full/**/*.obj` and Object C
+readiness to `outputs/object_c_magic123/object-c-magic123-fine-full/**/*.obj`.
+
+Reason:
+The previous broad globs allowed the diagnostic Object B smoke mesh, and would
+have allowed an Object C smoke mesh, to satisfy formal delivery checks.

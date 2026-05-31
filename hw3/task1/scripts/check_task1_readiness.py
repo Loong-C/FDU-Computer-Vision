@@ -98,8 +98,16 @@ def main():
         path_check("magic123_zero123_weight", magic123 / "pretrained/zero123/105000.ckpt"),
         path_check("magic123_midas_weight", magic123 / "pretrained/midas/dpt_beit_large_512.pt"),
         path_check("object_c_magic123_depth", magic123 / "data/hw3/medicine_box/depth.png"),
-        glob_check("object_b_mesh", outputs / "object_b_text3d", "**/*.obj"),
-        glob_check("object_c_mesh", outputs / "object_c_magic123", "**/*.obj"),
+        glob_check(
+            "object_b_mesh",
+            outputs / "object_b_text3d/object-b-dreamfusion-sd-full",
+            "**/*.obj",
+        ),
+        glob_check(
+            "object_c_mesh",
+            outputs / "object_c_magic123/object-c-magic123-fine-full",
+            "**/*.obj",
+        ),
         glob_check("fusion_video", outputs / "fusion", "*.mp4"),
         command_check(
             "blender_portable_runtime",
