@@ -59,9 +59,25 @@ def copy_artifact(source: Path, staging: Path, relative_path: str) -> dict[str, 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--release-dir", type=Path, default=DEFAULT_RELEASE_DIR)
+    parser.add_argument(
+        "--object-c-fine-root",
+        type=Path,
+        default=Path("outputs/object_c_magic123/object-c-magic123-fine-full"),
+    )
+    parser.add_argument(
+        "--metadata-output",
+        type=Path,
+        default=Path("logs/task1-best-weights-package.json"),
+    )
     args = parser.parse_args()
 
     release_dir = verify_release_dir(args.release_dir)
+    fine_root = args.object_c_fine_root
+    if not fine_root.is_absolute():
+        fine_root = PROJECT_ROOT / fine_root
+    metadata_output = args.metadata_output
+    if not metadata_output.is_absolute():
+        metadata_output = PROJECT_ROOT / metadata_output
     staging = release_dir / PACKAGE_NAME
     archive = release_dir / f"{PACKAGE_NAME}.tar.gz"
     manifest_path = release_dir / f"{PACKAGE_NAME}.manifest.json"
@@ -89,19 +105,19 @@ def main() -> None:
             "object_c_magic123/coarse/object-c-magic123-coarse-full.pth",
         ),
         (
-            PROJECT_ROOT / "outputs/object_c_magic123/object-c-magic123-fine-full/checkpoints/object-c-magic123-fine-full.pth",
+            fine_root / "checkpoints" / f"{fine_root.name}.pth",
             "object_c_magic123/fine/object-c-magic123-fine-full.pth",
         ),
         (
-            PROJECT_ROOT / "outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.obj",
+            fine_root / "mesh/mesh.obj",
             "object_c_magic123/fine/mesh/mesh.obj",
         ),
         (
-            PROJECT_ROOT / "outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.mtl",
+            fine_root / "mesh/mesh.mtl",
             "object_c_magic123/fine/mesh/mesh.mtl",
         ),
         (
-            PROJECT_ROOT / "outputs/object_c_magic123/object-c-magic123-fine-full/mesh/albedo.png",
+            fine_root / "mesh/albedo.png",
             "object_c_magic123/fine/mesh/albedo.png",
         ),
     ]
@@ -143,7 +159,8 @@ def main() -> None:
         "archive_sha256": archive_sha256,
         "checksum": str(checksum_path),
     }
-    (PROJECT_ROOT / "logs/task1-best-weights-package.json").write_text(
+    metadata_output.parent.mkdir(parents=True, exist_ok=True)
+    metadata_output.write_text(
         json.dumps(metadata, indent=2) + "\n",
         encoding="utf-8",
     )

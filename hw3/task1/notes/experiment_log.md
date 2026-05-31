@@ -1523,3 +1523,28 @@ Extended `scripts/check_task1_readiness.py` from `13` to `17` checks. The final
 gate now verifies the formal fusion preview, published PDF, `report_data.json`
 final status, and public cloud-weights URL with an HTTP HEAD request. Before
 formal C completes, the expanded audit correctly reports `11/17`.
+
+## 2026-05-31 / Best-Weights Package and GitHub Release Preflight
+
+Package preflight:
+Extended `scripts/package_best_weights.py` with an overridable Object C fine
+root and isolated metadata output. Built a smoke-backed preflight archive under
+`/mnt/d/PackageCache/cv-hw3-task1-release-preflight` without touching formal
+outputs. The archive size was `273244916` bytes. Its outer SHA-256 was
+`afaaad65d7b0fef7047b9743071d8b93441cdb569bb327a48f23ca0f8d83acb4`.
+
+Artifact verification:
+The staged package contained `8` expected artifacts: Object A 2DGS point
+cloud, counter-background 2DGS point cloud, Object B OBJ, Object C coarse
+checkpoint, Object C fine checkpoint, and the Object C textured mesh OBJ, MTL,
+and albedo PNG. Recomputed SHA-256 values for every staged file and confirmed
+that all `8 / 8` matched the generated manifest. Removed the temporary archive
+after verification to recover D-drive space.
+
+GitHub Release probe:
+Created a temporary public release tag
+`hw3-task1-release-preflight-20260531`, uploaded a `63`-byte probe asset,
+fetched its stable public download URL with HTTP HEAD, and received status
+`200` with `Content-Length=63`. Deleted the temporary release, tag, and local
+probe directory afterward. The formal uploader can therefore use the same
+authenticated Windows GitHub CLI path after Object C completes.

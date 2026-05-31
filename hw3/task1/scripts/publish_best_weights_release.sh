@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 GH_BIN="${GH_BIN:-/mnt/d/Program Files/GitHub CLI/gh.exe}"
+PYTHON_BIN="${PYTHON_BIN:-/home/hp/miniforge3/envs/cv_hw3_threestudio/bin/python}"
 RELEASE_DIR="${RELEASE_DIR:-/mnt/d/PackageCache/cv-hw3-task1-release}"
 REPO="${REPO:-Loong-C/FDU-Computer-Vision}"
 TAG="${TAG:-hw3-task1-weights}"
@@ -18,7 +19,7 @@ if [[ ! -f "${GH_BIN}" ]]; then
   exit 1
 fi
 
-python "${SCRIPT_DIR}/package_best_weights.py" --release-dir "${RELEASE_DIR}"
+"${PYTHON_BIN}" "${SCRIPT_DIR}/package_best_weights.py" --release-dir "${RELEASE_DIR}"
 ARCHIVE_WINDOWS="$(wslpath -w "${ARCHIVE}")"
 CHECKSUM_WINDOWS="$(wslpath -w "${CHECKSUM}")"
 NOTES_WINDOWS="$(wslpath -w "${NOTES}")"

@@ -70,9 +70,21 @@ def report_data_check(name, path):
     if not path.exists():
         return result
     data = json.loads(path.read_text(encoding="utf-8"))
+    required = {
+        "cloud_weights_url": data.get("cloud_weights_url"),
+        "object_c.formal_mesh": data.get("object_c", {}).get("formal_mesh"),
+        "object_c.preview": data.get("object_c", {}).get("preview"),
+        "object_c.coarse_seconds": data.get("object_c", {}).get("coarse_seconds"),
+        "object_c.fine_seconds": data.get("object_c", {}).get("fine_seconds"),
+        "fusion.video": data.get("fusion", {}).get("video"),
+        "fusion.preview": data.get("fusion", {}).get("preview"),
+        "fusion.render_seconds": data.get("fusion", {}).get("render_seconds"),
+    }
+    missing = [label for label, value in required.items() if value in {None, "", "PENDING"}]
     result["status"] = data.get("status")
     result["cloud_weights_url"] = data.get("cloud_weights_url")
-    result["ready"] = data.get("status") == "final"
+    result["missing"] = missing
+    result["ready"] = data.get("status") == "final" and not missing
     return result
 
 
