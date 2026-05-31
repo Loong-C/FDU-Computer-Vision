@@ -86,6 +86,12 @@ bash scripts/setup_aigc_envs.sh magic123-deps
 The two environments are named `cv_hw3_threestudio` and `cv_hw3_magic123`.
 CUDA 11.8 and GCC 11 are used for locally compiled PyTorch extensions.
 
+The official threestudio stack pins `lightning==2.0.0`, which requires
+`fastapi<0.89`. SwanLab's optional local `swanboard` dashboard requires
+`fastapi>=0.110.1`, so `pip check` reports that known dashboard-only conflict
+inside `cv_hw3_threestudio`. SwanLab experiment logging and the verified
+threestudio training imports remain available.
+
 ## Object A
 
 Place phone-captured multi-view images in `data/raw/object_a_images/`. Prepare

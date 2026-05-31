@@ -659,3 +659,37 @@ Added `pybind11` to the AIGC build-prerequisite bootstrap.
 Added the Conda CUDA stub directory to `LIBRARY_PATH` and `LDFLAGS` during threestudio dependency builds.
 
 Limited extension builds to `MAX_JOBS=2` to reduce contention with the active Object A training run.
+
+## 2026-05-31 / threestudio Dependency Installation Attempt 2
+
+Goal:
+Retry the official threestudio dependency installation with the Conda CUDA
+driver-stub linker path and the non-isolated `pybind11` prerequisite.
+
+Result:
+Succeeded for the official threestudio runtime and all required CUDA
+extensions.
+
+Validated runtime:
+PyTorch: `2.0.1+cu118`
+CUDA available: `True`
+NerfAcc: `0.5.2`
+Tiny CUDA NN: import succeeded
+NVDiffRast: import succeeded
+PySDF: import succeeded
+XFormers: `0.0.20`
+SwanLab: `0.7.19`
+
+Validated extension builds:
+`nerfacc`
+`tinycudann`
+`nvdiffrast`
+`pysdf`
+
+Known optional-dashboard conflict:
+`pip check` reports that `swanboard 0.1.9b3` requires `fastapi>=0.110.1`,
+while the official threestudio dependency `lightning==2.0.0` requires
+`fastapi<0.89.0`. Those constraints do not overlap. The verified threestudio
+runtime and SwanLab event logging both import successfully, so the official
+Lightning runtime is preserved and the optional local SwanBoard UI conflict is
+documented explicitly.

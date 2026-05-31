@@ -1,4 +1,8 @@
 # Keep threestudio compatible with the verified PyTorch 2.0.1 CUDA 11.8 environment.
+# Upstream lightning==2.0.0 requires fastapi<0.89, while SwanLab's optional
+# swanboard dashboard requires fastapi>=0.110.1. Keep the official Lightning
+# runtime intact; SwanLab event logging still works, but pip check reports that
+# optional local-dashboard conflict in this environment.
 numpy<2
 torch==2.0.1
 torchvision==0.15.2
