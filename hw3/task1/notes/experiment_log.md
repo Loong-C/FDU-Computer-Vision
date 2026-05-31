@@ -1792,3 +1792,25 @@ launched only `object-c-magic123-fine-full` at
 `2026-06-01T07:00:54+08:00`, with `--dmtet` and the correct coarse
 `--init_ckpt`. The post-Object-C watcher remains alive and continues waiting
 for successful fine-wrapper metadata.
+
+## 2026-06-01 / Object C Formal Fine Epoch 3 Checkpoint
+
+Progress audit:
+The recovered Magic123 dmtet fine run completed `Epoch 3/5` at step `300/500`
+and wrote
+`outputs/object_c_magic123/object-c-magic123-fine-full/checkpoints/object-c-magic123-fine-full_ep0003.pth`
+(`425,398,499` bytes). Evaluation finished at
+`2026-06-01T07:29:42+08:00`, and the healthy GPU process continued into
+`Epoch 4/5`. The averaged total loss decreased from `0.0119` at step `200` to
+`0.0093` at step `300`.
+
+Visual inspection:
+Reviewed the epoch-3 four-view Lambertian validation sheet. The observed front
+of the medicine box retains its printed text and blue-white product texture.
+The mesh is present without global collapse. The unobserved side and rear
+surfaces remain rough, which is an expected single-image reconstruction
+limitation to discuss in the final report.
+
+Pipeline status:
+Strict readiness remains `11/18`. The fine queue and post-Object-C watcher are
+both alive; no restart is required.
