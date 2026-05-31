@@ -365,8 +365,8 @@ def make_story(data: dict[str, object], styles: dict[str, ParagraphStyle]) -> li
             ["物体 A 2DGS", "30000 / 原始尺寸", "lambda_normal=0.05，lambda_dist=0，depth_ratio=0", "PSNR，L1，点数"],
             ["背景 2DGS", "30000 / half", "lambda_normal=0.05，lambda_dist=0，depth_ratio=0", "PSNR，L1，点数"],
             ["物体 B DreamFusion", "10000 / 64 × 64", "Adam，SD 1.5 SDS，guidance_scale=100", "SDS Loss，Mesh"],
-            ["物体 C coarse", "5000 / 128 × 128", "Adam，SD + Zero123，lambda_guidance=[1.0, 40]", "总 Loss，各引导项"],
-            ["物体 C fine", "5000 / DMTet", "Adam，SD + Zero123，lambda_guidance=[1e-3, 0.01]", "总 Loss，Mesh"],
+            ["物体 C coarse", "500 local / 128 × 128", "Adam，SD + Zero123，lambda_guidance=[1.0, 40]", "总 Loss，各引导项"],
+            ["物体 C fine", "500 local / DMTet", "Adam，SD + Zero123，lambda_guidance=[1e-3, 0.01]", "总 Loss，Mesh"],
         ],
         [2.5 * cm, 3.0 * cm, 7.5 * cm, 2.9 * cm],
     )
@@ -409,8 +409,8 @@ def make_story(data: dict[str, object], styles: dict[str, ParagraphStyle]) -> li
         story.append(
             paragraph(
                 "Magic123 coarse 与 fine smoke 均已通过：coarse smoke 为 285.69 秒，fine smoke 为 "
-                "194.61 秒，并成功导出 OBJ。正式 5000 + 5000 步队列正在运行；本草稿保留动态曲线，"
-                "正式版将在队列完成后写入最终 Mesh、预览和精确耗时。",
+                "194.61 秒，并成功导出 OBJ。正式本地 500 + 500 步队列正在运行；官方参考预算为 "
+                "5000 + 5000 步。本草稿保留动态曲线，正式版将在队列完成后写入最终 Mesh、预览和精确耗时。",
                 styles["body"],
             )
         )

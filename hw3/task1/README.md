@@ -208,7 +208,13 @@ MODE=full STAGE=fine bash scripts/generate_image3d_object_c.sh
 ```
 
 The smoke path is intended for dependency and VRAM validation. The report asset
-must use the full path. The helper explicitly passes the public
+must use the full path. On the current 8 GB GPU, the full path defaults to
+`500` iterations per stage: this is `100x` the validated `5`-step smoke path
+and keeps the report-quality local queue within a practical runtime. The
+official Magic123 scripts use `5000` iterations per stage; reproduce that
+reference budget explicitly on a larger GPU with `ITERS=5000`.
+
+The helper explicitly passes the public
 `stable-diffusion-v1-5/stable-diffusion-v1-5` repository to Magic123 so Object C
 reuses the same D-drive SD 1.5 cache as Object B. It also applies an idempotent
 local Magic123 compatibility patch that disables unused safety-checker

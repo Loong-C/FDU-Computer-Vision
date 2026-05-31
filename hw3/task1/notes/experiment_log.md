@@ -1420,3 +1420,29 @@ steps. This confirms that the formal coarse run entered its intended
 SD + Zero123 guidance phase. A direct TensorBoard audit found the first
 non-zero guidance event at step `101`; at the observed step `109`,
 `loss_sds=0.8894558` and `loss_zero123=1.3532970`.
+
+## 2026-05-31 / Object C Local-Formal Runtime Adaptation
+
+Official reference:
+The upstream Magic123 shell scripts use `5000` coarse iterations followed by
+`5000` fine DMTet iterations.
+
+Measured local throughput:
+The first ten formal intervals from step `100` through step `110` averaged
+`75.1788` seconds per step on the current 8 GB GPU with `--vram_O`. At that
+rate, the remaining official-reference coarse stage alone would require
+approximately `102.12` hours before the fine stage.
+
+Decision:
+Use `500` iterations per stage as the local-formal default, while preserving
+`ITERS=5000` as an explicit override for a larger GPU. The local-formal budget
+is still `100x` the successful `5`-step smoke validation and retains the
+intended known-view warmup plus SD + Zero123 guidance regime. The upstream
+reference and measured adaptation are both stated in the README, config,
+time-cost table, and report.
+
+Resume point:
+The existing coarse workspace contains a safe epoch-1 checkpoint with
+`global_step=100`. Stop the impractical reference-budget process gently,
+archive its wrapper metadata and terminal log, then resume the same workspace
+from that checkpoint under the local-formal budget.

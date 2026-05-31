@@ -71,8 +71,8 @@ Use textured meshes as the exchange representation for Object A, Object B, Objec
 | Object A 2DGS | 30000 | native | `lambda_normal=0.05`, `lambda_dist=0.0`, `depth_ratio=0.0` |
 | Background 2DGS | 30000 | half | `lambda_normal=0.05`, `lambda_dist=0.0`, `depth_ratio=0.0` |
 | Object B threestudio | 10000 | 64 x 64 | Public Stable Diffusion 1.5 SDS, `guidance_scale=100` |
-| Object C Magic123 coarse | 5000 | 128 x 128 | SD + Zero123, `lambda_guidance=[1.0, 40]` |
-| Object C Magic123 fine | 5000 | DMTet | SD + Zero123, `lambda_guidance=[1e-3, 0.01]` |
+| Object C Magic123 coarse | 500 local formal (`5000` official reference) | 128 x 128 | SD + Zero123, `lambda_guidance=[1.0, 40]` |
+| Object C Magic123 fine | 500 local formal (`5000` official reference) | DMTet | SD + Zero123, `lambda_guidance=[1e-3, 0.01]` |
 
 ## 5. Results
 

@@ -10,8 +10,10 @@ guidance:
   - SD
   - zero123
 full_run:
-  coarse_iterations: 5000
-  fine_iterations: 5000
+  coarse_iterations: 500
+  fine_iterations: 500
+  official_reference_iterations: 5000
+  override: ITERS=5000
   width: 128
   height: 128
 smoke_run:

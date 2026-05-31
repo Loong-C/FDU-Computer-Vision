@@ -26,7 +26,7 @@ case "${MODE}" in
     MCUBES_RESOLUTION="${MCUBES_RESOLUTION:-64}"
     ;;
   full)
-    ITERS="${ITERS:-5000}"
+    ITERS="${ITERS:-500}"
     WIDTH="${WIDTH:-128}"
     HEIGHT="${HEIGHT:-128}"
     TEST_VIEWS="${TEST_VIEWS:-100}"
