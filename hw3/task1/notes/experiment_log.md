@@ -1548,3 +1548,24 @@ fetched its stable public download URL with HTTP HEAD, and received status
 `200` with `Content-Length=63`. Deleted the temporary release, tag, and local
 probe directory afterward. The formal uploader can therefore use the same
 authenticated Windows GitHub CLI path after Object C completes.
+
+## 2026-05-31 / Final-Like PDF Visual Preflight
+
+Goal:
+Validate the final-report path before waiting for the formal Object C mesh.
+
+Method:
+Built an isolated final-like report under
+`/mnt/d/PackageCache/cv-hw3-task1-report-preflight`. The preflight used the
+verified Object C smoke mesh and smoke fusion preview only inside temporary
+metadata, while keeping tracked `report/report_data.json` unchanged. Invoked
+the same `require_final_deliverables` gate and `make_story` implementation used
+by the formal publisher, then rendered every PDF page with PyMuPDF.
+
+Result:
+The final gate passed and produced a `1092699`-byte, `9`-page PDF. Generated a
+page montage and visually inspected all pages, then enlarged the cover,
+fusion-results page, and external-links page. Chinese fonts render correctly;
+tables, charts, representative fusion frame, footer, and long public-release
+URL remain readable without overflow. Removed the temporary PDF directory
+after visual QA.
