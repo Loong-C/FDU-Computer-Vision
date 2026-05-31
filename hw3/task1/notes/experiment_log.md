@@ -1065,3 +1065,81 @@ Tracking:
 Recorded the launch and success as SwanLab pipeline milestones. The cached
 snapshot is ready for the Object B smoke retry and can also be reused by
 Object C where compatible.
+
+## 2026-05-31 / Object B DreamFusion SD Smoke Attempt 4
+
+Goal:
+Validate the public SD 1.5 cache, threestudio SDS path, GPU memory budget, and
+test-render path before launching the full text-to-3D run.
+
+Command:
+`WINDOWS_PROXY_PORT=7890 MODE=smoke RUN_NAME=object-b-dreamfusion-sd-smoke-attempt-4 bash scripts/generate_text3d_object_b.sh`
+
+Result:
+Succeeded with exit code `0`. Stable Diffusion loaded from the D-drive cache,
+all `20` smoke iterations completed, and the test pass rendered `120` views.
+The tracked wrapper imported `20` TensorBoard scalar steps.
+
+Timing:
+`63.320566056` seconds end to end.
+
+GPU:
+Peak observed allocation during training was approximately `3853 MiB` on the
+RTX 4060 Ti. The GPU returned to its idle allocation after completion.
+
+Visual check:
+The short smoke run produced the expected coarse colored density blob rather
+than a finished object. This is sufficient to validate the full-run path.
+
+Tracking:
+The tracked wrapper recorded the successful smoke run in SwanLab local mode.
+
+## 2026-05-31 / Object B Smoke Mesh Export Attempt 1
+
+Goal:
+Validate the dedicated threestudio OBJ exporter against the successful
+`20`-step Object B smoke checkpoint.
+
+Result:
+The exporter entered `launch.py --export`, restored the smoke checkpoint, and
+completed the prediction loop, then failed during isosurface extraction with
+`ValueError: max() arg is an empty sequence`.
+
+Diagnosis:
+The `20`-step diagnostic density field has no connected surface at
+threestudio's formal `ImplicitVolume` export threshold of `25.0`. This is
+expected for the deliberately short smoke run and does not invalidate the
+formal training path.
+
+Follow-up:
+Added an `ISOSURFACE_THRESHOLD` exporter override while retaining the official
+`25.0` default. A lower threshold is used only to validate the smoke export
+plumbing; formal output continues to use the default.
+
+Tracking:
+The tracked wrapper and an explicit SwanLab pipeline milestone recorded the
+diagnostic export failure.
+
+## 2026-05-31 / Object B Smoke Mesh Export Attempt 2
+
+Goal:
+Complete a diagnostic OBJ export from the smoke checkpoint with a lower
+isosurface threshold while preserving the formal exporter default.
+
+Command:
+`RUN_NAME=object-b-dreamfusion-sd-smoke-attempt-4 TRAIN_TAG=smoke ISOSURFACE_THRESHOLD=5.0 bash scripts/export_text3d_object_b.sh`
+
+Result:
+Succeeded with exit code `0`. The exporter restored the smoke checkpoint and
+wrote `it20-export/model.obj`.
+
+Mesh:
+The diagnostic OBJ is `6010664` bytes with `35136` vertices and `70268` faces.
+
+Timing:
+`12.438506502` seconds end to end.
+
+Tracking:
+The tracked wrapper and the `object-b-smoke-export-attempt-2-success` SwanLab
+pipeline milestone recorded the successful plumbing check. Formal Object B
+export retains the default threshold of `25.0`.

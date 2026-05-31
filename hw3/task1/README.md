@@ -145,7 +145,14 @@ Diffusion SDS loss:
 ```bash
 MODE=smoke bash scripts/generate_text3d_object_b.sh
 MODE=full bash scripts/generate_text3d_object_b.sh
+bash scripts/export_text3d_object_b.sh
 ```
+
+The exporter finds the latest full checkpoint by default and writes an OBJ
+under the corresponding Object B output directory. To validate the export
+path against a smoke checkpoint, set `RUN_NAME`, `TRAIN_TAG=smoke`, and a lower
+diagnostic `ISOSURFACE_THRESHOLD`. Formal exports retain the official `25.0`
+threshold by default.
 
 The helper defaults to the public
 `stable-diffusion-v1-5/stable-diffusion-v1-5` repository and
