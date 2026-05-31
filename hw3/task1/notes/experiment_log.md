@@ -361,3 +361,19 @@ Updated `notes/environment_plan.md` from the early two-environment assumption to
 
 Validation:
 The first readiness snapshot reports `4 / 14` checks ready: 34 Object A COLMAP images, Object A iteration-7000 checkpoint, 240 background `counter` images, and the prepared Object C RGBA input. The remaining checks correctly identify pending training checkpoints, official Magic123 weights, AIGC meshes, fusion video, Blender, and FFmpeg.
+
+## 2026-05-31 / Fusion Runtime Scaffolding
+
+Goal:
+Replace the fusion placeholder with a reproducible mesh-composition and walkthrough-video rendering path.
+
+Implementation:
+Added `scripts/setup_blender.sh` for a fixed Blender `4.2.15` Linux x64 portable runtime from the official Blender release server with SHA-256 verification.
+
+Added `configs/fusion_scene.json`, `scripts/blender_fuse_scene.py`, and a real `scripts/render_fusion.sh`. The Blender script imports PLY, OBJ, or GLB meshes, applies explicit transforms, adds lighting and an orbiting walkthrough camera, saves a `.blend` scene, and encodes an H.264 MP4 using Blender's FFmpeg integration.
+
+Status:
+Implementation complete. Runtime download, first render, and transform tuning remain pending until the four mesh assets are available.
+
+Validation:
+Bash syntax, Python byte-compilation, and JSON parsing passed. Running `bash scripts/render_fusion.sh` before runtime installation exits with the expected actionable message: `Missing Blender runtime. Run: bash scripts/setup_blender.sh`.

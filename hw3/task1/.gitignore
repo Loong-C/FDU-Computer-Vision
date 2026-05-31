@@ -26,6 +26,7 @@ outputs/
 external/2d-gaussian-splatting/
 external/threestudio/
 external/Magic123/
+external/blender/
 
 # System / editor
 .DS_Store

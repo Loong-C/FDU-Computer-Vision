@@ -1,0 +1,43 @@
+{
+  "output_blend": "outputs/fusion/task1-fusion.blend",
+  "output_video": "outputs/fusion/task1-walkthrough.mp4",
+  "resolution_x": 640,
+  "resolution_y": 480,
+  "fps": 30,
+  "frames": 180,
+  "camera": {
+    "target": [0.0, 0.0, 0.2],
+    "radius": 5.0,
+    "height": 2.2
+  },
+  "assets": [
+    {
+      "name": "background",
+      "path": "outputs/background_2dgs/background-counter-2dgs-full/train/ours_30000/fuse_post.ply",
+      "location": [0.0, 0.0, 0.0],
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "object_a",
+      "path": "outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply",
+      "location": [-0.8, 0.0, 0.25],
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "scale": [0.15, 0.15, 0.15]
+    },
+    {
+      "name": "object_b",
+      "glob": "outputs/object_b_text3d/object-b-dreamfusion-sd-full/**/*.obj",
+      "location": [0.0, 0.0, 0.25],
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "scale": [0.35, 0.35, 0.35]
+    },
+    {
+      "name": "object_c",
+      "glob": "outputs/object_c_magic123/object-c-magic123-fine-full/**/*.obj",
+      "location": [0.8, 0.0, 0.25],
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "scale": [0.35, 0.35, 0.35]
+    }
+  ]
+}

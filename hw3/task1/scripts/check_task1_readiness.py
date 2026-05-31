@@ -3,7 +3,6 @@
 
 import argparse
 import json
-import shutil
 from pathlib import Path
 
 
@@ -31,16 +30,6 @@ def glob_check(name, root, pattern):
         "path": str(root),
         "pattern": pattern,
         "matches": matches,
-    }
-
-
-def command_check(name, command):
-    resolved = shutil.which(command)
-    return {
-        "name": name,
-        "ready": resolved is not None,
-        "command": command,
-        "resolved": resolved,
     }
 
 
@@ -85,8 +74,7 @@ def main():
         glob_check("object_b_mesh", outputs / "object_b_text3d", "**/*.obj"),
         glob_check("object_c_mesh", outputs / "object_c_magic123", "**/*.obj"),
         glob_check("fusion_video", outputs / "fusion", "*.mp4"),
-        command_check("blender_command", "blender"),
-        command_check("ffmpeg_command", "ffmpeg"),
+        path_check("blender_portable_runtime", PROJECT_ROOT / "external/blender/blender"),
     ]
     ready_count = sum(check["ready"] for check in checks)
     summary = {

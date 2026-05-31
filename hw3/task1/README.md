@@ -154,5 +154,13 @@ must use the full path.
 
 ## Fusion
 
-Export assets as meshes and compose them with the background in Blender for the
-final walkthrough video.
+Export assets as meshes, install the fixed Blender portable runtime, compose
+the scene, and render the final walkthrough video:
+
+```bash
+bash scripts/setup_blender.sh
+bash scripts/render_fusion.sh
+```
+
+The initial transforms live in `configs/fusion_scene.json`. Adjust them after
+the first visual inspection if the extracted mesh coordinate ranges require it.
