@@ -4,6 +4,7 @@
 import argparse
 import json
 import subprocess
+import urllib.request
 from pathlib import Path
 
 
@@ -60,6 +61,40 @@ def command_check(name, path, *args):
     return result
 
 
+def report_data_check(name, path):
+    result = {
+        "name": name,
+        "ready": False,
+        "path": str(path),
+    }
+    if not path.exists():
+        return result
+    data = json.loads(path.read_text(encoding="utf-8"))
+    result["status"] = data.get("status")
+    result["cloud_weights_url"] = data.get("cloud_weights_url")
+    result["ready"] = data.get("status") == "final"
+    return result
+
+
+def url_check(name, url):
+    result = {
+        "name": name,
+        "ready": False,
+        "url": url,
+    }
+    if not url or url == "PENDING":
+        return result
+    try:
+        request = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(request, timeout=30) as response:
+            result["status"] = response.status
+            result["content_length"] = response.headers.get("Content-Length")
+            result["ready"] = 200 <= response.status < 400
+    except Exception as error:  # noqa: BLE001
+        result["error"] = str(error)
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path)
@@ -69,6 +104,8 @@ def main():
     data = PROJECT_ROOT / "data"
     outputs = PROJECT_ROOT / "outputs"
     magic123 = PROJECT_ROOT / "external" / "Magic123"
+    report_data_path = PROJECT_ROOT / "report/report_data.json"
+    report_data = json.loads(report_data_path.read_text(encoding="utf-8"))
     checks = [
         {
             "name": "object_a_colmap_images",
@@ -109,6 +146,16 @@ def main():
             "**/*.obj",
         ),
         glob_check("fusion_video", outputs / "fusion", "*.mp4"),
+        path_check(
+            "fusion_preview",
+            PROJECT_ROOT / "docs/figures/fusion_walkthrough_preview.png",
+        ),
+        path_check(
+            "final_pdf_report",
+            PROJECT_ROOT / "report/cv_hw3_task1_report.pdf",
+        ),
+        report_data_check("report_data_final", report_data_path),
+        url_check("cloud_weights_public_url", report_data.get("cloud_weights_url")),
         command_check(
             "blender_portable_runtime",
             PROJECT_ROOT / "external/blender/blender",

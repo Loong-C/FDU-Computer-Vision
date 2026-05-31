@@ -1499,3 +1499,27 @@ formal A mesh, formal B OBJ, and verified C smoke OBJ; rendered the preview,
 `outputs/fusion_smoke/task1-walkthrough-smoke.mp4` is a valid ISO MP4 file.
 Object C local-formal coarse training remained active near `100%` GPU
 utilization throughout the CPU-side Blender calibration.
+
+## 2026-05-31 / Public Best-Weights Release and Final-PDF Automation
+
+Delivery gap audit:
+The first post-Object-C watcher still generated only a draft PDF and did not
+replace `cloud_weights_url=PENDING`. Windows already has an authenticated
+GitHub CLI session for the public `Loong-C/FDU-Computer-Vision` repository, so
+the final deliverable can use a persistent GitHub Release URL without adding
+large weight files to Git history.
+
+Implementation:
+Added `scripts/package_best_weights.py` to stage the formal A/background 2DGS
+point clouds, B OBJ, C coarse/fine checkpoints, and C textured mesh under
+`/mnt/d/PackageCache/cv-hw3-task1-release`; it writes per-file SHA-256 values
+and a compressed archive. Added `scripts/publish_best_weights_release.sh` to
+create or update the public `hw3-task1-weights` GitHub Release idempotently.
+Added `scripts/finalize_task1_metadata.py` to replace report placeholders with
+measured runtimes, local artifact paths, and the public download URL.
+
+Audit hardening:
+Extended `scripts/check_task1_readiness.py` from `13` to `17` checks. The final
+gate now verifies the formal fusion preview, published PDF, `report_data.json`
+final status, and public cloud-weights URL with an HTTP HEAD request. Before
+formal C completes, the expanded audit correctly reports `11/17`.

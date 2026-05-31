@@ -240,12 +240,15 @@ def load_font(size: int) -> ImageFont.ImageFont:
 
 
 def create_preview_montage() -> None:
+    object_c_preview = ASSET_DIR / "object_c_magic123_final_preview.jpg"
+    if not object_c_preview.exists():
+        object_c_preview = ASSET_DIR / "object_c_magic123_smoke_preview.jpg"
     candidates = [
         ("Object A: phone multiview + 2DGS", ASSET_DIR / "object_a_render_preview.png"),
         ("Object B: text prompt + SDS", ASSET_DIR / "object_b_final_preview.png"),
         (
-            "Object C: single image + Magic123 smoke",
-            ASSET_DIR / "object_c_magic123_smoke_preview.jpg",
+            "Object C: single image + Magic123",
+            object_c_preview,
         ),
         (
             "Background: Mip-NeRF 360 counter + 2DGS",
