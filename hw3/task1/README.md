@@ -196,6 +196,13 @@ reuses the same D-drive SD 1.5 cache as Object B. It also applies an idempotent
 local Magic123 compatibility patch that disables unused safety-checker
 components, keeping the required cache identical to Object B's core snapshot.
 
+Magic123 loads Stable Diffusion 1.5 and Zero123 into host memory together. On a
+32 GB Windows host, the default WSL cap can OOM-kill the process while Zero123
+is loading. Copy `configs/wslconfig.magic123.example` to
+`%UserProfile%\.wslconfig`, run `wsl --shutdown`, and start WSL again before the
+first Magic123 run. The template grants WSL 26 GB RAM and creates its 32 GB
+swap file under `D:\WSL`, avoiding new C-drive pressure.
+
 ## Fusion
 
 Export assets as meshes, install the fixed Blender portable runtime, compose

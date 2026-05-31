@@ -97,12 +97,13 @@ Object B convergence diagnostics:
 | 20 | `docs/figures/object_b_smoke_preview.png` | Smoke-path density blob; sufficient only for plumbing validation |
 | 1600 | `docs/figures/object_b_full_iter1600_preview.png` | Recognizable teapot silhouette with lid, spout, and handle |
 | 3000 | `docs/figures/object_b_full_iter3000_preview.png` | Red teapot appearance and silhouette continue to stabilize |
+| 10000 | `docs/figures/object_b_final_preview.png` | Formal red-teapot preview with stable lid, spout, round body, and curved handle |
 
 | Asset | Mesh Output | Preview / Video | Time Cost |
 |---|---|---|---:|
 | Object A | `outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/object_a_render_preview.png` | 4855.77 s training |
 | Background | `outputs/background_2dgs/background-counter-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/background_counter_render_preview.png` | 1368.52 s training |
-| Object B | PENDING | PENDING | PENDING |
+| Object B | `outputs/object_b_text3d/object-b-dreamfusion-sd-full/object-b-dreamfusion-sd-full/export@20260531-190339/save/it10000-export/model.obj` | `docs/figures/object_b_final_preview.png` | 3624.22 s training + 35.46 s export |
 | Object C | PENDING | PENDING | PENDING |
 | Fusion | unified scene | PENDING | PENDING |
 

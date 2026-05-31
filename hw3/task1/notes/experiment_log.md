@@ -1285,3 +1285,42 @@ Launch validation:
 Started the hidden queue after commit `6d5bd98`. The queue log reported
 `Waiting for Object B formal wrapper: object-b-dreamfusion-sd-full`, and the
 WSL worker remained alive while Object B continued past step `3813`.
+
+## 2026-05-31 / Object B Full Completion and Formal OBJ Export
+
+Training result:
+The formal DreamFusion run completed `10000` steps successfully. The tracked
+wrapper imported `10000` TensorBoard steps and reported `3624.218688131`
+seconds elapsed with `exit_code=0`.
+
+Visual check:
+Copied `it10000-0.png` to `docs/figures/object_b_final_preview.png`. The final
+validation image shows the requested red ceramic teapot with a stable round
+body, lid, short spout, and curved handle.
+
+Mesh export:
+The queued formal export reused the final checkpoint and official default
+isosurface threshold `25.0`. It completed with `exit_code=0` in
+`35.46129894600017` seconds and generated
+`outputs/object_b_text3d/object-b-dreamfusion-sd-full/object-b-dreamfusion-sd-full/export@20260531-190339/save/it10000-export/model.obj`.
+The OBJ is `4825311` bytes with `28180` vertices and `56536` faces.
+
+## 2026-05-31 / Magic123 WSL Memory-Cap OOM Diagnosis
+
+Symptom:
+The queued Object C coarse smoke check stopped during guidance initialization
+without producing wrapper metadata. A foreground retry with a distinct run
+name reproduced the same failure after Stable Diffusion loaded and Zero123
+initialization began.
+
+Evidence:
+WSL kernel logs reported `Out of memory: Killed process ... (python)` with
+`anon-rss:15476524kB`. The active WSL instance exposed only approximately
+`15GiB` RAM and `4GiB` swap, while the Windows host has `31.69GiB` physical
+memory.
+
+Recovery:
+Added `configs/wslconfig.magic123.example` for a 32 GB Windows host. It raises
+the WSL memory cap to `26GB` and places a `32GB` WSL swap file at
+`D:\WSL\swap.vhdx`, preserving the earlier C-drive cleanup. Apply the template,
+restart WSL, then rerun the tracked Object C coarse smoke check.
