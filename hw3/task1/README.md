@@ -192,7 +192,9 @@ MODE=full STAGE=fine bash scripts/generate_image3d_object_c.sh
 The smoke path is intended for dependency and VRAM validation. The report asset
 must use the full path. The helper explicitly passes the public
 `stable-diffusion-v1-5/stable-diffusion-v1-5` repository to Magic123 so Object C
-reuses the same D-drive SD 1.5 cache as Object B.
+reuses the same D-drive SD 1.5 cache as Object B. It also applies an idempotent
+local Magic123 compatibility patch that disables unused safety-checker
+components, keeping the required cache identical to Object B's core snapshot.
 
 ## Fusion
 

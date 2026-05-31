@@ -1221,3 +1221,30 @@ Runtime:
 Observed throughput was approximately `2.73 it/s`, with GPU usage around
 `6109 MiB` at `98%` utilization. Disk free space remained stable at
 approximately `65.11G` on C and `53.57G` on D.
+
+## 2026-05-31 / Magic123 Core-Only SD 1.5 Snapshot Compatibility
+
+Goal:
+Keep Object C on the same prefetched SD 1.5 core snapshot as Object B.
+
+Finding:
+Magic123 constructs `StableDiffusionPipeline` without disabling unused
+`feature_extractor` and `safety_checker` components. The public snapshot index
+lists those optional components, while the D-drive prefetch intentionally
+contains only the core tokenizer, text encoder, scheduler, UNet, and VAE files
+used for SDS optimization.
+
+Change:
+Added an idempotent tracked patch and application helper. Object C generation
+now applies the local Magic123 patch before launch, explicitly passing
+`safety_checker=None`, `feature_extractor=None`, and
+`requires_safety_checker=False` to the pipeline constructor. The patch also
+honors `HF_HUB_OFFLINE=1` by enabling `local_files_only`, making the D-drive
+cache sufficient for offline reproduction.
+
+Validation:
+Applied the patch locally and ran the helper twice; the second run correctly
+reported that the patch was already applied. A real `HF_HUB_OFFLINE=1`
+Magic123 `StableDiffusion` construction succeeded from the D-drive cache and
+loaded `CLIPTokenizer`, `CLIPTextModel`, `UNet2DConditionModel`,
+`AutoencoderKL`, and the `1000`-step scheduler without network access.
