@@ -79,3 +79,30 @@ The reconstructed figure is recognizable, but the 3000-iteration baseline is vis
 
 Mesh export issue:
 The default bounded TSDF settings inferred `voxel_size=0.007367...` and caused WSL to exceed its approximately 15 GiB memory limit during fusion. Future mesh exports must use explicit coarse settings and run separately from image rendering.
+
+## 2026-05-31 / Object C Input
+
+Goal:
+Prepare the single-image input for the Magic123 asset-generation path.
+
+Result:
+Copied the user-provided `c.png` into `data/raw/object_c_image/c.png`. The image depicts an amoxicillin capsule box and already has a visually isolated foreground. The Magic123 preprocessing step must still verify whether the checkerboard is encoded into RGB pixels or represented as a transparent alpha channel.
+
+## 2026-05-31 / 2DGS Tracking Wrapper Smoke Test
+
+Goal:
+Verify the end-to-end Object A training wrapper before starting the full run.
+
+Command:
+`RUN_NAME=object-a-2dgs-wrapper-smoke-ok ITERATIONS=20 TEST_ITERATIONS=20 SAVE_ITERATIONS=20 bash scripts/train_2dgs_object_a.sh --swanlab-mode local`
+
+Result:
+The wrapper completed successfully. It saved a 20-iteration Gaussian point cloud, wrote the terminal log and JSON metadata under `logs/`, generated a TensorBoard event file, and imported all 20 scalar steps into a SwanLab local run.
+
+Key metrics:
+Train L1: 0.4029538274
+Train PSNR: 7.0299400330 dB
+Elapsed time: 20.33 seconds
+
+Issue fixed:
+The official trainer accepts `--lambda_dist`, while the upstream README refers to `--lambda_distortion`. The wrapper now uses the actual CLI parameter exposed by the checked-out implementation.

@@ -107,7 +107,7 @@ def main():
         str(args.depth_ratio),
         "--lambda_normal",
         str(args.lambda_normal),
-        "--lambda_distortion",
+        "--lambda_dist",
         str(args.lambda_distortion),
         "--test_iterations",
         *[str(value) for value in args.test_iterations],

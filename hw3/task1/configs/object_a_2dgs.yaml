@@ -7,7 +7,7 @@ training:
   resolution: -1
   depth_ratio: 0.0
   lambda_normal: 0.05
-  lambda_distortion: 0.0
+  lambda_dist: 0.0
   test_iterations: [7000, 30000]
   save_iterations: [7000, 30000]
 render:
