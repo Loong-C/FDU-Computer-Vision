@@ -109,3 +109,34 @@ Elapsed time: 20.33 seconds
 
 Issue fixed:
 The official trainer accepts `--lambda_dist`, while the upstream README refers to `--lambda_distortion`. The wrapper now uses the actual CLI parameter exposed by the checked-out implementation.
+
+## 2026-05-31 / Object C Preprocessing Attempt 1
+
+Goal:
+Remove the baked RGB checkerboard before Magic123 generation.
+
+Method:
+Border-connected neutral checkerboard removal.
+
+Result:
+Rejected after visual inspection. The method retained only 6.65% of the image as foreground and incorrectly removed the large white packaging faces together with the gray-white checkerboard.
+
+Next step:
+Use colored and dark pixels as foreground seeds, then fill their convex hull. This is suitable for the approximately convex medicine-box silhouette while preserving its white faces.
+
+## 2026-05-31 / Object C Preprocessing Attempt 2
+
+Goal:
+Produce a clean RGBA image for Magic123 while preserving the white packaging faces.
+
+Method:
+Treat colored or dark pixels as foreground seeds, compute their convex hull, fill it, and feather the alpha boundary with a 3-pixel radius.
+
+Result:
+Accepted after visual inspection. The medicine box is intact and the RGB checkerboard is removed. The generated RGBA file is stored at `data/processed/object_c_image/c_rgba.png`, and the report-ready white-background preview is stored at `docs/figures/object_c_preprocessed_preview.png`.
+
+Key statistics:
+Input size: 1448 x 1086
+Foreground seed pixels: 210059
+Convex hull area: 395398.5 px
+Foreground ratio: 0.2521157016

@@ -24,4 +24,9 @@ and invokes the official 2DGS `convert.py` pipeline to run COLMAP and undistort
 the images into the ideal pinhole camera format expected by 2DGS.
 
 For Object C, add a photo of a different real object to
-`data/raw/object_c_image/`. Remove its background before running Magic123.
+`data/raw/object_c_image/`. The current input contains a baked RGB checkerboard,
+so prepare an RGBA image before running Magic123:
+
+```bash
+python scripts/prepare_object_c_image.py --swanlab-mode local
+```

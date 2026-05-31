@@ -88,7 +88,8 @@ bash scripts/train_2dgs_background.sh
 ## Pending AIGC Assets
 
 - Object B: generate a mesh from a text prompt using threestudio and SDS loss.
-- Object C: remove the background from one phone photo of a different object,
-  then generate a full 3D asset with Magic123.
+- Object C: prepare the RGB checkerboard input, then generate a full 3D asset
+  with Magic123:
+  `python scripts/prepare_object_c_image.py --swanlab-mode local`.
 - Fusion: export assets as meshes and compose them with the background in
   Blender for the final walkthrough video.

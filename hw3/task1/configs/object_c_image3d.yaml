@@ -1,0 +1,11 @@
+stage: object_c_image3d
+run_name: object-c-magic123
+input: data/processed/object_c_image/c_rgba.png
+preview: docs/figures/object_c_preprocessed_preview.png
+method: Magic123
+preprocess:
+  source: data/raw/object_c_image/c.png
+  strategy: convex_hull
+  color_threshold: 20
+  dark_threshold: 205
+  feather_radius: 3
