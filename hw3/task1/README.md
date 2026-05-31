@@ -147,6 +147,11 @@ MODE=smoke bash scripts/generate_text3d_object_b.sh
 MODE=full bash scripts/generate_text3d_object_b.sh
 ```
 
+The helper defaults to the public
+`stable-diffusion-v1-5/stable-diffusion-v1-5` repository and
+`HF_ENDPOINT=https://hf-mirror.com`. Override `SD_MODEL` or `HF_ENDPOINT`
+explicitly when another accessible model source is preferred.
+
 ## Object C
 
 Prepare the RGB checkerboard input, download the official Magic123 weights,

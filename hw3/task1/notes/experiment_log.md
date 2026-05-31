@@ -939,3 +939,49 @@ Tracking:
 The tracked smoke wrapper recorded the failed run and its exit code. Recorded
 the diagnosis as the `object-b-dreamfusion-sd-smoke-attempt-1-failure`
 SwanLab pipeline milestone.
+
+## 2026-05-31 / Object B threestudio Smoke Attempt 2
+
+Goal:
+Retry the Object B DreamFusion smoke test after restoring threestudio's legacy
+libigl bindings.
+
+Result:
+The runtime initialized successfully, constructed the trainable model, and
+entered prompt-embedding preparation. It then failed before training because
+WSL could not directly reach `huggingface.co`.
+
+Observed error:
+`OSError: We couldn't connect to 'https://huggingface.co'`
+
+Network diagnosis:
+WSL can reach `github.com`, so general WSL networking is healthy.
+
+Windows can reach the official Hugging Face site through its configured local
+proxy. WSL can also reach that proxy through the Windows NAT gateway.
+
+The original `stabilityai/stable-diffusion-2-1-base` repository currently
+returns `401` from the official Hub and is unsuitable for an unattended,
+reproducible download.
+
+The public `stable-diffusion-v1-5/stable-diffusion-v1-5` repository is
+available from `https://hf-mirror.com`.
+
+Fix:
+Updated the Object B helper to use an overridable `SD_MODEL`, defaulting to
+`stable-diffusion-v1-5/stable-diffusion-v1-5`, for both prompt processing and
+SDS guidance.
+
+Configured the Object B and Object C helpers to default to
+`HF_ENDPOINT=https://hf-mirror.com`, while preserving explicit environment
+overrides.
+
+Validation:
+Used `hf_hub_download` from the real threestudio environment to fetch
+`tokenizer/tokenizer_config.json` for the public SD 1.5 repository. The file
+was written successfully under `/mnt/d/PackageCache/wsl/huggingface`.
+
+Tracking:
+The tracked wrapper recorded the failed run and its exit code. Recorded the
+network diagnosis as the `object-b-dreamfusion-sd-smoke-attempt-2-failure`
+SwanLab pipeline milestone.

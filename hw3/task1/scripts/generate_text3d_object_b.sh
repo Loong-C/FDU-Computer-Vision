@@ -9,11 +9,13 @@ THREESTUDIO_ENV="${THREESTUDIO_ENV:-cv_hw3_threestudio}"
 MODE="${MODE:-smoke}"
 GPU="${GPU:-0}"
 PROMPT="${PROMPT:-A studio product photo of a small red ceramic teapot with a round body, short spout, and curved handle}"
+SD_MODEL="${SD_MODEL:-stable-diffusion-v1-5/stable-diffusion-v1-5}"
 
 if [[ -d /mnt/d ]]; then
   export HF_HOME="${HF_HOME:-/mnt/d/PackageCache/wsl/huggingface}"
   mkdir -p -- "${HF_HOME}"
 fi
+export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
 
 case "${MODE}" in
   smoke)
@@ -50,12 +52,15 @@ CUDA_VISIBLE_DEVICES="${GPU}" "${CONDA_BIN}" run -n "${THREESTUDIO_ENV}" --no-ca
   --config "width=${WIDTH}" \
   --config "height=${HEIGHT}" \
   --config "prompt=${PROMPT}" \
+  --config "sd_model=${SD_MODEL}" \
   --swanlab-mode "${SWANLAB_MODE:-local}" \
   -- python launch.py \
   --config configs/dreamfusion-sd.yaml \
   --train \
   --gpu 0 \
   "system.prompt_processor.prompt=${PROMPT}" \
+  "system.prompt_processor.pretrained_model_name_or_path=${SD_MODEL}" \
+  "system.guidance.pretrained_model_name_or_path=${SD_MODEL}" \
   "exp_root_dir=${OUTPUT_ROOT}" \
   "name=${RUN_NAME}" \
   "tag=${MODE}" \

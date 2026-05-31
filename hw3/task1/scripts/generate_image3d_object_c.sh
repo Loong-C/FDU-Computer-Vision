@@ -16,6 +16,7 @@ if [[ -d /mnt/d ]]; then
   export HF_HOME="${HF_HOME:-/mnt/d/PackageCache/wsl/huggingface}"
   mkdir -p -- "${HF_HOME}"
 fi
+export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
 
 case "${MODE}" in
   smoke)
