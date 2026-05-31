@@ -898,3 +898,44 @@ Configured AIGC Hugging Face cache:
 Storage note:
 The Ubuntu VHDX already resides under `D:\WSL\Ubuntu`, so Conda environments
 and remaining WSL filesystem content are physically stored on `D:`.
+
+## 2026-05-31 / Object B threestudio Smoke Attempt 1
+
+Goal:
+Run a 20-iteration DreamFusion smoke test for Object B after installing the
+official threestudio dependency stack.
+
+Result:
+Failed before model download and training.
+
+Observed error:
+`ImportError: cannot import name 'fast_winding_number_for_meshes' from 'igl'`
+
+Diagnosis:
+The unconstrained threestudio requirement installed `libigl 2.6.2`. That
+release uses libigl's rewritten Python bindings and no longer exports the
+legacy snake_case symbols imported by the current threestudio source:
+`fast_winding_number_for_meshes`
+`point_mesh_squared_distance`
+`read_obj`
+
+Fix:
+Pinned `libigl==2.5.1` in `requirements-threestudio-compatibility.txt` to keep
+the legacy Python binding API expected by threestudio.
+
+Validation:
+Installed `libigl 2.5.1`.
+
+Validated legacy bindings:
+`fast_winding_number_for_meshes`
+`point_mesh_squared_distance`
+`read_obj`
+
+Validated the complete `import threestudio` path. `pip check` continues to
+report only the previously documented optional SwanBoard/FastAPI dashboard
+conflict.
+
+Tracking:
+The tracked smoke wrapper recorded the failed run and its exit code. Recorded
+the diagnosis as the `object-b-dreamfusion-sd-smoke-attempt-1-failure`
+SwanLab pipeline milestone.

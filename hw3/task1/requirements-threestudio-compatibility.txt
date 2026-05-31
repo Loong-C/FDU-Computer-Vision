@@ -9,3 +9,5 @@ torchvision==0.15.2
 xformers==0.0.20
 opencv-python<4.12
 huggingface_hub<0.26
+# threestudio imports legacy snake_case bindings removed by libigl 2.6.x.
+libigl==2.5.1
