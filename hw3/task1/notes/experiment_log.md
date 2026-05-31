@@ -521,3 +521,46 @@ The initial AIGC toolchain intentionally installed a small CUDA `11.8` subset: `
 
 Fix:
 Added `cuda-libraries-dev=11.8` to the reproducible AIGC toolchain. Conda confirmed that `cuda-libraries-dev 11.8.0` is available from `nvidia/label/cuda-11.8.0`.
+
+## 2026-05-31 / AIGC CUDA Libraries Development Toolchain Patch
+
+Goal:
+Install the complete CUDA libraries development headers needed by Magic123 and threestudio extension builds.
+
+Result:
+Succeeded.
+
+Command:
+`bash scripts/setup_aigc_envs.sh toolchain`
+
+Installed aggregate:
+`cuda-libraries-dev=11.8`
+
+Validation:
+Verified `include/cusparse.h` inside both `cv_hw3_magic123` and `cv_hw3_threestudio`.
+
+## 2026-05-31 / Object A Clean Rerun Iteration 7000
+
+Goal:
+Record the first evaluation checkpoint from the post-recovery Object A clean rerun.
+
+Run:
+`object-a-2dgs-full`
+
+TensorBoard metrics at iteration `7000`:
+Validation PSNR: `31.827529907226562 dB`
+Validation L1 loss: `0.015615569427609444`
+Total Gaussian points: `149488`
+Patch total loss: `0.016165414825081825`
+Patch normal loss: `0.0`
+
+Status:
+The iteration-`7000` PLY checkpoint exists and training continues toward iteration `30000`.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 4 Started
+
+Goal:
+Retry the complete Magic123 requirements and CUDA-extension installation after adding CUDA libraries development headers.
+
+Status:
+Running in the background with the WSL pip cache under `/mnt/d/PackageCache/wsl/pip`.
