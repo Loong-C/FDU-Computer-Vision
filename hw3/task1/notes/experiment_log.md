@@ -564,3 +564,19 @@ Retry the complete Magic123 requirements and CUDA-extension installation after a
 
 Status:
 Running in the background with the WSL pip cache under `/mnt/d/PackageCache/wsl/pip`.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 4
+
+Goal:
+Retry the complete Magic123 dependency installation after adding CUDA libraries development headers.
+
+Result:
+The official Python requirements, including `nvdiffrast` and `cubvh`, built and installed successfully. The final repository-local extension step failed because the upstream `scripts/install_ext.sh` uses paths such as `./raymarching`, but the setup wrapper invoked it from the Task 1 project root.
+
+Compatibility finding:
+The official requirements are intentionally broad. The resolver upgraded NumPy to `2.2.6`, Transformers to `5.9.0`, and Diffusers to `0.38.0`. That combination is not compatible with the verified PyTorch `2.0.1+cu118` runtime: Transformers disables PyTorch versions below `2.4`, and Diffusers expects `torch.xpu`.
+
+Fix:
+Added `requirements-magic123-compatibility.txt` to restore a compatible stack after the official requirements install: `numpy<2`, `diffusers<0.20`, `transformers==4.28.1`, `huggingface_hub<0.26`, and `accelerate<0.21`.
+
+Updated `scripts/setup_aigc_envs.sh` to run the local-extension installer from `external/Magic123`, pass non-isolated pip builds, and limit local extension compilation to two concurrent jobs.

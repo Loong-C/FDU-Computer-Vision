@@ -1,0 +1,6 @@
+# Keep Magic123 compatible with the verified PyTorch 2.0.1 CUDA 11.8 environment.
+numpy<2
+diffusers<0.20
+transformers==4.28.1
+huggingface_hub<0.26
+accelerate<0.21

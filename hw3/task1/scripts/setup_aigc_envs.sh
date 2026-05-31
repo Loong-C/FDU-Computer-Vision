@@ -89,11 +89,18 @@ install_magic123_deps() {
     CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
     python -m pip install --no-build-isolation \
     -r "${PROJECT_ROOT}/external/Magic123/requirements.txt"
-  "${CONDA_BIN}" run -n "${MAGIC123_ENV}" env \
-    CUDA_HOME="${env_prefix}" \
-    CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
-    CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
-    bash "${PROJECT_ROOT}/external/Magic123/scripts/install_ext.sh"
+  "${CONDA_BIN}" run -n "${MAGIC123_ENV}" python -m pip install \
+    -r "${PROJECT_ROOT}/requirements-magic123-compatibility.txt"
+  (
+    cd -- "${PROJECT_ROOT}/external/Magic123"
+    "${CONDA_BIN}" run -n "${MAGIC123_ENV}" env \
+      CUDA_HOME="${env_prefix}" \
+      CC="${env_prefix}/bin/x86_64-conda-linux-gnu-cc" \
+      CXX="${env_prefix}/bin/x86_64-conda-linux-gnu-c++" \
+      MAX_JOBS="${MAX_JOBS:-2}" \
+      PIP_NO_BUILD_ISOLATION=1 \
+      bash scripts/install_ext.sh
+  )
 }
 
 case "${1:-bootstrap}" in
