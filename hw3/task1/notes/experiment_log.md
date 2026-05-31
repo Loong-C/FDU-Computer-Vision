@@ -201,3 +201,17 @@ Total bytes: 319622230
 
 Tracking:
 Recorded the successful completion as the `background-counter-download-success` SwanLab milestone.
+
+## 2026-05-31 / AIGC Environment Bootstrap
+
+Goal:
+Create isolated and reproducible environments for the text-to-3D and single-image-to-3D routes without disturbing the running Object A experiment.
+
+Host inspection:
+The WSL host exposes an NVIDIA GeForce RTX 4060 Ti with 8188 MiB VRAM. It provides GCC 13.3.0, CMake 3.28.3, and Ninja, but no system `nvcc` or `/usr/local/cuda` installation.
+
+Result:
+Created the Python 3.10 Conda environments `cv_hw3_threestudio` and `cv_hw3_magic123`. Added `scripts/setup_aigc_envs.sh` so environment creation, local CUDA toolchain installation, PyTorch installation, and dependency installation are explicit reproducible stages.
+
+Decision:
+Use Conda-local CUDA 11.8 compiler packages and GCC 11 for extension builds. This avoids modifying the WSL system toolchain and matches the CUDA 11.8 PyTorch wheels used by the project.

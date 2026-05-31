@@ -55,6 +55,21 @@ pip install 'swanlab[dashboard]' tensorboard open3d
 
 The current machine uses an equivalent environment named `cv_hw3_2dgs`.
 
+The AIGC methods use isolated Python 3.10 environments. The helper script keeps
+the CUDA compiler and GCC toolchain inside Conda because the WSL host does not
+provide a system `nvcc`:
+
+```bash
+bash scripts/setup_aigc_envs.sh bootstrap
+bash scripts/setup_aigc_envs.sh toolchain
+bash scripts/setup_aigc_envs.sh torch
+bash scripts/setup_aigc_envs.sh threestudio-deps
+bash scripts/setup_aigc_envs.sh magic123-deps
+```
+
+The two environments are named `cv_hw3_threestudio` and `cv_hw3_magic123`.
+CUDA 11.8 and GCC 11 are used for locally compiled PyTorch extensions.
+
 ## Object A
 
 Place phone-captured multi-view images in `data/raw/object_a_images/`. Prepare
@@ -93,7 +108,7 @@ conda activate cv_hw3_2dgs
 bash scripts/train_2dgs_background.sh
 ```
 
-## Pending AIGC Assets
+## AIGC Assets
 
 - Object B: generate a mesh from a text prompt using threestudio and SDS loss.
 - Object C: prepare the RGB checkerboard input, then generate a full 3D asset
