@@ -19,7 +19,7 @@ The final result inserts the three object assets into the reconstructed real bac
 
 | Asset | Source | Size | Preparation |
 |---|---|---:|---|
-| Object A | Phone multiview capture | 34 registered images | COLMAP pose extraction and 2DGS undistortion |
+| Object A | Phone multiview capture | 63 captured / 34 registered images | COLMAP pose extraction and 2DGS undistortion |
 | Object B | Text prompt only | 1 prompt | threestudio Stable Diffusion SDS optimization |
 | Object C | Phone photo `c.png` | 1448 x 1086 RGB | Checkerboard removal, RGBA alpha mask, Magic123 MiDaS depth |
 | Background | Mip-NeRF 360 `counter` | 240 images | Selective Hugging Face mirror download |
@@ -28,7 +28,8 @@ Object A COLMAP sparse model:
 
 | Metric | Value |
 |---|---:|
-| Registered images | 34 / 34 |
+| Captured images | 63 |
+| Registered images used by 2DGS | 34 |
 | Sparse points | 1527 |
 | Observations | 5203 |
 | Mean track length | 3.407335 |

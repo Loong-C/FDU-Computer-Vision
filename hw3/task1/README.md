@@ -128,6 +128,11 @@ bash scripts/prepare_colmap_object_a.sh --force
 bash scripts/train_2dgs_object_a.sh
 ```
 
+The current capture contains `63` raw phone photos. COLMAP successfully
+registered `34` views into the sparse model used by 2DGS; the remaining `29`
+photos are retained under `data/raw/object_a_images/` for audit and possible
+future reconstruction tuning.
+
 Render images separately from mesh extraction:
 
 ```bash

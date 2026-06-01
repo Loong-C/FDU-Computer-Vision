@@ -78,13 +78,20 @@ def main() -> None:
         r"^\| Object C \| Magic123 \|.*$",
         f"| Object C | Magic123 | Local CUDA GPU | 500 local-formal coarse + 500 local-formal fine iterations (`5000 + 5000` official reference) | {coarse:.2f} s coarse + {fine:.2f} s fine | SD + Zero123 coarse NeRF and fine DMTet; local budget adapted after measured 75.18 s guided steps |",
     )
-    if "| Fusion | Blender |" not in time_cost:
+    fusion_row = (
+        f"| Fusion | Blender | Local CPU | 180 frames / 640 x 480 | {fusion:.2f} s | "
+        "COLMAP-path walkthrough with unified textured meshes and multi-direction fill lighting |"
+    )
+    if "| Fusion | Blender |" in time_cost:
+        time_cost = replace_once(
+            time_cost,
+            r"^\| Fusion \| Blender \|.*$",
+            fusion_row,
+        )
+    else:
         if time_cost and not time_cost.endswith("\n"):
             time_cost += "\n"
-        time_cost += (
-            f"| Fusion | Blender | Local CPU | 180 frames / 640 x 480 | {fusion:.2f} s | "
-            "COLMAP-path walkthrough with unified textured meshes |\n"
-        )
+        time_cost += fusion_row + "\n"
     time_cost_path.write_text(time_cost, encoding="utf-8")
 
     outline_path = PROJECT_ROOT / "notes/report_outline.md"

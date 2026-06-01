@@ -8,6 +8,18 @@
   "resolution_y": 360,
   "fps": 12,
   "frames": 12,
+  "lighting": {
+    "world_color": [0.18, 0.18, 0.18],
+    "world_strength": 0.8,
+    "exposure": 0.75,
+    "sun_energy": 3.0,
+    "target": [0.0, 2.0, -0.3],
+    "area_lights": [
+      {"name": "TopFill", "energy": 1500, "size": 5.0, "location": [0.0, 1.5, 6.0]},
+      {"name": "FrontFill", "energy": 1800, "size": 4.0, "location": [0.0, -3.5, 3.0]},
+      {"name": "SideFill", "energy": 1200, "size": 3.5, "location": [3.5, 1.5, 2.5]}
+    ]
+  },
   "camera": {
     "path": "configs/counter_camera_path.json",
     "start_index": 152,
@@ -24,9 +36,9 @@
     {
       "name": "object_a",
       "path": "outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply",
-      "location": [-0.680, 2.124, -0.349],
-      "rotation_deg": [90.0, 0.0, 0.0],
-      "scale": [0.05, 0.05, 0.05]
+      "location": [-0.620, 1.750, -0.254],
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "scale": [0.10, 0.10, 0.10]
     },
     {
       "name": "object_b",

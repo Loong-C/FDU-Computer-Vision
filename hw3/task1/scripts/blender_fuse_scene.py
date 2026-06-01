@@ -78,6 +78,10 @@ def look_at(camera, target):
     camera.rotation_euler = (Vector(target) - camera.location).to_track_quat("-Z", "Y").to_euler()
 
 
+def point_at(obj, target):
+    obj.rotation_euler = (Vector(target) - obj.location).to_track_quat("-Z", "Y").to_euler()
+
+
 def add_orbit_camera_animation(scene, camera, config):
     target = config["target"]
     radius = config["radius"]
@@ -121,21 +125,39 @@ def add_camera_animation(scene, config):
         add_orbit_camera_animation(scene, camera, config)
 
 
-def add_lighting(scene):
-    scene.world.color = (0.08, 0.08, 0.08)
+def add_lighting(scene, config):
+    lighting = config.get("lighting", {})
+    world_color = lighting.get("world_color", [0.18, 0.18, 0.18])
+    scene.world.use_nodes = True
+    background = scene.world.node_tree.nodes.get("Background")
+    background.inputs["Color"].default_value = (*world_color, 1.0)
+    background.inputs["Strength"].default_value = lighting.get("world_strength", 0.8)
+    scene.view_settings.exposure = lighting.get("exposure", 1.25)
+
     sun_data = bpy.data.lights.new(name="Sun", type="SUN")
-    sun_data.energy = 2.0
+    sun_data.energy = lighting.get("sun_energy", 3.0)
     sun = bpy.data.objects.new(name="Sun", object_data=sun_data)
     sun.rotation_euler = (math.radians(35), math.radians(-20), math.radians(25))
     scene.collection.objects.link(sun)
 
-    area_data = bpy.data.lights.new(name="Fill", type="AREA")
-    area_data.energy = 1200
-    area_data.shape = "DISK"
-    area_data.size = 5.0
-    area = bpy.data.objects.new(name="Fill", object_data=area_data)
-    area.location = (0.0, 0.0, 6.0)
-    scene.collection.objects.link(area)
+    area_lights = lighting.get(
+        "area_lights",
+        [
+            {"name": "TopFill", "energy": 1500, "size": 5.0, "location": [0.0, 1.5, 6.0]},
+            {"name": "FrontFill", "energy": 1800, "size": 4.0, "location": [0.0, -3.5, 3.0]},
+            {"name": "SideFill", "energy": 1200, "size": 3.5, "location": [3.5, 1.5, 2.5]},
+        ],
+    )
+    target = lighting.get("target", [0.0, 2.0, -0.3])
+    for light in area_lights:
+        area_data = bpy.data.lights.new(name=light["name"], type="AREA")
+        area_data.energy = light["energy"]
+        area_data.shape = "DISK"
+        area_data.size = light["size"]
+        area = bpy.data.objects.new(name=light["name"], object_data=area_data)
+        area.location = light["location"]
+        point_at(area, target)
+        scene.collection.objects.link(area)
 
 
 def configure_video_render(scene, output_video):
@@ -178,7 +200,7 @@ def main():
     output_video.parent.mkdir(parents=True, exist_ok=True)
     configure_video_render(scene, output_video)
 
-    add_lighting(scene)
+    add_lighting(scene, config)
     add_camera_animation(scene, config["camera"])
     bpy.ops.wm.save_as_mainfile(filepath=str(output_blend))
 

@@ -1,8 +1,9 @@
 {
-  "output_blend": "outputs/fusion/task1-fusion.blend",
-  "output_video": "outputs/fusion/task1-walkthrough.mp4",
-  "output_preview": "outputs/fusion/task1-walkthrough-preview.png",
+  "output_blend": "outputs/fusion_smoke/task1-layout-preview.blend",
+  "output_video": "outputs/fusion_smoke/task1-layout-preview.mp4",
+  "output_preview": "outputs/fusion_smoke/task1-layout-preview.png",
   "preview_frame": 90,
+  "render_animation": false,
   "resolution_x": 640,
   "resolution_y": 480,
   "fps": 30,

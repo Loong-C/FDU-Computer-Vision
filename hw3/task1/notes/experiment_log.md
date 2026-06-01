@@ -1870,3 +1870,38 @@ Mirrored the three external source trees but intentionally kept the
 redownloadable Linux-only Magic123 Zero123 and MiDaS foundation weights and
 portable Blender runtime in WSL. Added `docs/local_mirror_inventory.md` as the
 explicit local-mirror inventory.
+
+## 2026-06-01 / Object A Count Audit and Fusion Walkthrough Lighting Recovery
+
+Object A data audit:
+Rechecked the Windows and WSL mirrors after the user asked where Object A and
+the expected phone captures were stored. The raw acquisition is complete:
+`data/raw/object_a_images` contains `63` phone photos (`260,665,874` bytes).
+The COLMAP workspace retains all `63` input images and its database contains
+`63` image, keypoint, and descriptor records. The sparse reconstruction and
+the 2DGS-ready training directory contain `34` successfully registered views.
+The previous report wording incorrectly made `34` look like the raw capture
+count; documentation now reports `63 captured / 34 registered`.
+
+Walkthrough diagnosis:
+Measured the original formal walkthrough preview before rerendering. Its mean
+luminance was `37.993`, median luminance was `29.205`, and `51.59%` of pixels
+were darker than luminance `32`. The Blender scene used weak ambient lighting
+plus one top fill. Object A was also imported with a `90` degree X rotation,
+which placed the reconstructed doll nearly flat and made it difficult to
+recognize.
+
+Recovery implementation:
+Made scene lighting configurable, enabled world-node strength, and added
+top/front/side area fills aimed at the tabletop. Set exposure to `0.75`.
+Changed Object A to a vertical `0` degree rotation, moved it into the left
+display area, and increased its fusion scale to `0.10`. Added
+`configs/fusion_scene_preview.json` for tracked one-frame Blender layout QA.
+
+Tracked QA:
+Ran SwanLab-local layout previews
+`task1-fusion-layout-preview-balanced-v1`, `v2`, and `v3`, then ran
+`task1-fusion-smoke-balanced-v3`. The final smoke MP4 decodes as `12/12`
+frames at `480x360`; per-frame mean luminance ranges from `94.986` to
+`149.914`, with no black frames. The midpoint preview shows Object A upright
+to the left of the teapot, Object B centered, and Object C on the right.

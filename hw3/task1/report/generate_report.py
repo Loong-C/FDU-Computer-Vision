@@ -287,7 +287,7 @@ def make_story(data: dict[str, object], styles: dict[str, ParagraphStyle]) -> li
         styles,
         [
             ["资产", "输入", "技术路线", "状态"],
-            ["物体 A", "34 张手机多视角照片", "COLMAP + 2DGS + TSDF Mesh", "已完成"],
+            ["物体 A", "63 张手机多视角照片，34 张注册", "COLMAP + 2DGS + TSDF Mesh", "已完成"],
             ["物体 B", "1 条文本 Prompt", "threestudio DreamFusion + SD 1.5 SDS", "已完成"],
             ["物体 C", "1 张实拍图 c.png", "去背景 + MiDaS + Magic123 coarse/fine", "正式长跑中" if draft else "已完成"],
             ["背景", "Mip-NeRF 360 counter", "2DGS + TSDF Mesh", "已完成"],
@@ -302,7 +302,7 @@ def make_story(data: dict[str, object], styles: dict[str, ParagraphStyle]) -> li
         styles,
         [
             ["资产", "来源与规模", "准备步骤"],
-            ["物体 A", "手机环绕拍摄，34 / 34 张注册", "COLMAP 特征、匹配、稀疏重建、去畸变"],
+            ["物体 A", "手机环绕拍摄，63 张采集 / 34 张注册", "COLMAP 特征、匹配、稀疏重建、去畸变"],
             ["物体 B", "文本 Prompt 1 条", "固定产品摄影描述，直接驱动 SDS 优化"],
             ["物体 C", "桌面 c.png，1448 × 1086", "棋盘格去背景、RGBA Alpha、MiDaS 深度"],
             ["背景", "Mip-NeRF 360 counter，240 张", "选择性下载开源场景并复用相机参数"],
@@ -311,7 +311,7 @@ def make_story(data: dict[str, object], styles: dict[str, ParagraphStyle]) -> li
     )
     story.append(
         paragraph(
-            "物体 A 的 COLMAP 稀疏模型注册 34 / 34 张图像，得到 1527 个稀疏点和 5203 次观测；"
+            "物体 A 共采集 63 张手机照片，其中 COLMAP 稀疏模型成功注册 34 张，得到 1527 个稀疏点和 5203 次观测；"
             "平均轨迹长度为 3.407335，平均每图观测数为 153.029412，平均重投影误差为 "
             "1.192686 像素。该结果说明手机采集序列具有足够的视角重叠，可继续进入 2DGS 优化。",
             styles["body"],
