@@ -1845,3 +1845,28 @@ Completed at `2026-06-01T09:18:45.407199+08:00`.
 The unattended queue verified the formal Object C fine-stage OBJ, rendered the Blender walkthrough from the real counter COLMAP camera path, uploaded the public best-weights package, refreshed report assets and the final PDF, and passed the strict Task 1 readiness audit (`18/18`).
 
 Formal walkthrough: `/home/hp/cv_hw3/FDU-Computer-Vision/hw3/task1/outputs/fusion/task1-walkthrough.mp4` (1102438 bytes).
+
+## 2026-06-01 / Windows F: Mirror Reconciliation
+
+Artifact synchronization:
+Reconciled the stale Windows-side Task 1 directory with the completed WSL
+workspace. Copied the complete `outputs/` tree (`3363` files, about `4.15 GiB`)
+plus all logs, SwanLab runs, report assets, notes, configurations, scripts,
+patches, tools, and reproducibility files to
+`F:\Personal\Code\Computer Vision\hw3\task1`. Copied the D-drive release cache
+into local `release/`, including the unpacked best weights, public archive,
+SHA-256 file, manifest, public URLs, and release notes.
+
+Data reconciliation:
+Replaced the Windows zero-byte `data\processed\background_counter` placeholder
+with a junction to `data\raw\mipnerf360\counter`, matching the WSL symlink.
+Reverse-synchronized the locally retained Object A phone photos and COLMAP
+`database.db` into WSL so both workspaces retain the important raw acquisition
+inputs. Verified that Object C raw `c.png`, processed RGBA, MiDaS depth, and
+prepared Magic123 medicine-box files remain available.
+
+Storage policy:
+Mirrored the three external source trees but intentionally kept the
+redownloadable Linux-only Magic123 Zero123 and MiDaS foundation weights and
+portable Blender runtime in WSL. Added `docs/local_mirror_inventory.md` as the
+explicit local-mirror inventory.

@@ -287,3 +287,12 @@ Windows GitHub CLI. The stable public download URLs are:
 https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz
 https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4
 ```
+
+## Windows Local Mirror
+
+The complete reviewable Task 1 artifact set is also mirrored to
+`F:\Personal\Code\Computer Vision\hw3\task1` for direct Windows access. It
+includes all outputs, logs, SwanLab records, data, report assets, source
+mirrors, and the packaged best weights. Linux-only pretrained dependencies and
+the portable Blender runtime remain in WSL to avoid redundant copies. See
+`docs/local_mirror_inventory.md` for the exact inventory.
