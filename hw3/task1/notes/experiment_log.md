@@ -1814,3 +1814,26 @@ limitation to discuss in the final report.
 Pipeline status:
 Strict readiness remains `11/18`. The fine queue and post-Object-C watcher are
 both alive; no restart is required.
+
+## 2026-06-01 / Object C Formal Fine Export Complete
+
+Fine-stage result:
+The recovered Magic123 dmtet fine run completed all `500/500` optimizer steps
+at `2026-06-01T07:53:40+08:00`. The averaged total loss decreased to `0.0070`,
+and Magic123 reported `51.6084` minutes for fine training. The tracked wrapper
+finished successfully with `exit_code=0` and
+`elapsed_seconds=3399.8184104790053`, including the official Lambertian and
+normal test renders plus mesh export.
+
+Mesh audit:
+The final Object C mesh contains `22,860` vertices and `45,730` faces:
+`outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.obj`
+(`4,316,106` bytes). Reviewed the epoch-5 four-view Lambertian validation
+sheet. The photographed front face remains recognizable and text-rich; the
+unseen surfaces remain rough, documenting the geometric ambiguity of
+single-view reconstruction.
+
+Pipeline handoff:
+The post-Object-C watcher verified the fine wrapper, mesh, and final preview,
+then launched the formal Blender fusion walkthrough automatically. Strict
+readiness advanced to `13/18` while the MP4 stream was still being encoded.
