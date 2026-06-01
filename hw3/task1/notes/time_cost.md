@@ -6,4 +6,4 @@
 | Background | 2DGS | Local CUDA GPU | 240 images / 30000 iterations at half resolution | 1368.52 s | Mip-NeRF 360 `counter` clean formal training run |
 | Object B | threestudio DreamFusion SD SDS | Local CUDA GPU | 10000 iterations at 64 x 64 | 3624.22 s training + 35.46 s export | Formal run completed successfully; default isosurface threshold `25.0` exported 28180 vertices and 56536 faces |
 | Object C | Magic123 | Local CUDA GPU | 500 local-formal coarse + 500 local-formal fine iterations (`5000 + 5000` official reference) | 29639.49 s coarse + 3399.82 s fine | SD + Zero123 coarse NeRF and fine DMTet; local budget adapted after measured 75.18 s guided steps |
-| Fusion | Blender | Local CPU | 180 frames / 640 x 480 | 4690.25 s | COLMAP-path walkthrough with unified textured meshes |
+| Fusion | Blender | Local CPU | 180 frames / 640 x 480 | 5599.89 s | COLMAP-path walkthrough with unified textured meshes and multi-direction fill lighting |

@@ -16,6 +16,6 @@
     "video": "outputs/fusion/task1-walkthrough.mp4",
     "public_video_url": "https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4",
     "preview": "docs/figures/fusion_walkthrough_preview.png",
-    "render_seconds": 4690.2476
+    "render_seconds": 5599.8887
   }
 }

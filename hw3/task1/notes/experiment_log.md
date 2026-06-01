@@ -1905,3 +1905,31 @@ Ran SwanLab-local layout previews
 frames at `480x360`; per-frame mean luminance ranges from `94.986` to
 `149.914`, with no black frames. The midpoint preview shows Object A upright
 to the left of the teapot, Object B centered, and Object C on the right.
+
+Formal rerender:
+Ran SwanLab-local formal walkthrough `task1-fusion-render-balanced-v2`. Blender
+completed successfully with `exit_code=0` in `5599.8887` seconds. The refreshed
+`outputs/fusion/task1-walkthrough.mp4` is `1,545,398` bytes and decodes as
+`180/180` frames at `640x480`, `30 fps`. Across the formal video, per-frame
+mean luminance ranges from `88.186` to `152.271` with an average of `128.588`;
+the original dark walkthrough preview average was `37.993`.
+
+Release and final report refresh:
+Republished the GitHub Release through tracked run
+`task1-best-weights-release-balanced-v2`. The refreshed public walkthrough URL
+is
+`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4`
+and returns HTTP `200` with `Content-Length: 1545398`. Refreshed report
+metadata with the named formal render, rebuilt the nine-page final PDF, and
+visually checked every rendered page. The first strict readiness attempt hit a
+transient WSL TLS timeout while probing the large public weights archive; the
+retry passed `18/18`, including HTTP `200` for both public release assets.
+
+Windows mirror refresh:
+Incrementally synchronized updated configs, docs, logs, notes, report assets,
+scripts, SwanLab runs, formal and smoke fusion outputs, and the D-drive release
+cache into `F:\Personal\Code\Computer Vision\hw3\task1`. Verified SHA-256
+equality between WSL and F: for the formal walkthrough MP4, final report PDF,
+fusion preview PNG, and one-frame QA config. Recounted Object A raw phone
+photos on both sides: `63` in WSL and `63` on F:. The F: drive retained
+approximately `495.21 GiB` free space after synchronization.
