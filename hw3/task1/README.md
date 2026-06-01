@@ -133,6 +133,13 @@ registered `34` views into the sparse model used by 2DGS; the remaining `29`
 photos are retained under `data/raw/object_a_images/` for audit and possible
 future reconstruction tuning.
 
+The formal Object A artifacts are kept at:
+
+- 2DGS-ready registered views: `data/processed/object_a_2dgs_ready/`
+- Final training run: `outputs/object_a_2dgs/object-a-2dgs-full/`
+- Fusion mesh: `outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply`
+- Standalone preview: `docs/figures/object_a_render_preview.png`
+
 Render images separately from mesh extraction:
 
 ```bash

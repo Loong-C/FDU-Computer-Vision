@@ -32,6 +32,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cloud-weights-url", required=True)
     parser.add_argument("--public-walkthrough-url", required=True)
+    parser.add_argument("--fusion-run-name", default="task1-fusion-render")
     args = parser.parse_args()
 
     paths = {
@@ -47,7 +48,7 @@ def main() -> None:
 
     coarse = elapsed_seconds("object-c-magic123-coarse-full")
     fine = elapsed_seconds("object-c-magic123-fine-full")
-    fusion = elapsed_seconds("task1-fusion-render")
+    fusion = elapsed_seconds(args.fusion_run_name)
     report_data_path = PROJECT_ROOT / "report/report_data.json"
     data = json.loads(report_data_path.read_text(encoding="utf-8"))
     data.update(
@@ -97,7 +98,11 @@ def main() -> None:
     outline_path = PROJECT_ROOT / "notes/report_outline.md"
     outline = outline_path.read_text(encoding="utf-8")
     outline = outline.replace("| Object C | PENDING | PENDING | PENDING |", f"| Object C | `{paths['formal_mesh']}` | `{paths['object_c_preview']}` | {coarse:.2f} s coarse + {fine:.2f} s fine |")
-    outline = outline.replace("| Fusion | unified scene | PENDING | PENDING |", f"| Fusion | unified scene | `{paths['fusion_video']}` | {fusion:.2f} s |")
+    outline = replace_once(
+        outline,
+        r"^\| Fusion \| unified scene \|.*$",
+        f"| Fusion | unified scene | `{paths['fusion_video']}` | {fusion:.2f} s |",
+    )
     outline = outline.replace("- Best model weights cloud link: `PENDING`", f"- Best model weights cloud link: `{args.cloud_weights_url}`")
     outline = outline.replace("- Public walkthrough video link: `PENDING`", f"- Public walkthrough video link: `{args.public_walkthrough_url}`")
     outline_path.write_text(outline, encoding="utf-8")
