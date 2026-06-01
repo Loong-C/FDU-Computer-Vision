@@ -106,8 +106,8 @@ Object B convergence diagnostics:
 | Object A | `outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/object_a_render_preview.png` | 4855.77 s training |
 | Background | `outputs/background_2dgs/background-counter-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/background_counter_render_preview.png` | 1368.52 s training |
 | Object B | `outputs/object_b_text3d/object-b-dreamfusion-sd-full/object-b-dreamfusion-sd-full/export@20260531-190339/save/it10000-export/model.obj` | `docs/figures/object_b_final_preview.png` | 3624.22 s training + 35.46 s export |
-| Object C | PENDING | PENDING | PENDING |
-| Fusion | unified scene | PENDING | PENDING |
+| Object C | `outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.obj` | `docs/figures/object_c_magic123_final_preview.jpg` | 29639.49 s coarse + 3399.82 s fine |
+| Fusion | unified scene | `outputs/fusion/task1-walkthrough.mp4` | 4690.25 s |
 
 ## 6. Comparative Analysis
 
@@ -126,8 +126,8 @@ Insert SwanLab curve screenshots for:
 
 - Public GitHub repository: `https://github.com/Loong-C/FDU-Computer-Vision`
 - Branch: `hw3`
-- Best model weights cloud link: `PENDING`
-- Public walkthrough video link: `PENDING`
+- Best model weights cloud link: `https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz`
+- Public walkthrough video link: `https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4`
 - SwanLab local dashboard command: `swanlab watch hw3/task1/swanlog`
 
 ## 9. Reproducible PDF Build

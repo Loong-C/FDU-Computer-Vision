@@ -1837,3 +1837,11 @@ Pipeline handoff:
 The post-Object-C watcher verified the fine wrapper, mesh, and final preview,
 then launched the formal Blender fusion walkthrough automatically. Strict
 readiness advanced to `13/18` while the MP4 stream was still being encoded.
+
+## 2026-06-01 / Object C Formal Mesh and Fusion Auto-Finalization
+
+Completed at `2026-06-01T09:18:45.407199+08:00`.
+
+The unattended queue verified the formal Object C fine-stage OBJ, rendered the Blender walkthrough from the real counter COLMAP camera path, uploaded the public best-weights package, refreshed report assets and the final PDF, and passed the strict Task 1 readiness audit (`18/18`).
+
+Formal walkthrough: `/home/hp/cv_hw3/FDU-Computer-Vision/hw3/task1/outputs/fusion/task1-walkthrough.mp4` (1102438 bytes).
