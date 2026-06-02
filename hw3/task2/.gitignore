@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.sandbox-tmp/
+.ruff_cache/
+.venv/
+*.egg-info/
+
+# Secrets and machine-local configuration
+.env
+.env.local
+
+# External source checkouts and local caches
+external/
+.cache/
+
+# Large datasets, checkpoints, and experiment artifacts
+data/
+outputs/
+checkpoints/
+swanlog/
+wandb/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.zip
+
+# Generated reports and plots
+artifacts/
+docs/HW3_Task2_Report_Draft.pdf
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

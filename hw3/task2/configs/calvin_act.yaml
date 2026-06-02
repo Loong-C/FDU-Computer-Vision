@@ -1,0 +1,45 @@
+seed: 42
+
+data:
+  image_size: 128
+  train_split: training
+  test_split: validation
+  max_train_samples: 50000
+  max_eval_samples: 5000
+  stride: 3
+  validation_fraction: 0.1
+  stats_samples: 2048
+
+model:
+  chunk_size: 20
+  n_action_steps: 20
+  vision_backbone: resnet18
+  pretrained_backbone_weights: null
+  dim_model: 256
+  n_heads: 8
+  dim_feedforward: 1024
+  n_encoder_layers: 3
+  n_decoder_layers: 1
+  use_vae: true
+  latent_dim: 32
+  n_vae_encoder_layers: 2
+  dropout: 0.1
+  kl_weight: 10.0
+  optimizer_lr: 0.00001
+  optimizer_weight_decay: 0.0001
+  optimizer_lr_backbone: 0.00001
+  use_amp: true
+
+train:
+  batch_size: 4
+  num_workers: 0
+  max_steps: 5000
+  log_interval: 10
+  validation_interval: 250
+  checkpoint_interval: 500
+  validation_batches: 30
+  grad_clip_norm: 10.0
+
+swanlab:
+  project: hw3-calvin-act
+  mode: offline

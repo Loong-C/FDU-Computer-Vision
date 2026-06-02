@@ -1,0 +1,10 @@
+# Install a CUDA-compatible PyTorch build first if the default wheel is not suitable.
+torch>=2.7,<2.11
+torchvision>=0.22,<0.26
+numpy>=2.0,<2.3
+PyYAML>=6.0
+swanlab>=0.7,<0.8
+matplotlib>=3.8
+
+# LeRobot v0.5.1 is installed by scripts/bootstrap.ps1 from external/lerobot.
+# Keeping the checkout local makes the exact upstream revision inspectable.
