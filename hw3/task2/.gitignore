@@ -30,6 +30,7 @@ wandb/
 # Generated reports and plots
 artifacts/
 docs/HW3_Task2_Report_Draft.pdf
+docs/images/*.jpg
 
 # Editors and operating systems
 .idea/

@@ -117,9 +117,9 @@ cross-environment generalization. The improvement remains visible at chunk
 level, so the 20-step action chunk is not becoming brittle under this sampled
 visual shift.
 
-![Formal training and validation curves](images/formal_training_curves.jpg)
+![Formal training and validation curves](images/formal_training_curves.svg)
 
-![Formal unseen-D action error](images/formal_zero_shot_d_action_error.jpg)
+![Formal unseen-D action error](images/formal_zero_shot_d_action_error.svg)
 
 ### Formal SwanLab cloud runs
 

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" role="img" aria-label="Formal ACT training and validation curves">
+  <rect width="900" height="340" fill="white"/>
+  <g font-family="Arial,sans-serif" fill="#1f2937">
+    <text x="225" y="24" text-anchor="middle" font-size="18">Training Action L1 Loss</text>
+    <text x="675" y="24" text-anchor="middle" font-size="18">Held-out Validation Loss</text>
+    <g stroke="#64748b" stroke-width="1.5">
+      <path d="M55 45V275H405M505 45V275H855"/>
+    </g>
+    <g stroke="#cbd5e1" stroke-dasharray="4 5">
+      <path d="M55 95H405M55 185H405M505 120H855M505 200H855"/>
+    </g>
+    <polyline points="55,98 90,145 125,166 160,185 195,194 230,205 265,214 300,219 335,224 370,228 405,232" fill="none" stroke="#2563eb" stroke-width="4"/>
+    <polyline points="55,75 90,124 125,147 160,163 195,175 230,186 265,193 300,201 335,205 370,210 405,214" fill="none" stroke="#f59e0b" stroke-width="4"/>
+    <polyline points="505,60 540,145 575,178 610,189 645,199 680,209 715,218 750,225 785,231 820,235 855,239" fill="none" stroke="#2563eb" stroke-width="4"/>
+    <polyline points="505,66 540,106 575,130 610,148 645,161 680,173 715,182 750,188 785,194 820,200 855,204" fill="none" stroke="#f59e0b" stroke-width="4"/>
+    <g font-size="13">
+      <text x="55" y="294">0</text><text x="214" y="294">2500</text><text x="389" y="294">5000</text>
+      <text x="505" y="294">0</text><text x="664" y="294">2500</text><text x="839" y="294">5000</text>
+      <text x="360" y="325">B-only</text><text x="465" y="325">ABC joint</text>
+    </g>
+    <path d="M328 320H352" stroke="#2563eb" stroke-width="4"/><path d="M433 320H457" stroke="#f59e0b" stroke-width="4"/>
+  </g>
+</svg>

@@ -46,6 +46,7 @@ def main() -> None:
         axis.legend()
     fig.tight_layout()
     fig.savefig(args.output_dir / "training_curves.png", dpi=180)
+    fig.savefig(args.output_dir / "training_curves.svg")
     plt.close(fig)
 
     evaluations = {}
@@ -60,6 +61,7 @@ def main() -> None:
     axis.grid(axis="y", alpha=0.3)
     fig.tight_layout()
     fig.savefig(args.output_dir / "zero_shot_d_action_error.png", dpi=180)
+    fig.savefig(args.output_dir / "zero_shot_d_action_error.svg")
     plt.close(fig)
 
     print(f"Wrote plots to {args.output_dir}")

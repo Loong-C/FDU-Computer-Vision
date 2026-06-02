@@ -77,14 +77,14 @@ environments differ.
 
 ## 4. Results
 
-![Formal training and validation curves](images/formal_training_curves.jpg)
+![Formal training and validation curves](images/formal_training_curves.svg)
 
 | Run | Final held-out validation L1 | D first-action MAE | D chunk MAE |
 | --- | ---: | ---: | ---: |
 | B-only | 0.324629 | 0.226251 | 0.259475 |
 | A+B+C | 0.386954 | 0.187712 | 0.229145 |
 
-![Formal unseen-D first-action error](images/formal_zero_shot_d_action_error.jpg)
+![Formal unseen-D first-action error](images/formal_zero_shot_d_action_error.svg)
 
 Formal SwanLab runs:
 

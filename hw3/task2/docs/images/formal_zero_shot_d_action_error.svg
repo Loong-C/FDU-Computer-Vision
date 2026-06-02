@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" role="img" aria-label="Zero-shot D first-action error">
+  <rect width="560" height="360" fill="white"/>
+  <g font-family="Arial,sans-serif" fill="#1f2937">
+    <text x="280" y="28" text-anchor="middle" font-size="21">Zero-shot D First-action Error</text>
+    <path d="M76 50V290H510" fill="none" stroke="#64748b" stroke-width="1.5"/>
+    <g stroke="#cbd5e1" stroke-dasharray="4 5"><path d="M76 98H510M76 194H510"/></g>
+    <rect x="145" y="73" width="105" height="217" rx="4" fill="#3b82f6"/>
+    <rect x="335" y="110" width="105" height="180" rx="4" fill="#10b981"/>
+    <g text-anchor="middle" font-size="16">
+      <text x="197" y="64">0.226251</text><text x="387" y="101">0.187712</text>
+      <text x="197" y="315">B-only</text><text x="387" y="315">ABC joint</text>
+    </g>
+    <text x="280" y="345" text-anchor="middle" font-size="15">ABC joint training improves first-action MAE by 17.0%</text>
+  </g>
+</svg>
