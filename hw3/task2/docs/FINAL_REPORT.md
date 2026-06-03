@@ -140,3 +140,5 @@ Final checkpoints:
 The source tree is consolidated in `FDU-Computer-Vision`. These verified weight
 files remain on the legacy release temporarily until the assets are copied to
 an FDU repository release.
+The migration helper is `scripts/publish_fdu_release.ps1`; run it after
+GitHub CLI authentication is restored.

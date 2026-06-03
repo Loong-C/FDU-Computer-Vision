@@ -298,6 +298,12 @@ python .\scripts\build_report.py
 The source tree is consolidated in `FDU-Computer-Vision`. The verified weight
 files remain on the legacy release temporarily so the download links stay
 usable until the same assets are uploaded to an FDU repository release.
+After `gh auth login -h github.com` is available on a machine with GitHub API
+write access, publish the same verified assets with:
+
+```powershell
+.\scripts\publish_fdu_release.ps1
+```
 
 ## Upstream References
 

@@ -1,0 +1,21 @@
+# Local scratch output
+tmp/
+
+# Python and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.cache/
+
+# Machine-local environments and secrets
+.env
+.env.local
+.venv/
+venv/
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

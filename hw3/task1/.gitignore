@@ -17,6 +17,8 @@ outputs/
 *.obj
 *.fbx
 *.glb
+*.tar.gz
+*.zip
 *.ckpt
 *.pth
 *.pt
@@ -38,6 +40,11 @@ wandb/
 runs/
 logs/
 swanlog/
+
+# Packaged release binaries stay in external storage; keep metadata in Git.
+release/*.tar.gz
+release/*.zip
+release/*-weights/
 
 # Report build artifacts
 tmp/

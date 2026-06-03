@@ -1,0 +1,55 @@
+{
+  "package": "cv-hw3-task1-best-weights",
+  "generated_at": "2026-06-01T04:48:30.956901+00:00",
+  "git_commit": "df2eadc974997fa47582271dba080a40f53e0a0c",
+  "artifacts": [
+    {
+      "path": "object_a_2dgs/iteration_30000/point_cloud.ply",
+      "source": "outputs/object_a_2dgs/object-a-2dgs-full/point_cloud/iteration_30000/point_cloud.ply",
+      "bytes": 51842968,
+      "sha256": "34401f13bcd495acd3e4df4ce24a3e9ecbd2b5d177a3d04efacc03443c95ec07"
+    },
+    {
+      "path": "background_counter_2dgs/iteration_30000/point_cloud.ply",
+      "source": "outputs/background_2dgs/background-counter-2dgs-full/point_cloud/iteration_30000/point_cloud.ply",
+      "bytes": 130140860,
+      "sha256": "aea29edd7e7b98789350f9f0d2d070ec95abe789ddeb7cc38a94e5201db2b6d2"
+    },
+    {
+      "path": "object_b_dreamfusion/model.obj",
+      "source": "outputs/object_b_text3d/object-b-dreamfusion-sd-full/object-b-dreamfusion-sd-full/export@20260531-190339/save/it10000-export/model.obj",
+      "bytes": 4825311,
+      "sha256": "2d3ddd6a986538e30d90f365288cd10da152302569391b68009d50dc6a845fc4"
+    },
+    {
+      "path": "object_c_magic123/coarse/object-c-magic123-coarse-full.pth",
+      "source": "outputs/object_c_magic123/object-c-magic123-coarse-full/checkpoints/object-c-magic123-coarse-full.pth",
+      "bytes": 57466741,
+      "sha256": "37ddacf5e6679d2c1eb46d3bfc38e9c760aa03a8e4410c12669afa895b8d4c6c"
+    },
+    {
+      "path": "object_c_magic123/fine/object-c-magic123-fine-full.pth",
+      "source": "outputs/object_c_magic123/object-c-magic123-fine-full/checkpoints/object-c-magic123-fine-full.pth",
+      "bytes": 92001915,
+      "sha256": "e4b6084f1428cf4093610818bab35002d010ee84286705da5df895bbb9d84769"
+    },
+    {
+      "path": "object_c_magic123/fine/mesh/mesh.obj",
+      "source": "outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.obj",
+      "bytes": 4316106,
+      "sha256": "31779b584819aa69c192ef20c4bb0532116d140c43618bad179cf0b00d565256"
+    },
+    {
+      "path": "object_c_magic123/fine/mesh/mesh.mtl",
+      "source": "outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.mtl",
+      "bytes": 160,
+      "sha256": "cf67b36c6bc2f5170f177eac9f9f607a4b058012c6451e03b613dbc22684133a"
+    },
+    {
+      "path": "object_c_magic123/fine/mesh/albedo.png",
+      "source": "outputs/object_c_magic123/object-c-magic123-fine-full/mesh/albedo.png",
+      "bytes": 6194519,
+      "sha256": "af5ef8b7d0779d8c4a08c8e48ff9859fa433a01f1fc4e20778d1c74e8d400b9b"
+    }
+  ]
+}
