@@ -99,9 +99,12 @@ def create_report(output_path: Path) -> None:
             "We compare a CALVIN environment-B-only ACT policy against the same "
             "LeRobot ACT architecture trained jointly on environments A, B, and C. "
             "Both models are evaluated zero-shot on unseen environment D using "
-            "action error. A bounded HTTP-Range subset keeps the experiment practical "
-            "without downloading the complete 517 GB archive. Joint A+B+C training "
-            "reduces D first-action MAE by 17.0% and chunk-action MAE by 11.7%.",
+            "action error and a small CALVIN simulator rollout. A bounded HTTP-Range "
+            "subset keeps the experiment practical without downloading the complete "
+            "517 GB archive. Joint A+B+C training reduces D first-action MAE by "
+            "17.0% and chunk-action MAE by 11.7%; both policies score 0.0% SR@1 in "
+            "the three-sequence D rollout because the trained ACT model is not "
+            "language-conditioned.",
             x=0.08,
             y=0.53,
         )
@@ -127,7 +130,8 @@ def create_report(output_path: Path) -> None:
             "This task studies visual distribution shift in embodied policy "
             "learning. We train a visual-action policy on CALVIN environment B and "
             "compare it against a policy trained on mixed environments A+B+C. Both "
-            "are tested zero-shot on unseen environment D.",
+            "are tested zero-shot on unseen environment D using sampled-frame action "
+            "error and simulator rollout.",
             x=0.08,
             y=0.90,
         )
@@ -202,8 +206,9 @@ def create_report(output_path: Path) -> None:
         add_wrapped_text(
             fig,
             "We report training Action L1 loss, held-out validation loss, unseen-D "
-            "first-action MAE, and unseen-D chunk-action MAE. The homework permits "
-            "action error when simulator success-rate evaluation is not practical.",
+            "first-action MAE, unseen-D chunk-action MAE, and CALVIN simulator rollout "
+            "success. The rollout wraps each ACT checkpoint as a CALVIN reset/step "
+            "policy and projects the gripper action back to the required -1/1 space.",
             x=0.08,
             y=0.39,
         )
@@ -254,6 +259,17 @@ def create_report(output_path: Path) -> None:
             x=0.08,
             y=0.34,
         )
+        fig.text(0.08, 0.20, "CALVIN D simulator rollout", fontsize=13, weight="bold")
+        add_table(
+            fig,
+            bbox=(0.08, 0.08, 0.84, 0.10),
+            columns=["Training scenes", "D sequences", "Avg solved", "SR@1", "SR@5"],
+            rows=[
+                ["B only", "3", "0.0", "0.0%", "0.0%"],
+                ["A+B+C", "3", "0.0", "0.0%", "0.0%"],
+            ],
+            font_size=8,
+        )
         add_page_number(fig, 5)
         pdf.savefig(fig)
         plt.close(fig)
@@ -264,7 +280,9 @@ def create_report(output_path: Path) -> None:
             fig,
             "Reproduction command:\n"
             r".\scripts\bootstrap.ps1" "\n"
-            r".\scripts\run_partial_formal.ps1",
+            r".\scripts\run_partial_formal.ps1" "\n"
+            r".\scripts\bootstrap.ps1 -WithCalvinRollout" "\n"
+            r".\scripts\run_zero_shot_d_rollout.ps1 -MaxSequences 3 -EpisodeLength 360 -Device cuda",
             x=0.08,
             y=0.90,
             width=108,
@@ -273,7 +291,9 @@ def create_report(output_path: Path) -> None:
             fig,
             "The wrapper downloads the bounded subset, trains both policies using "
             "the same config, resumes from latest.pt when present, evaluates D action "
-            "error, and regenerates plots. Data, caches, and outputs remain under ignored "
+            "error, and regenerates plots. The rollout command deploys the saved "
+            "checkpoints in the unseen D simulator with the official 360-step "
+            "per-subtask horizon. Data, caches, and outputs remain under ignored "
             "task2 directories.",
             x=0.08,
             y=y - 0.03,
@@ -281,9 +301,10 @@ def create_report(output_path: Path) -> None:
         y = add_wrapped_text(
             fig,
             "Limitations: this resource-aware experiment reports action error on "
-            "sampled official D frames, as allowed by the assignment. It does not "
-            "report Linux simulator rollout success rate, and the sampled subset is "
-            "intentionally much smaller than the complete archives.",
+            "sampled official D frames and simulator success on three generated D "
+            "sequences, not the full 1000-sequence CALVIN benchmark. The ACT policy "
+            "is not language-conditioned, so the rollout success rate verifies "
+            "deployment rather than strong language-guided task completion.",
             x=0.08,
             y=y - 0.03,
         )

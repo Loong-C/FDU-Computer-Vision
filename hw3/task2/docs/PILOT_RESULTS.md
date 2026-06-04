@@ -117,6 +117,46 @@ cross-environment generalization. The improvement remains visible at chunk
 level, so the 20-step action chunk is not becoming brittle under this sampled
 visual shift.
 
+## Zero-shot D simulator rollout
+
+The action-error evaluation above measures how closely each policy predicts
+held-out D-frame actions. To cover the deployment requirement directly, the two
+formal checkpoints were also wrapped as CALVIN `reset()`/`step()` policies and
+run inside the unseen D simulator:
+
+```powershell
+.\scripts\bootstrap.ps1 -WithCalvinRollout
+.\scripts\run_zero_shot_d_rollout.ps1 `
+  -MaxSequences 3 `
+  -EpisodeLength 360 `
+  -Device cuda
+```
+
+The rollout adapter uses the official D scene, official task oracle and
+validation language annotations. It generates the small
+`task_D_D/validation/.hydra/merged_config.yaml` file required by
+`calvin_env.envs.play_table_env.get_env` without downloading the 166 GB full D
+archive. The ACT output's gripper dimension is projected back to CALVIN's
+required `-1/1` action space before `env.step(action)`.
+
+| Run | Evaluated D sequences | Avg solved subtasks | SR@1 | SR@2 | SR@3 | SR@4 | SR@5 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| B-only | 3 | 0.0 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
+| A+B+C | 3 | 0.0 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
+
+Artifacts:
+
+- B-only rollout metrics: `outputs/official_subset_formal/act_b_only_to_d_rollout/rollout_metrics.json`
+- A+B+C rollout metrics: `outputs/official_subset_formal/act_abc_joint_to_d_rollout/rollout_metrics.json`
+- B-only rollout SwanLab: https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/kcbgr0rmn3jokevjmxlyj
+- A+B+C rollout SwanLab: https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/mqrmkx48ojvthl5gm0u2y
+
+These success rates should be interpreted separately from the action-MAE
+improvement. The trained ACT model is goal-agnostic and does not consume the
+language instruction used by the official CALVIN long-horizon benchmark, so the
+simulator test mainly verifies zero-shot deployment in D rather than competent
+language-conditioned task completion.
+
 ![Formal training and validation curves](images/formal_training_curves.svg)
 
 ![Formal unseen-D action error](images/formal_zero_shot_d_action_error.svg)
@@ -129,6 +169,8 @@ visual shift.
 | A+B+C training | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/t3kfag5dsiipp3wwxy4te |
 | B-only to D evaluation | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/b1hdsdo4vgrodwkk3syr7 |
 | A+B+C to D evaluation | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/5ooypxeqhgp4xja928tpk |
+| B-only to D simulator rollout | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/kcbgr0rmn3jokevjmxlyj |
+| A+B+C to D simulator rollout | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/mqrmkx48ojvthl5gm0u2y |
 
 ### Formal checkpoint downloads
 

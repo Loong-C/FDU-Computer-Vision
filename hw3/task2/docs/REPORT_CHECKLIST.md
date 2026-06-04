@@ -7,7 +7,7 @@
 - [x] ACT architecture and action-chunking explanation.
 - [x] B-only and A+B+C experiment settings table.
 - [x] SwanLab loss curves and validation curves.
-- [x] Zero-shot D action-error table or simulator success-rate table.
+- [x] Zero-shot D action-error table and simulator success-rate table.
 - [x] Analysis of visual distribution shift and ACT robustness.
 - [x] Public GitHub URL.
 - [x] Permanent model-weight download URL and access code if needed.

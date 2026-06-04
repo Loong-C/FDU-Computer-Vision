@@ -1,6 +1,6 @@
 param(
     [string]$Project = "hw3-calvin-act",
-    [Parameter(Mandatory = $true, Position = 0, ValueFromRemainingArguments = $true)]
+    [Parameter(Mandatory = $true, Position = 0)]
     [string[]]$RunPaths
 )
 

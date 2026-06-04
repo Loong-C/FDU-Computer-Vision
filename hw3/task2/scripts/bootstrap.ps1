@@ -1,7 +1,8 @@
 param(
     [string]$DataRoot = "",
     [string]$CacheRoot = "",
-    [switch]$FreshTorchEnvironment
+    [switch]$FreshTorchEnvironment,
+    [switch]$WithCalvinRollout
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,6 +27,7 @@ if (-not (Test-Path "external\calvin")) {
     New-Item -ItemType Directory -Force "external" | Out-Null
     git clone --depth 1 https://github.com/mees/calvin.git "external\calvin"
 }
+git -C "external\calvin" submodule update --init --recursive
 
 if (-not (Test-Path ".venv\Scripts\python.exe")) {
     if ($FreshTorchEnvironment) {
@@ -62,5 +64,26 @@ $RuntimePackages = @(
 Invoke-Checked -Command $Python -Arguments (@("-m", "pip", "install") + $RuntimePackages)
 Invoke-Checked -Command $Python -Arguments @("-m", "pip", "install", "-e", "external\lerobot", "--no-deps")
 
+if ($WithCalvinRollout) {
+    $CalvinRolloutPackages = @(
+        "cloudpickle>=3.0,<4",
+        "GitPython>=3.1,<4",
+        "gym==0.26.2",
+        "hydra-core>=1.3,<1.4",
+        "hydra-colorlog>=1.2,<2",
+        "numpy-quaternion>=2024.0,<2027",
+        "omegaconf>=2.3,<2.4",
+        "opencv-python-headless>=4.9,<4.14",
+        "pandas>=2.2,<3",
+        "pybullet>=3.2,<4",
+        "rich>=13,<15",
+        "scipy>=1.14,<2"
+    )
+    Invoke-Checked -Command $Python -Arguments (@("-m", "pip", "install") + $CalvinRolloutPackages)
+    Invoke-Checked -Command $Python -Arguments @("-m", "pip", "install", "-e", "external\calvin\calvin_env", "--no-deps")
+    Invoke-Checked -Command $Python -Arguments @("-m", "pip", "install", "-e", "external\calvin\calvin_models", "--no-deps")
+}
+
 Write-Host "Bootstrap complete. Activate with: .\.venv\Scripts\Activate.ps1"
+Write-Host "For simulator zero-shot D rollout, install optional deps with: .\scripts\bootstrap.ps1 -WithCalvinRollout"
 Write-Host "For cloud SwanLab logging, run: swanlab login"

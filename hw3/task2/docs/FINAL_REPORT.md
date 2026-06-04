@@ -27,7 +27,7 @@ This task evaluates whether visual diversity during policy training improves
 cross-environment generalization. We train a LeRobot ACT policy on CALVIN
 environment B and compare it against the same policy architecture trained on a
 mixed A+B+C dataset. Both policies are evaluated zero-shot on the unseen D
-environment.
+environment with offline action-error metrics and simulator rollout.
 
 ## 2. Dataset
 
@@ -86,6 +86,14 @@ environments differ.
 
 ![Formal unseen-D first-action error](images/formal_zero_shot_d_action_error.svg)
 
+CALVIN D simulator rollout used the official 360-step per-subtask horizon and
+three generated five-task evaluation sequences:
+
+| Run | Evaluated D sequences | Avg solved subtasks | SR@1 | SR@5 |
+| --- | ---: | ---: | ---: | ---: |
+| B-only | 3 | 0.0 | 0.0% | 0.0% |
+| A+B+C | 3 | 0.0 | 0.0% | 0.0% |
+
 Formal SwanLab runs:
 
 | Run | URL |
@@ -94,6 +102,8 @@ Formal SwanLab runs:
 | A+B+C training | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/t3kfag5dsiipp3wwxy4te |
 | B-only to D evaluation | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/b1hdsdo4vgrodwkk3syr7 |
 | A+B+C to D evaluation | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/5ooypxeqhgp4xja928tpk |
+| B-only to D simulator rollout | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/kcbgr0rmn3jokevjmxlyj |
+| A+B+C to D simulator rollout | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/mqrmkx48ojvthl5gm0u2y |
 
 ## 5. Analysis
 
@@ -109,13 +119,19 @@ visual distribution shift. However, the A+B+C model still improves at chunk
 level, indicating that its 20-step action chunks remain robust on the sampled D
 frames instead of becoming brittle.
 
+The simulator rollout success rates are 0 in the small 3-sequence protocol for
+both policies. This is not inconsistent with the action-MAE improvement: the
+trained ACT policies are goal-agnostic visual/state-to-action models, while the
+official CALVIN long-horizon benchmark asks the policy to execute a
+language-specified task sequence.
+
 ## 6. Limitations
 
 This resource-aware experiment evaluates action error on sampled official D
-frames, as permitted by the homework specification. It does not report CALVIN
-simulator rollout success rate. A full simulator evaluation can be added from
-WSL or Linux if required. The sampled subset is intentionally much smaller than
-the complete archives, so the conclusions apply to the reported protocol.
+frames and a small CALVIN simulator rollout on three D sequences. The rollout
+uses the official 360-step horizon, but it is much smaller than the full 1000
+sequence CALVIN benchmark. The sampled subset is intentionally much smaller
+than the complete archives, so the conclusions apply to the reported protocol.
 
 ## 7. Reproducibility
 
@@ -129,6 +145,16 @@ Run:
 The formal wrapper downloads the bounded subset, trains both policies with the
 same config, resumes from `latest.pt` when present, evaluates D action error,
 and regenerates plots.
+
+Run the D simulator rollout:
+
+```powershell
+.\scripts\bootstrap.ps1 -WithCalvinRollout
+.\scripts\run_zero_shot_d_rollout.ps1 `
+  -MaxSequences 3 `
+  -EpisodeLength 360 `
+  -Device cuda
+```
 
 Final checkpoints:
 

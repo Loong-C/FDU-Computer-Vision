@@ -33,7 +33,8 @@ class ExperimentTracker:
             import swanlab
 
             self._swanlab = swanlab
-            logdir = os.getenv("SWANLAB_LOG_DIR", str(self.run_dir.parent.parent / "swanlog"))
+            default_logdir = Path(__file__).resolve().parents[2] / "swanlog"
+            logdir = os.getenv("SWANLAB_LOG_DIR", str(default_logdir))
             swanlab_mode = os.getenv("SWANLAB_MODE", mode or "offline")
             try:
                 self._run = swanlab.init(

@@ -7,7 +7,8 @@ then evaluate both policies zero-shot on the unseen D environment.
 The model is the upstream LeRobot `ACTPolicy` from the pinned `v0.5.1` release.
 The local code adds a lazy adapter for the official CALVIN `.npz` frame format,
 SwanLab experiment tracking, resumable checkpoints, zero-shot action-error
-evaluation, plotting, and a small end-to-end smoke workflow.
+evaluation, CALVIN simulator rollout evaluation, plotting, and a small
+end-to-end smoke workflow.
 
 ## Design Notes
 
@@ -20,8 +21,8 @@ evaluation, plotting, and a small end-to-end smoke workflow.
   `configs/calvin_act.yaml`.
 - B-only samples are selected from the official `training/scene_info.npy`
   metadata, not approximated by task labels.
-- Zero-shot D evaluation reports action MAE, which is explicitly allowed by the
-  homework when simulator success-rate evaluation is not practical.
+- Zero-shot D evaluation is reported at two levels: sampled D-frame action MAE
+  and CALVIN simulator rollout success in the unseen D scene.
 
 The official CALVIN metadata defines these inclusive training-frame ranges:
 
@@ -62,6 +63,13 @@ and Hugging Face caches, and clones these upstream references under ignored
 - `https://github.com/huggingface/lerobot.git` at `v0.5.1`
 - `https://github.com/mees/calvin.git`
 
+The CALVIN `calvin_env` submodule is initialized automatically. Install the
+optional PyBullet/Hydra simulator dependencies only when running rollout:
+
+```powershell
+.\scripts\bootstrap.ps1 -WithCalvinRollout
+```
+
 The default bootstrap reuses system PyTorch packages to avoid a large duplicate
 download. Pass `-FreshTorchEnvironment` for a clean environment if needed.
 For formal experiments, prefer the fresh environment and keep the LeRobot
@@ -91,8 +99,9 @@ inspectable and plottable without a SwanLab account.
 Sync an existing offline run on Windows with UTF-8 console handling:
 
 ```powershell
-.\scripts\sync_swanlab.ps1 -RunPaths `
-  .\swanlog\run-YYYYMMDD_HHMMSS-xxxxxxxxxxxxxxxxxxxxx
+.\scripts\sync_swanlab.ps1 -RunPaths @(
+  ".\swanlog\run-YYYYMMDD_HHMMSS-xxxxxxxxxxxxxxxxxxxxx"
+)
 ```
 
 ## Smoke Test
@@ -190,6 +199,33 @@ evaluation frames. The final unseen-D action errors are:
 ABC joint training reduces first-action MAE by `17.0%` and chunk-action MAE by
 `11.7%` relative to B-only on the sampled unseen-D frames.
 
+The same two trained policies were also deployed in the CALVIN D simulator with
+the official 360-step per-subtask horizon and three generated five-task
+evaluation sequences:
+
+```powershell
+.\scripts\run_zero_shot_d_rollout.ps1 `
+  -MaxSequences 3 `
+  -EpisodeLength 360 `
+  -Device cuda
+```
+
+| Run | D rollout sequences | Avg solved subtasks | SR@1 | SR@5 |
+| --- | ---: | ---: | ---: | ---: |
+| B-only | 3 | 0.0 | 0.0% | 0.0% |
+| A+B+C | 3 | 0.0 | 0.0% | 0.0% |
+
+SwanLab rollout runs: B-only
+https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/kcbgr0rmn3jokevjmxlyj and
+A+B+C https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/mqrmkx48ojvthl5gm0u2y.
+
+The simulator result is harsher than action MAE because this ACT policy is not
+language-conditioned: it receives RGB/state observations and predicts actions,
+while the official CALVIN long-horizon benchmark asks the policy to execute a
+language-specified subtask sequence. The result still satisfies the deployment
+check: both trained checkpoints run end-to-end in the unseen D environment, and
+their zero-shot rollout success is explicitly recorded.
+
 Install the small official scene metadata file after extracting data:
 
 ```powershell
@@ -235,6 +271,14 @@ python .\scripts\evaluate_action_error.py `
   --dataset-root .\data\calvin\task_D_D `
   --checkpoint .\outputs\act_b_only\checkpoints\best.pt `
   --run-name act_b_only_to_d
+
+python .\scripts\evaluate_calvin_rollout.py `
+  --config .\configs\calvin_act.yaml `
+  --dataset-root .\data\calvin\task_D_D `
+  --checkpoint .\outputs\act_b_only\checkpoints\best.pt `
+  --run-name act_b_only_to_d_rollout `
+  --max-sequences 10 `
+  --ep-len 360
 ```
 
 Resume a stopped run:
@@ -250,8 +294,10 @@ python .\scripts\train.py `
 
 ## WSL
 
-CALVIN simulator rollout evaluation is Linux-oriented. When WSL is useful, use
-the same checkout through the mounted drive instead of making a second clone:
+CALVIN simulator rollout now works from the Windows `.venv` in PyBullet DIRECT
+mode. Use WSL only as a fallback if a future simulator or rendering dependency
+requires Linux, and operate on the same checkout through the mounted drive
+instead of making a second clone:
 
 ```bash
 cd "/mnt/f/Personal/Code/Computer Vision/hw3/task2"
@@ -271,6 +317,8 @@ The final report should include:
   steps, loss function, and GPU.
 - SwanLab-exported Action L1 Loss and held-out validation curves.
 - D-environment zero-shot first-action and chunk-action MAE.
+- D-environment simulator rollout success rate and its language-conditioning
+  limitation.
 - A discussion of why joint A+B+C training helps or hurts relative to B-only.
 - Public GitHub URL and cloud-storage URL for final weights.
 
