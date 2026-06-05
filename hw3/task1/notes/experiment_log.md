@@ -1,0 +1,1935 @@
+# Experiment Log
+
+## 2026-05-24
+
+### Goal
+
+Initialize the project repository and prepare the workflow for Task 1.
+
+### Progress
+
+The repository structure has been created. The project is divided into six main parts: real object reconstruction, background reconstruction, text-to-3D generation, image-to-3D generation, scene fusion, and report writing.
+
+### Important Requirement
+
+The final report must include visualization charts exported from WandB or SwanLab, including training loss curves and validation or evaluation metric curves.
+
+### Next Step
+
+Set up the 2DGS, COLMAP, threestudio, and experiment tracking environments.
+
+## 2026-05-30 / Object A COLMAP Attempt 1
+
+Goal:
+Run COLMAP sparse reconstruction for Object A using phone-captured multi-view images.
+
+Command:
+powershell -ExecutionPolicy Bypass -File ".\scripts\prepare_colmap_object_a.ps1"
+
+Result:
+COLMAP successfully reconstructed the sparse model for Object A.
+
+Key statistics from colmap model_analyzer:
+Input / images: 34
+Registered images: 34
+Sparse points: 1527
+Observations: 5203
+Mean track length: 3.407335
+Mean observations per image: 153.029412
+Mean reprojection error: 1.192686 px
+
+Analysis:
+The reconstruction is valid because all 34 images were registered. The sparse point count is moderate, which is acceptable for the first 2DGS verification run. The mean reprojection error is around 1.19 px, indicating that the estimated camera poses are usable. If the later 2DGS result appears blurry or geometrically unstable, the object should be recaptured with more images, denser viewpoints, and stronger texture.
+
+Next step:
+Use this COLMAP result as the input for Object A 2DGS training.
+
+## 2026-05-30 / WSL GPU Environment Check
+
+Goal:
+Check whether the WSL environment can access the NVIDIA GPU for later 2DGS training.
+
+Result:
+WSL successfully detected the NVIDIA GeForce RTX 4060 Ti through nvidia-smi.
+
+Environment:
+GPU: NVIDIA GeForce RTX 4060 Ti
+Driver version: 581.57
+CUDA version reported by nvidia-smi: 13.0
+Python version in WSL: 3.12.3
+Git version in WSL: 2.43.0
+Conda status: not installed initially
+
+Analysis:
+The GPU is visible inside WSL, so 2DGS training should be performed in WSL instead of native Windows. Conda needs to be installed before creating the 2DGS environment.
+
+Next step:
+Install Miniforge, clone the GitHub repository into the WSL Linux filesystem, copy the Object A COLMAP data into the WSL repository, and install 2DGS.
+
+## 2026-05-31 / Object A 2DGS Baseline
+
+Goal:
+Verify that the Object A COLMAP model can train and render with the official 2DGS implementation in WSL.
+
+Result:
+The WSL `cv_hw3_2dgs` environment successfully trained a baseline model for 3000 iterations and saved `point_cloud/iteration_3000/point_cloud.ply`. Rendering the training viewpoints also succeeded.
+
+Visual analysis:
+The reconstructed figure is recognizable, but the 3000-iteration baseline is visibly blurry and contains background artifacts. A full training run is required.
+
+Mesh export issue:
+The default bounded TSDF settings inferred `voxel_size=0.007367...` and caused WSL to exceed its approximately 15 GiB memory limit during fusion. Future mesh exports must use explicit coarse settings and run separately from image rendering.
+
+## 2026-05-31 / Object C Input
+
+Goal:
+Prepare the single-image input for the Magic123 asset-generation path.
+
+Result:
+Copied the user-provided `c.png` into `data/raw/object_c_image/c.png`. The image depicts an amoxicillin capsule box with a visually isolated foreground.
+
+Input inspection:
+The PNG is `1448 x 1086`, uses `24bpp RGB`, and has no alpha channel. The checkerboard is encoded into the RGB pixels, so a reproducible background-removal preprocessing step is required before Magic123.
+
+## 2026-05-31 / 2DGS Tracking Wrapper Smoke Test
+
+Goal:
+Verify the end-to-end Object A training wrapper before starting the full run.
+
+Command:
+`RUN_NAME=object-a-2dgs-wrapper-smoke-ok ITERATIONS=20 TEST_ITERATIONS=20 SAVE_ITERATIONS=20 bash scripts/train_2dgs_object_a.sh --swanlab-mode local`
+
+Result:
+The wrapper completed successfully. It saved a 20-iteration Gaussian point cloud, wrote the terminal log and JSON metadata under `logs/`, generated a TensorBoard event file, and imported all 20 scalar steps into a SwanLab local run.
+
+Key metrics:
+Train L1: 0.4029538274
+Train PSNR: 7.0299400330 dB
+Elapsed time: 20.33 seconds
+
+Issue fixed:
+The official trainer accepts `--lambda_dist`, while the upstream README refers to `--lambda_distortion`. The wrapper now uses the actual CLI parameter exposed by the checked-out implementation.
+
+## 2026-05-31 / Object C Preprocessing Attempt 1
+
+Goal:
+Remove the baked RGB checkerboard before Magic123 generation.
+
+Method:
+Border-connected neutral checkerboard removal.
+
+Result:
+Rejected after visual inspection. The method retained only 6.65% of the image as foreground and incorrectly removed the large white packaging faces together with the gray-white checkerboard.
+
+Next step:
+Use colored and dark pixels as foreground seeds, then fill their convex hull. This is suitable for the approximately convex medicine-box silhouette while preserving its white faces.
+
+## 2026-05-31 / Object C Preprocessing Attempt 2
+
+Goal:
+Produce a clean RGBA image for Magic123 while preserving the white packaging faces.
+
+Method:
+Treat colored or dark pixels as foreground seeds, compute their convex hull, fill it, and feather the alpha boundary with a 3-pixel radius.
+
+Result:
+Accepted after visual inspection. The medicine box is intact and the RGB checkerboard is removed. The generated RGBA file is stored at `data/processed/object_c_image/c_rgba.png`, and the report-ready white-background preview is stored at `docs/figures/object_c_preprocessed_preview.png`.
+
+Key statistics:
+Input size: 1448 x 1086
+Foreground seed pixels: 210059
+Convex hull area: 395398.5 px
+Foreground ratio: 0.2521157016
+
+## 2026-05-31 / External AIGC Repositories
+
+Goal:
+Pin the official implementations used by the Object B and Object C paths.
+
+Result:
+Cloned the official threestudio repository from `https://github.com/threestudio-project/threestudio.git` at commit `28d9d80d9d00f308244adfcf3be8b17ca0cb6465`.
+
+Cloned the official Magic123 repository from `https://github.com/guochengqian/Magic123.git` at commit `c2eb289f0b9e03e5cf39cf1417f05ca33e9eb0a5`.
+
+Both clone milestones were recorded as separate SwanLab local runs.
+
+## 2026-05-31 / Background Scene Selection
+
+Goal:
+Prepare an open-source real scene for the unified 2DGS background.
+
+Result:
+Selected the `counter` scene from the official Mip-NeRF 360 `360_v2.zip` archive at `https://storage.googleapis.com/gresearch/refraw360/360_v2.zip`.
+
+Archive metadata:
+Content length: 12535427936 bytes
+ETag: `cef2ef3aeaf0c062dbe65130bc249870`
+
+Implementation:
+Added `scripts/download_background_counter.sh`. It resumes partial downloads and extracts only the selected `counter` directory.
+
+## 2026-05-31 / Background Download Strategy Update
+
+Goal:
+Avoid spending hours downloading unused Mip-NeRF 360 scenes.
+
+Observation:
+The official `360_v2.zip` archive download slowed to roughly 100-230 KB/s. The complete archive is approximately 11.7 GiB, while only `counter` is needed.
+
+Decision:
+Stopped the official whole-archive download after approximately 13 MB. Updated `scripts/download_background_counter.sh` to download only `counter/**` from the `nvs-bench/mipnerf360` Hugging Face mirror using `huggingface_hub.snapshot_download`.
+
+Reproducibility:
+The selected scene remains the Mip-NeRF 360 `counter` dataset. The mirror source and selective-download implementation are recorded in Git, and Hugging Face caching supports interrupted-download recovery.
+
+Network note:
+WSL direct access to `huggingface.co` timed out, while access through the Windows host proxy succeeded. The downloader derives the WSL gateway from the default route, exports `HTTP_PROXY` and `HTTPS_PROXY` with port `7890`, and disables Xet so the Hub client uses conventional HTTP transfers.
+
+## 2026-05-31 / Background Download Complete
+
+Goal:
+Validate the selective `counter` scene download.
+
+Result:
+The proxy-enabled Hugging Face download completed successfully in approximately 24 seconds. The processed-data symlink resolves to `data/raw/mipnerf360/counter`.
+
+Downloaded scene:
+Images: 240
+COLMAP sparse model files: 3
+Total files: 243
+Total bytes: 319622230
+
+Tracking:
+Recorded the successful completion as the `background-counter-download-success` SwanLab milestone.
+
+## 2026-05-31 / AIGC Environment Bootstrap
+
+Goal:
+Create isolated and reproducible environments for the text-to-3D and single-image-to-3D routes without disturbing the running Object A experiment.
+
+Host inspection:
+The WSL host exposes an NVIDIA GeForce RTX 4060 Ti with 8188 MiB VRAM. It provides GCC 13.3.0, CMake 3.28.3, and Ninja, but no system `nvcc` or `/usr/local/cuda` installation.
+
+Result:
+Created the Python 3.10 Conda environments `cv_hw3_threestudio` and `cv_hw3_magic123`. Added `scripts/setup_aigc_envs.sh` so environment creation, local CUDA toolchain installation, PyTorch installation, and dependency installation are explicit reproducible stages.
+
+Decision:
+Use Conda-local CUDA 11.8 compiler packages and GCC 11 for extension builds. This avoids modifying the WSL system toolchain and matches the CUDA 11.8 PyTorch wheels used by the project.
+
+## 2026-05-31 / AIGC Conda Toolchain Install
+
+Goal:
+Install a reproducible CUDA extension build toolchain for threestudio and Magic123.
+
+Command:
+`bash scripts/setup_aigc_envs.sh toolchain`
+
+Result:
+Succeeded for both `cv_hw3_threestudio` and `cv_hw3_magic123`.
+
+Verified toolchain:
+CUDA compiler: `nvcc V11.8.89`
+Conda C++ compiler: `x86_64-conda-linux-gnu-c++ 11.4.0`
+Build helper: `ninja`
+
+Notes:
+The toolchain is environment-local. No system package installation or global CUDA path modification was required.
+
+## 2026-05-31 / AIGC PyTorch Install
+
+Goal:
+Install a shared CUDA-enabled PyTorch baseline for the isolated threestudio and Magic123 environments.
+
+Command:
+`bash scripts/setup_aigc_envs.sh torch`
+
+Result:
+Succeeded for both `cv_hw3_threestudio` and `cv_hw3_magic123`.
+
+Verified packages:
+PyTorch: `2.0.1+cu118`
+Torchvision: `0.15.2+cu118`
+PyTorch CUDA build: `11.8`
+NumPy: `1.26.4`
+
+Compatibility correction:
+The initial PyTorch installation resolved NumPy `2.2.6`. This is newer than the ABI expected by several dependencies in the pinned AIGC repositories. Updated `scripts/setup_aigc_envs.sh` to install `numpy<2` and downgraded both environments to NumPy `1.26.4` before continuing.
+
+## 2026-05-31 / AIGC Execution Scaffolding
+
+Goal:
+Replace the Object B and Object C placeholders with reproducible local execution entry points and SwanLab tracking.
+
+Implementation:
+Added `scripts/run_tracked_experiment.py`, a common subprocess wrapper that tees terminal output, parses Magic123 step losses, recursively imports TensorBoard scalars when available, records timing and exit status, and writes metrics to SwanLab local mode.
+
+Added the threestudio DreamFusion SDS entry point in `scripts/generate_text3d_object_b.sh` with separate smoke and full modes.
+
+Added the Magic123 model downloader, Object C input assembly and MiDaS preprocessing helper, and coarse/fine generation entry point. The Magic123 smoke mode lowers render and marching-cubes resolution for 8 GiB VRAM validation; the full mode preserves the official 5000-step coarse and 5000-step fine schedule.
+
+Tracking dependency:
+Added a dedicated `bash scripts/setup_aigc_envs.sh tracking` stage so both isolated environments receive SwanLab, TensorBoard, and PyYAML without mixing project dependencies into the system Python installation.
+
+## 2026-05-31 / Object C Magic123 Input Assembly
+
+Goal:
+Copy the accepted checkerboard-free Object C RGBA image into the ignored Magic123 working dataset without starting a GPU depth-estimation task during Object A training.
+
+Command:
+`COPY_ONLY=1 bash scripts/prepare_magic123_object_c.sh`
+
+Result:
+Copied the prepared input to `external/Magic123/data/hw3/medicine_box/main.png` and `external/Magic123/data/hw3/medicine_box/rgba.png`.
+
+Verification:
+The source and both copied files share SHA-256 `da9e14a733047109969ddedef78990c5c08131920c56187bda592419d0b1d98a`.
+
+## 2026-05-31 / AIGC Tracking Dependencies
+
+Goal:
+Install the local experiment-tracking packages required by the common AIGC subprocess wrapper.
+
+Command:
+`bash scripts/setup_aigc_envs.sh tracking`
+
+Result:
+Succeeded for both `cv_hw3_threestudio` and `cv_hw3_magic123`. Verified that `scripts/run_tracked_experiment.py --help` launches from both isolated environments.
+
+Installed tracking baseline:
+SwanLab: `0.7.19`
+TensorBoard: `2.20.0`
+PyYAML: installed
+
+## 2026-05-31 / Magic123 Official Weight Download Started
+
+Goal:
+Download the official pretrained models required by Magic123 while the Object A GPU experiment continues.
+
+Command:
+`bash scripts/download_magic123_models.sh`
+
+Status:
+Running in the background with resumable `.part` files. The first download is the official Zero123 `105000.ckpt` from Hugging Face. The server reports approximately 14.4 GiB for this checkpoint. The MiDaS `dpt_beit_large_512.pt` download follows automatically.
+
+Notes:
+The download uses the WSL gateway proxy and `curl --continue-at -`, so an interruption can resume without discarding completed bytes.
+
+## 2026-05-31 / Magic123 Official Weight Download Complete
+
+Goal:
+Verify that both official Magic123 pretrained-model downloads completed and were atomically promoted from resumable `.part` files.
+
+Result:
+Succeeded.
+
+Downloaded files:
+Zero123 `pretrained/zero123/105000.ckpt`: `15465973531` bytes
+MiDaS `pretrained/midas/dpt_beit_large_512.pt`: `1581966003` bytes
+
+Notes:
+The downloader process exited after both final paths existed. No `.part` file remains for either model.
+
+## 2026-05-31 / TensorBoard Report Summary Helper
+
+Goal:
+Make scalar evidence exportable for the report tables without manually reading event files.
+
+Implementation:
+Added `scripts/summarize_tensorboard.py`. It recursively reads TensorBoard scalar events, reports the latest value per tag, and extracts exact requested steps such as `7000` and `30000` into JSON.
+
+Validation:
+Successfully read the live TensorBoard event file from `outputs/object_a_2dgs/object-a-2dgs-full` while training continued.
+
+## 2026-05-31 / Object A Formal 2DGS Intermediate Evaluation
+
+Goal:
+Record the official `7000`-iteration evaluation checkpoint from the formal Object A run.
+
+Run:
+`object-a-2dgs-full`
+
+Training configuration:
+Iterations: `30000`
+Resolution: `-1`
+Normal regularization: `0.05`
+Distortion regularization: `0.0`
+Depth ratio: `0.0`
+
+TensorBoard metrics at iteration `7000`:
+Validation PSNR: `31.824914932250977 dB`
+Validation L1 loss: `0.015528421849012375`
+Total Gaussian points: `145973`
+Patch total loss: `0.01736341044306755`
+Patch normal loss: `0.0`
+
+## 2026-05-31 / Delivery Readiness Helper and Report Outline
+
+Goal:
+Make the remaining Task 1 work explicit for both manual review and automated continuation.
+
+Implementation:
+Added `scripts/check_task1_readiness.py` to emit JSON checks for prepared data, official weights, 2DGS checkpoints, Object B and Object C meshes, fusion video, Blender, and FFmpeg.
+
+Expanded `notes/report_outline.md` into the required report structure with dataset description, methods, hyperparameter tables, SwanLab evidence slots, comparison criteria, repository link, and cloud-weight placeholder.
+
+Updated `notes/environment_plan.md` from the early two-environment assumption to the verified three-environment layout.
+
+Validation:
+The first readiness snapshot reports `4 / 14` checks ready: 34 Object A COLMAP images, Object A iteration-7000 checkpoint, 240 background `counter` images, and the prepared Object C RGBA input. The remaining checks correctly identify pending training checkpoints, official Magic123 weights, AIGC meshes, fusion video, Blender, and FFmpeg.
+
+## 2026-05-31 / Fusion Runtime Scaffolding
+
+Goal:
+Replace the fusion placeholder with a reproducible mesh-composition and walkthrough-video rendering path.
+
+Implementation:
+Added `scripts/setup_blender.sh` for a fixed Blender `4.2.15` Linux x64 portable runtime from the official Blender release server with SHA-256 verification.
+
+Added `configs/fusion_scene.json`, `scripts/blender_fuse_scene.py`, and a real `scripts/render_fusion.sh`. The Blender script imports PLY, OBJ, or GLB meshes, applies explicit transforms, adds lighting and an orbiting walkthrough camera, saves a `.blend` scene, and encodes an H.264 MP4 using Blender's FFmpeg integration.
+
+Status:
+Implementation complete. Runtime download, first render, and transform tuning remain pending until the four mesh assets are available.
+
+Validation:
+Bash syntax, Python byte-compilation, and JSON parsing passed. Running `bash scripts/render_fusion.sh` before runtime installation exits with the expected actionable message: `Missing Blender runtime. Run: bash scripts/setup_blender.sh`.
+
+## 2026-05-31 / Blender Portable Runtime Attempt 1
+
+Goal:
+Install and validate the fixed Blender `4.2.15` Linux x64 portable runtime for the final fusion render.
+
+Result:
+Runtime archive download, checksum verification, and extraction succeeded. The first launch failed because the base WSL image does not yet provide `libSM.so.6` and `libICE.so.6`.
+
+Follow-up:
+Added `scripts/install_blender_wsl_deps.sh` for the minimal `libsm6` and `libice6` system packages. Updated the Blender installer to explain this recovery path when an extracted runtime cannot launch.
+
+## 2026-05-31 / WSL Storage Incident and D-Drive Recovery
+
+Goal:
+Recover the Task 1 workspace after the Windows system drive filled during model download and training, then prevent package caches from regrowing on `C:`.
+
+Incident:
+The Windows `C:` drive reached `0 GB` free space while the Ubuntu WSL virtual disk was stored under `C:\Users\hp\AppData\Local\wsl`. WSL began returning `Input/output error` for repository writes and basic files such as `/etc/passwd`.
+
+Impact:
+The formal Object A run `object-a-2dgs-full` stopped before its `30000`-iteration checkpoint. The last readable training-log line is iteration `22120 / 30000`, with `219306` Gaussian points. Its valid iteration-`7000` checkpoint and TensorBoard metrics remain available.
+
+Recovery:
+Removed the verified Windows pip cache directory, recovering approximately `8.75 GB`.
+
+Moved the complete Ubuntu distribution with `wsl --manage Ubuntu --move D:\WSL\Ubuntu`. The WSL VHD is now `D:\WSL\Ubuntu\ext4.vhdx`; Miniforge, both AIGC Conda environments, downloaded Magic123 weights, and repository-local tooling moved with it.
+
+Verified root and user WSL launches, `/etc/passwd` reads, and a temporary-file write probe after relocation. Windows drive free space changed from approximately `0 GB` to `65.77 GB` on `C:`. The destination `D:` drive retained approximately `63.38 GB` free after receiving the WSL VHD.
+
+Cache policy:
+Configured Windows user-level `PIP_CACHE_DIR=D:\PackageCache\pip`, `TORCH_HOME=D:\PackageCache\torch`, and `CONDA_PKGS_DIRS=D:\PackageCache\conda-pkgs`. Preserved the existing `HF_HOME=D:\huggingface_cache`. Moved the small Windows Torch cache to `D:\PackageCache\torch` and left a compatibility junction at its original user-cache path.
+
+Notes:
+The application-managed `C:\Users\hp\.cache\codex-runtimes` directory remains in place because the active desktop application is using it. Installed Windows applications were not manually moved because that could invalidate registrations or update paths.
+
+## 2026-05-31 / Blender WSL Dependencies and Launch Validation
+
+Goal:
+Finish validating the portable Blender runtime after the storage recovery.
+
+Result:
+Succeeded.
+
+Installed packages:
+`libsm6`
+`libice6`
+
+Validation:
+`bash scripts/install_blender_wsl_deps.sh` completed with `Blender 4.2.15 LTS`.
+
+`bash scripts/setup_blender.sh` now recognizes the existing runtime and completes with the same version output.
+
+The updated readiness checker executes `external/blender/blender --version` instead of accepting file existence alone. The post-install snapshot reports `7 / 13` Task 1 checks ready, including the runnable Blender runtime.
+
+## 2026-05-31 / Object A Formal 2DGS Clean Rerun Started
+
+Goal:
+Restart the formal Object A `30000`-iteration run after restoring reliable WSL storage.
+
+Restart policy:
+The interrupted run produced a valid iteration-`7000` PLY asset but no optimizer `.pth` checkpoint. A clean rerun is required for a rigorous final checkpoint.
+
+Preserved evidence:
+Moved the interrupted output directory to `outputs/object_a_2dgs/object-a-2dgs-full-interrupted-eio-20260531`.
+
+Moved its terminal log to `logs/object-a-2dgs-full-interrupted-eio-20260531.log`.
+
+New run:
+`object-a-2dgs-full`
+
+SwanLab local run:
+`run-20260531_151420-jyj0y12ibvekjlf6u9rw0`
+
+Validation:
+The new run passed initialization and reached at least iteration `270 / 30000`.
+
+The RTX 4060 Ti reported approximately `2634 / 8188 MiB` GPU memory in use and `93%` GPU utilization during the early training phase.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 1
+
+Goal:
+Install the official Magic123 Python and CUDA-extension dependencies while the Object A rerun uses the GPU.
+
+Result:
+Failed early during `nvdiffrast` metadata preparation.
+
+Observed error:
+`ERROR! Cannot compile nvdiffrast CUDA extension. Please ensure that ... you run 'pip install' with --no-build-isolation flag`
+
+Diagnosis:
+The current `nvdiffrast` package uses a PEP 517 build path. Its isolated build environment cannot import the PyTorch package already installed in `cv_hw3_magic123`.
+
+Fix:
+Updated `scripts/setup_aigc_envs.sh` to pass `--no-build-isolation` for both Magic123 and threestudio requirements installs. The same script now defaults WSL pip caching to `/mnt/d/PackageCache/wsl/pip` when the `D:` mount exists.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 2
+
+Goal:
+Retry the official Magic123 dependency installation after enabling non-isolated package builds.
+
+Result:
+Failed early during the same `nvdiffrast` metadata step.
+
+Diagnosis:
+The upstream `nvdiffrast` error message catches a broad import error. Reproducing its import directly exposed the missing module:
+`ModuleNotFoundError: No module named 'pkg_resources'`
+
+PyTorch `2.0.1` imports `pkg_resources` from setuptools inside `torch.utils.cpp_extension`. The AIGC environment did not yet include this build prerequisite.
+
+Fix:
+Added an explicit build-prerequisite bootstrap to `scripts/setup_aigc_envs.sh`: `setuptools<81`, `wheel`, and `packaging` are installed before either Magic123 or threestudio extension requirements.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 3
+
+Goal:
+Retry the official Magic123 dependency installation after bootstrapping compatible extension-build prerequisites.
+
+Result:
+Progressed past the earlier `nvdiffrast` metadata failure, downloaded the Python requirements, and entered CUDA-extension compilation. Failed while building `cubvh`.
+
+Observed error:
+`fatal error: cusparse.h: No such file or directory`
+
+Diagnosis:
+The initial AIGC toolchain intentionally installed a small CUDA `11.8` subset: `cuda-nvcc` and `cuda-cudart-dev`. Building Magic123's transitive CUDA extensions also requires CUDA libraries development headers.
+
+Fix:
+Added `cuda-libraries-dev=11.8` to the reproducible AIGC toolchain. Conda confirmed that `cuda-libraries-dev 11.8.0` is available from `nvidia/label/cuda-11.8.0`.
+
+## 2026-05-31 / AIGC CUDA Libraries Development Toolchain Patch
+
+Goal:
+Install the complete CUDA libraries development headers needed by Magic123 and threestudio extension builds.
+
+Result:
+Succeeded.
+
+Command:
+`bash scripts/setup_aigc_envs.sh toolchain`
+
+Installed aggregate:
+`cuda-libraries-dev=11.8`
+
+Validation:
+Verified `include/cusparse.h` inside both `cv_hw3_magic123` and `cv_hw3_threestudio`.
+
+## 2026-05-31 / Object A Clean Rerun Iteration 7000
+
+Goal:
+Record the first evaluation checkpoint from the post-recovery Object A clean rerun.
+
+Run:
+`object-a-2dgs-full`
+
+TensorBoard metrics at iteration `7000`:
+Validation PSNR: `31.827529907226562 dB`
+Validation L1 loss: `0.015615569427609444`
+Total Gaussian points: `149488`
+Patch total loss: `0.016165414825081825`
+Patch normal loss: `0.0`
+
+Status:
+The iteration-`7000` PLY checkpoint exists and training continues toward iteration `30000`.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 4 Started
+
+Goal:
+Retry the complete Magic123 requirements and CUDA-extension installation after adding CUDA libraries development headers.
+
+Status:
+Running in the background with the WSL pip cache under `/mnt/d/PackageCache/wsl/pip`.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 4
+
+Goal:
+Retry the complete Magic123 dependency installation after adding CUDA libraries development headers.
+
+Result:
+The official Python requirements, including `nvdiffrast` and `cubvh`, built and installed successfully. The final repository-local extension step failed because the upstream `scripts/install_ext.sh` uses paths such as `./raymarching`, but the setup wrapper invoked it from the Task 1 project root.
+
+Compatibility finding:
+The official requirements are intentionally broad. The resolver upgraded NumPy to `2.2.6`, Transformers to `5.9.0`, and Diffusers to `0.38.0`. That combination is not compatible with the verified PyTorch `2.0.1+cu118` runtime: Transformers disables PyTorch versions below `2.4`, and Diffusers expects `torch.xpu`.
+
+Fix:
+Added `requirements-magic123-compatibility.txt` to restore a compatible stack after the official requirements install: `numpy<2`, `diffusers<0.20`, `transformers==4.28.1`, `huggingface_hub<0.26`, and `accelerate<0.21`.
+
+Updated `scripts/setup_aigc_envs.sh` to run the local-extension installer from `external/Magic123`, pass non-isolated pip builds, and limit local extension compilation to two concurrent jobs.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 5
+
+Goal:
+Apply the compatibility constraints and compile Magic123's four repository-local CUDA extensions.
+
+Result:
+The compatibility pins were applied successfully. The local extension step still failed because pip continued to isolate each build, hiding PyTorch from `raymarching`, `shencoder`, `freqencoder`, and `gridencoder`.
+
+Observed error:
+`ModuleNotFoundError: No module named 'torch'`
+
+Additional compatibility finding:
+OpenCV `4.13` requires NumPy `>=2` on Python `3.9+`, conflicting with the verified PyTorch `2.0.1` environment and the new `numpy<2` pin.
+
+Fix:
+Replaced the upstream shell-script invocation with an explicit non-isolated install:
+`python -m pip install --no-build-isolation ./raymarching ./shencoder ./freqencoder ./gridencoder`
+
+Pinned `opencv-python<4.12` and `opencv-python-headless<4.12` in the Magic123 compatibility requirements.
+
+## 2026-05-31 / Magic123 Dependency Installation Attempt 6
+
+Goal:
+Complete the Magic123 environment with explicit non-isolated builds for the four repository-local CUDA extensions.
+
+Result:
+Succeeded.
+
+Validated runtime:
+NumPy: `1.26.4`
+PyTorch: `2.0.1+cu118`
+CUDA available: `True`
+OpenCV: `4.11.0`
+Diffusers: `0.19.3`
+Transformers: `4.28.1`
+Hugging Face Hub: `0.25.2`
+
+Validated local extensions from the real Magic123 module path:
+`raymarching`
+`shencoder`
+`freqencoder`
+`gridencoder`
+
+Validation:
+`python -m pip check` reports `No broken requirements found.`
+
+## 2026-05-31 / threestudio Compatibility Constraints Prepared
+
+Goal:
+Prevent the threestudio requirements resolver from replacing the verified PyTorch `2.0.1+cu118` stack through its broad `xformers` dependency.
+
+Implementation:
+Added `requirements-threestudio-compatibility.txt` with PyTorch `2.0.1`, Torchvision `0.15.2`, XFormers `0.0.20`, `numpy<2`, `opencv-python<4.12`, and `huggingface_hub<0.26`.
+
+Updated the threestudio dependency installer to resolve the upstream requirements under these constraints.
+
+## 2026-05-31 / threestudio Dependency Installation Attempt 1
+
+Goal:
+Install the official threestudio requirements under the verified PyTorch `2.0.1+cu118` compatibility constraints.
+
+Result:
+The resolver entered CUDA-extension compilation and built much of `nerfacc` and `tiny-cuda-nn`, then failed on two missing build inputs.
+
+Observed errors:
+`cannot find -lcuda: No such file or directory`
+
+`ModuleNotFoundError: No module named 'pybind11'`
+
+Diagnosis:
+Conda installed the CUDA driver stub at `cv_hw3_threestudio/lib/stubs/libcuda.so`, but the extension linker did not search that directory. The non-isolated `pysdf` build also needs `pybind11` installed before requirements resolution.
+
+Fix:
+Added `pybind11` to the AIGC build-prerequisite bootstrap.
+
+Added the Conda CUDA stub directory to `LIBRARY_PATH` and `LDFLAGS` during threestudio dependency builds.
+
+Limited extension builds to `MAX_JOBS=2` to reduce contention with the active Object A training run.
+
+## 2026-05-31 / threestudio Dependency Installation Attempt 2
+
+Goal:
+Retry the official threestudio dependency installation with the Conda CUDA
+driver-stub linker path and the non-isolated `pybind11` prerequisite.
+
+Result:
+Succeeded for the official threestudio runtime and all required CUDA
+extensions.
+
+Validated runtime:
+PyTorch: `2.0.1+cu118`
+CUDA available: `True`
+NerfAcc: `0.5.2`
+Tiny CUDA NN: import succeeded
+NVDiffRast: import succeeded
+PySDF: import succeeded
+XFormers: `0.0.20`
+SwanLab: `0.7.19`
+
+Validated extension builds:
+`nerfacc`
+`tinycudann`
+`nvdiffrast`
+`pysdf`
+
+Known optional-dashboard conflict:
+`pip check` reports that `swanboard 0.1.9b3` requires `fastapi>=0.110.1`,
+while the official threestudio dependency `lightning==2.0.0` requires
+`fastapi<0.89.0`. Those constraints do not overlap. The verified threestudio
+runtime and SwanLab event logging both import successfully, so the official
+Lightning runtime is preserved and the optional local SwanBoard UI conflict is
+documented explicitly.
+
+## 2026-05-31 / Object A Clean 2DGS Formal Rerun Completed
+
+Goal:
+Complete a clean 30,000-iteration Object A 2DGS training run after recovering
+the WSL filesystem and moving the Ubuntu VHDX to `D:\WSL\Ubuntu`.
+
+Result:
+Succeeded with exit code `0`.
+
+Runtime:
+Start: `2026-05-31T07:14:20.150270+00:00`
+Finish: `2026-05-31T08:35:15.952232+00:00`
+Elapsed: `4855.769257162` seconds
+
+Dataset and geometry:
+COLMAP images: `34`
+Final Gaussian points: `212465`
+Iteration-30,000 point cloud:
+`outputs/object_a_2dgs/object-a-2dgs-full/point_cloud/iteration_30000/point_cloud.ply`
+
+Evaluation:
+Iteration `7000`: train PSNR `31.827529907226562`, train L1
+`0.015615569427609444`
+
+Iteration `30000`: train PSNR `33.519805908203125`, train L1
+`0.011288780719041824`, normal loss `0.0033516681287437677`, regularization
+loss `0.012270934879779816`, total patch loss `0.027320832014083862`
+
+Tracking:
+The clean formal run logged `10001` scalar steps into SwanLab local mode and
+retained its TensorBoard event stream for report-table export.
+
+## 2026-05-31 / Object A Render Attempt 1
+
+Goal:
+Render the completed Object A `iteration_30000` 2DGS asset before TSDF mesh
+export.
+
+Result:
+Failed before rendering started.
+
+Observed error:
+`FileNotFoundError: outputs/object_a_2dgs/object-a-2dgs-full/cfg_args`
+
+Diagnosis:
+Both 2DGS asset-export helpers changed directory into
+`external/2d-gaussian-splatting` before invoking `render.py`, while forwarding
+the model directory as a project-root-relative path. The completed model and
+its `cfg_args` file exist under the Task 1 root.
+
+Fix:
+Resolve the model directory to an absolute path before changing into the
+external 2DGS repository in both `scripts/render_2dgs_asset.sh` and
+`scripts/export_2dgs_mesh.sh`.
+
+## 2026-05-31 / Object A Render Attempt 2 and Mesh Export
+
+Goal:
+Render the completed Object A asset and export a mesh suitable for Blender
+fusion after normalizing the model path.
+
+Result:
+Succeeded.
+
+Render output:
+Iteration: `30000`
+Rendered predictions: `34`
+Rendered ground-truth images: `34`
+Estimated bounding radius: `3.77`
+
+Mesh-export configuration:
+Voxel size: `0.03`
+Depth truncation: `7.5`
+SDF truncation: `0.15`
+
+Mesh output:
+Raw vertices: `202489`
+Post-processed vertices: `189968`
+Post-processed mesh:
+`outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply`
+Post-processed mesh bytes: `9908179`
+
+Tracking:
+Recorded the successful render and bounded-TSDF mesh export as separate SwanLab
+pipeline milestones.
+
+## 2026-05-31 / Object C MiDaS Depth Preprocessing
+
+Goal:
+Prepare the single-image Object C input for Magic123 by copying the processed
+RGBA image into the official Magic123 data directory and generating the MiDaS
+depth prior.
+
+Result:
+Succeeded.
+
+Input:
+`data/processed/object_c_image/c_rgba.png`
+
+Generated depth prior:
+`external/Magic123/data/hw3/medicine_box/depth.png`
+Depth-prior bytes: `67278`
+RGBA dimensions: `1448 x 1086`
+Depth-prior dimensions: `1448 x 1448`
+
+Readiness:
+Task 1 machine-readable readiness increased from `8/13` to `9/13`.
+
+Tracking:
+Recorded the completion as the `object-c-midas-depth-success` SwanLab pipeline
+milestone.
+
+## 2026-05-31 / Background Counter 2DGS Formal Run Launch
+
+Goal:
+Train a clean 30,000-iteration background-scene 2DGS model from the prepared
+Mip-NeRF 360 `counter` scene while retaining TensorBoard and SwanLab metrics.
+
+Configuration:
+Scene: `counter`
+Images: `240`
+Iterations: `30000`
+Resolution divisor: `2`
+Depth ratio: `0.0`
+Normal-loss weight: `0.05`
+Distortion-loss weight: `0.0`
+
+Launch validation:
+The run reached iteration `4860` after approximately three minutes with
+`536822` Gaussian points and approximately `1.95 GiB` of GPU memory in use.
+
+Tracking:
+The formal training wrapper created SwanLab run
+`run-20260531_164308-47ff9tn8kh0z7xm05goqx`.
+
+Recorded a separate `background-counter-2dgs-full-launch` SwanLab pipeline
+milestone for the validated launch.
+
+## 2026-05-31 / Background Counter 2DGS Formal Run Completed
+
+Goal:
+Complete the 30,000-iteration background reconstruction, export report metrics,
+render the training viewpoints, and extract a Blender-ready bounded-TSDF mesh.
+
+Result:
+Succeeded with exit code `0`.
+
+Runtime:
+Start: `2026-05-31T08:43:08.619239+00:00`
+Finish: `2026-05-31T09:05:57.172923+00:00`
+Elapsed: `1368.5191473309999` seconds
+
+Evaluation:
+Iteration `7000`: train PSNR `28.068918228149414`, train L1
+`0.02155132219195366`, Gaussian points `482345`
+
+Iteration `30000`: train PSNR `29.91381072998047`, train L1
+`0.016986243426799774`, Gaussian points `533358`, normal loss
+`0.00477592833340168`, regularization loss `0.014817075803875923`, total patch
+loss `0.024274971336126328`
+
+Render output:
+Rendered predictions: `240`
+Rendered ground-truth images: `240`
+Estimated bounding radius: `3.54`
+
+Mesh-export configuration:
+Voxel size: `0.03`
+Depth truncation: `7.5`
+SDF truncation: `0.15`
+
+Mesh output:
+Raw vertices: `253172`
+Post-processed vertices: `220950`
+Post-processed mesh:
+`outputs/background_2dgs/background-counter-2dgs-full/train/ours_30000/fuse_post.ply`
+Post-processed mesh bytes: `11296426`
+
+Tracking:
+The formal run imported `10001` scalar steps into SwanLab local mode.
+
+Recorded the successful training completion, render, and bounded-TSDF mesh
+export as separate SwanLab pipeline milestones.
+
+## 2026-05-31 / WSL Pip Cache Consolidation
+
+Goal:
+Keep package caches off the constrained Windows system drive and prevent
+duplicate WSL pip caches from growing inside the moved Ubuntu VHDX.
+
+Result:
+Succeeded.
+
+Validation:
+Resolved cleanup target: `/home/hp/.cache/pip`
+Removed legacy cache: `5.3G`
+Configured WSL global pip cache: `/mnt/d/PackageCache/wsl/pip`
+Current redirected cache size: `930M`
+Configured AIGC Hugging Face cache:
+`/mnt/d/PackageCache/wsl/huggingface`
+
+Storage note:
+The Ubuntu VHDX already resides under `D:\WSL\Ubuntu`, so Conda environments
+and remaining WSL filesystem content are physically stored on `D:`.
+
+## 2026-05-31 / Object B threestudio Smoke Attempt 1
+
+Goal:
+Run a 20-iteration DreamFusion smoke test for Object B after installing the
+official threestudio dependency stack.
+
+Result:
+Failed before model download and training.
+
+Observed error:
+`ImportError: cannot import name 'fast_winding_number_for_meshes' from 'igl'`
+
+Diagnosis:
+The unconstrained threestudio requirement installed `libigl 2.6.2`. That
+release uses libigl's rewritten Python bindings and no longer exports the
+legacy snake_case symbols imported by the current threestudio source:
+`fast_winding_number_for_meshes`
+`point_mesh_squared_distance`
+`read_obj`
+
+Fix:
+Pinned `libigl==2.5.1` in `requirements-threestudio-compatibility.txt` to keep
+the legacy Python binding API expected by threestudio.
+
+Validation:
+Installed `libigl 2.5.1`.
+
+Validated legacy bindings:
+`fast_winding_number_for_meshes`
+`point_mesh_squared_distance`
+`read_obj`
+
+Validated the complete `import threestudio` path. `pip check` continues to
+report only the previously documented optional SwanBoard/FastAPI dashboard
+conflict.
+
+Tracking:
+The tracked smoke wrapper recorded the failed run and its exit code. Recorded
+the diagnosis as the `object-b-dreamfusion-sd-smoke-attempt-1-failure`
+SwanLab pipeline milestone.
+
+## 2026-05-31 / Object B threestudio Smoke Attempt 2
+
+Goal:
+Retry the Object B DreamFusion smoke test after restoring threestudio's legacy
+libigl bindings.
+
+Result:
+The runtime initialized successfully, constructed the trainable model, and
+entered prompt-embedding preparation. It then failed before training because
+WSL could not directly reach `huggingface.co`.
+
+Observed error:
+`OSError: We couldn't connect to 'https://huggingface.co'`
+
+Network diagnosis:
+WSL can reach `github.com`, so general WSL networking is healthy.
+
+Windows can reach the official Hugging Face site through its configured local
+proxy. WSL can also reach that proxy through the Windows NAT gateway.
+
+The original `stabilityai/stable-diffusion-2-1-base` repository currently
+returns `401` from the official Hub and is unsuitable for an unattended,
+reproducible download.
+
+The public `stable-diffusion-v1-5/stable-diffusion-v1-5` repository is
+available from `https://hf-mirror.com`.
+
+Fix:
+Updated the Object B helper to use an overridable `SD_MODEL`, defaulting to
+`stable-diffusion-v1-5/stable-diffusion-v1-5`, for both prompt processing and
+SDS guidance.
+
+Configured the Object B and Object C helpers to default to
+`HF_ENDPOINT=https://hf-mirror.com`, while preserving explicit environment
+overrides.
+
+Validation:
+Used `hf_hub_download` from the real threestudio environment to fetch
+`tokenizer/tokenizer_config.json` for the public SD 1.5 repository. The file
+was written successfully under `/mnt/d/PackageCache/wsl/huggingface`.
+
+Tracking:
+The tracked wrapper recorded the failed run and its exit code. Recorded the
+network diagnosis as the `object-b-dreamfusion-sd-smoke-attempt-2-failure`
+SwanLab pipeline milestone.
+
+## 2026-05-31 / Object B threestudio Smoke Attempt 3
+
+Goal:
+Run the Object B smoke test with the public SD 1.5 repository and the D-drive
+Hugging Face cache.
+
+Result:
+The mirror metadata, tokenizer, and text-encoder downloads succeeded. The
+guidance-model download then failed while fetching large UNet and VAE files
+from the mirror's Xet storage backend.
+
+Observed errors:
+`HTTPSConnectionPool(host='cas-bridge.xethub.hf.co', port=443): Read timed out`
+
+`Temporary failure in name resolution`
+
+Recovery state:
+The resumable D-drive cache retained approximately `481M` of completed and
+partial files under `/mnt/d/PackageCache/wsl/huggingface`.
+
+Fix:
+Added `scripts/configure_aigc_cache_env.sh` to centralize the D-drive cache,
+mirror endpoint, long Hugging Face download timeout, and optional Windows NAT
+gateway proxy configuration.
+
+Added `scripts/prefetch_public_sd15.sh` and
+`scripts/prefetch_public_sd15.py` to prefetch only the SD 1.5 components used
+by Task 1 with one resumable download worker.
+
+Tracking:
+The tracked wrapper recorded the failed run and its exit code. Recorded the
+partial-download failure as the
+`object-b-dreamfusion-sd-smoke-attempt-3-failure` SwanLab pipeline milestone.
+
+## 2026-05-31 / Public SD 1.5 Prefetch Attempt 1
+
+Goal:
+Resume the partial SD 1.5 cache with the new single-worker prefetch helper and
+the Windows NAT gateway proxy.
+
+Result:
+Failed during Hugging Face metadata validation before large-file transfer
+resumed.
+
+Observed error:
+`FileMetadataError: Distant resource does not seem to be on huggingface.co`
+
+Diagnosis:
+The global proxy also intercepted requests to `hf-mirror.com`. The mirror
+metadata request should stay direct; only redirected Xet storage requests need
+the Windows gateway proxy.
+
+Fix:
+Added `NO_PROXY=hf-mirror.com` when optional Windows gateway proxy support is
+enabled.
+
+Tracking:
+Recorded the failure as the `public-sd15-prefetch-attempt-1-failure` SwanLab
+pipeline milestone. The resumable D-drive cache remains intact.
+
+## 2026-05-31 / Public SD 1.5 Prefetch Attempt 2
+
+Goal:
+Resume the public SD 1.5 snapshot after keeping mirror metadata requests direct
+and proxying only redirected large-file storage requests through the Windows
+NAT gateway.
+
+Result:
+Succeeded. The single-worker helper fetched all `12/12` required files into
+the D-drive Hugging Face cache. Cache usage reached approximately `4.0G`, and
+no `.incomplete` files remained.
+
+Validated snapshot:
+`/mnt/d/PackageCache/wsl/huggingface/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14`
+
+Tracking:
+Recorded the launch and success as SwanLab pipeline milestones. The cached
+snapshot is ready for the Object B smoke retry and can also be reused by
+Object C where compatible.
+
+## 2026-05-31 / Object B DreamFusion SD Smoke Attempt 4
+
+Goal:
+Validate the public SD 1.5 cache, threestudio SDS path, GPU memory budget, and
+test-render path before launching the full text-to-3D run.
+
+Command:
+`WINDOWS_PROXY_PORT=7890 MODE=smoke RUN_NAME=object-b-dreamfusion-sd-smoke-attempt-4 bash scripts/generate_text3d_object_b.sh`
+
+Result:
+Succeeded with exit code `0`. Stable Diffusion loaded from the D-drive cache,
+all `20` smoke iterations completed, and the test pass rendered `120` views.
+The tracked wrapper imported `20` TensorBoard scalar steps.
+
+Timing:
+`63.320566056` seconds end to end.
+
+GPU:
+Peak observed allocation during training was approximately `3853 MiB` on the
+RTX 4060 Ti. The GPU returned to its idle allocation after completion.
+
+Visual check:
+The short smoke run produced the expected coarse colored density blob rather
+than a finished object. This is sufficient to validate the full-run path.
+
+Tracking:
+The tracked wrapper recorded the successful smoke run in SwanLab local mode.
+
+## 2026-05-31 / Object B Smoke Mesh Export Attempt 1
+
+Goal:
+Validate the dedicated threestudio OBJ exporter against the successful
+`20`-step Object B smoke checkpoint.
+
+Result:
+The exporter entered `launch.py --export`, restored the smoke checkpoint, and
+completed the prediction loop, then failed during isosurface extraction with
+`ValueError: max() arg is an empty sequence`.
+
+Diagnosis:
+The `20`-step diagnostic density field has no connected surface at
+threestudio's formal `ImplicitVolume` export threshold of `25.0`. This is
+expected for the deliberately short smoke run and does not invalidate the
+formal training path.
+
+Follow-up:
+Added an `ISOSURFACE_THRESHOLD` exporter override while retaining the official
+`25.0` default. A lower threshold is used only to validate the smoke export
+plumbing; formal output continues to use the default.
+
+Tracking:
+The tracked wrapper and an explicit SwanLab pipeline milestone recorded the
+diagnostic export failure.
+
+## 2026-05-31 / Object B Smoke Mesh Export Attempt 2
+
+Goal:
+Complete a diagnostic OBJ export from the smoke checkpoint with a lower
+isosurface threshold while preserving the formal exporter default.
+
+Command:
+`RUN_NAME=object-b-dreamfusion-sd-smoke-attempt-4 TRAIN_TAG=smoke ISOSURFACE_THRESHOLD=5.0 bash scripts/export_text3d_object_b.sh`
+
+Result:
+Succeeded with exit code `0`. The exporter restored the smoke checkpoint and
+wrote `it20-export/model.obj`.
+
+Mesh:
+The diagnostic OBJ is `6010664` bytes with `35136` vertices and `70268` faces.
+
+Timing:
+`12.438506502` seconds end to end.
+
+Tracking:
+The tracked wrapper and the `object-b-smoke-export-attempt-2-success` SwanLab
+pipeline milestone recorded the successful plumbing check. Formal Object B
+export retains the default threshold of `25.0`.
+
+## 2026-05-31 / Object B DreamFusion SD Full Launch
+
+Goal:
+Generate the formal text-to-3D Object B asset after validating the public SD
+1.5 cache, threestudio smoke path, and OBJ exporter.
+
+Command:
+`WINDOWS_PROXY_PORT=7890 MODE=full RUN_NAME=object-b-dreamfusion-sd-full bash scripts/generate_text3d_object_b.sh`
+
+Configuration:
+- Prompt: `A studio product photo of a small red ceramic teapot with a round body, short spout, and curved handle`
+- SD model: `stable-diffusion-v1-5/stable-diffusion-v1-5`
+- Iterations: `10000`
+- Resolution: `64x64`
+- Validation interval: `200`
+- Trial: `outputs/object_b_text3d/object-b-dreamfusion-sd-full/object-b-dreamfusion-sd-full/full@20260531-180217`
+
+Launch validation:
+Stable Diffusion loaded from the D-drive cache, training reached at least step
+`7`, and GPU usage was approximately `6048 MiB` at `96%` utilization.
+
+Tracking:
+The tracked wrapper opened the formal SwanLab local run. The hourly automation
+will continue monitoring this long-running stage.
+
+## 2026-05-31 / Readiness Full-Asset Tightening
+
+Goal:
+Keep automated readiness aligned with the formal fusion assets rather than
+diagnostic smoke outputs.
+
+Change:
+Restricted Object B readiness to
+`outputs/object_b_text3d/object-b-dreamfusion-sd-full/**/*.obj` and Object C
+readiness to `outputs/object_c_magic123/object-c-magic123-fine-full/**/*.obj`.
+
+Reason:
+The previous broad globs allowed the diagnostic Object B smoke mesh, and would
+have allowed an Object C smoke mesh, to satisfy formal delivery checks.
+
+## 2026-05-31 / Object C Public SD 1.5 Cache Reuse
+
+Goal:
+Prevent Magic123 from requesting a second legacy SD 1.5 repository after the
+Object B public snapshot has already been prefetched to the D drive.
+
+Finding:
+Magic123 maps `--sd_version 1.5` to the legacy
+`runwayml/stable-diffusion-v1-5` repository by default. Its CLI supports an
+explicit `--hf_key` override.
+
+Change:
+Updated `scripts/generate_image3d_object_c.sh` to pass
+`--hf_key stable-diffusion-v1-5/stable-diffusion-v1-5` by default and expose
+`MAGIC123_SD_MODEL` for overrides. Added the selected model to tracked
+experiment configuration.
+
+Validation:
+An offline `snapshot_download(..., local_files_only=True)` probe from the
+`cv_hw3_magic123` environment resolved the existing D-drive snapshot
+`451f4fe16113bff5a5d2269ed5ad43b0592e9a14`.
+
+## 2026-05-31 / Object B Full Intermediate Visual Check
+
+Checkpoint:
+The formal DreamFusion run reached at least step `1662`. Validation previews
+were present at intervals of `200` steps through `it1600-0.png`.
+
+Visual check:
+The step-`1600` preview has a recognizable teapot silhouette with a lid,
+spout, and curved handle. Color and surface cleanup are still evolving, so the
+formal `10000`-step run should continue.
+
+Runtime:
+Observed throughput was approximately `2.73 it/s`, with GPU usage around
+`6109 MiB` at `98%` utilization. Disk free space remained stable at
+approximately `65.11G` on C and `53.57G` on D.
+
+## 2026-05-31 / Magic123 Core-Only SD 1.5 Snapshot Compatibility
+
+Goal:
+Keep Object C on the same prefetched SD 1.5 core snapshot as Object B.
+
+Finding:
+Magic123 constructs `StableDiffusionPipeline` without disabling unused
+`feature_extractor` and `safety_checker` components. The public snapshot index
+lists those optional components, while the D-drive prefetch intentionally
+contains only the core tokenizer, text encoder, scheduler, UNet, and VAE files
+used for SDS optimization.
+
+Change:
+Added an idempotent tracked patch and application helper. Object C generation
+now applies the local Magic123 patch before launch, explicitly passing
+`safety_checker=None`, `feature_extractor=None`, and
+`requires_safety_checker=False` to the pipeline constructor. The patch also
+honors `HF_HUB_OFFLINE=1` by enabling `local_files_only`, making the D-drive
+cache sufficient for offline reproduction.
+
+Validation:
+Applied the patch locally and ran the helper twice; the second run correctly
+reported that the patch was already applied. A real `HF_HUB_OFFLINE=1`
+Magic123 `StableDiffusion` construction succeeded from the D-drive cache and
+loaded `CLIPTokenizer`, `CLIPTextModel`, `UNet2DConditionModel`,
+`AutoencoderKL`, and the `1000`-step scheduler without network access.
+
+## 2026-05-31 / Object B Full Step 3000 Visual Check
+
+Checkpoint:
+The formal DreamFusion run reached at least step `3147`. Validation previews
+were present through `it3000-0.png`.
+
+Visual check:
+The step-`3000` preview retains the recognizable teapot geometry and has
+stabilized toward the requested red ceramic appearance. The formal run remains
+healthy and should continue to `10000` steps.
+
+Runtime:
+Observed throughput was approximately `2.75 it/s`.
+
+## 2026-05-31 / Post-Object-B Resumable GPU Queue
+
+Goal:
+Avoid leaving the GPU idle between heartbeat wakeups after the formal Object B
+long run finishes.
+
+Change:
+Added `scripts/continue_after_object_b.sh`. The queue waits for the tracked
+Object B wrapper to exit, validates its JSON `exit_code`, exports the formal
+Object B OBJ, then runs Object C Magic123 coarse and fine smoke checks. Every
+queued stage uses the existing tracked wrappers and aborts immediately on a
+failed or missing metadata file.
+
+Offline behavior:
+The queue exports `HF_HUB_OFFLINE=1`, so Object B export and Object C smoke
+stages must reuse the validated D-drive cache rather than introduce a new
+download path.
+
+Launch validation:
+Started the hidden queue after commit `6d5bd98`. The queue log reported
+`Waiting for Object B formal wrapper: object-b-dreamfusion-sd-full`, and the
+WSL worker remained alive while Object B continued past step `3813`.
+
+## 2026-05-31 / Object B Full Completion and Formal OBJ Export
+
+Training result:
+The formal DreamFusion run completed `10000` steps successfully. The tracked
+wrapper imported `10000` TensorBoard steps and reported `3624.218688131`
+seconds elapsed with `exit_code=0`.
+
+Visual check:
+Copied `it10000-0.png` to `docs/figures/object_b_final_preview.png`. The final
+validation image shows the requested red ceramic teapot with a stable round
+body, lid, short spout, and curved handle.
+
+Mesh export:
+The queued formal export reused the final checkpoint and official default
+isosurface threshold `25.0`. It completed with `exit_code=0` in
+`35.46129894600017` seconds and generated
+`outputs/object_b_text3d/object-b-dreamfusion-sd-full/object-b-dreamfusion-sd-full/export@20260531-190339/save/it10000-export/model.obj`.
+The OBJ is `4825311` bytes with `28180` vertices and `56536` faces.
+
+## 2026-05-31 / Magic123 WSL Memory-Cap OOM Diagnosis
+
+Symptom:
+The queued Object C coarse smoke check stopped during guidance initialization
+without producing wrapper metadata. A foreground retry with a distinct run
+name reproduced the same failure after Stable Diffusion loaded and Zero123
+initialization began.
+
+Evidence:
+WSL kernel logs reported `Out of memory: Killed process ... (python)` with
+`anon-rss:15476524kB`. The active WSL instance exposed only approximately
+`15GiB` RAM and `4GiB` swap, while the Windows host has `31.69GiB` physical
+memory.
+
+Recovery:
+Added `configs/wslconfig.magic123.example` for a 32 GB Windows host. It raises
+the WSL memory cap to `26GB` and places a `32GB` WSL swap file at
+`D:\WSL\swap.vhdx`, preserving the earlier C-drive cleanup. Apply the template,
+restart WSL, then rerun the tracked Object C coarse smoke check.
+
+## 2026-05-31 / Object C Magic123 Smoke Recovery Success
+
+WSL recovery:
+Applied the tracked `.wslconfig` template and restarted WSL. The restarted
+instance exposed approximately `25GiB` RAM and `32GiB` swap, with the sparse
+swap file created at `D:\WSL\swap.vhdx`. C-drive free space returned to
+approximately `64.94G`.
+
+Coarse smoke:
+`object-c-magic123-coarse-smoke-retry2` completed with `exit_code=0` in
+`285.68679493900004` seconds. It loaded Stable Diffusion and Zero123, exported
+a checkpoint, and wrote a mesh with `25002` vertices and `50000` faces.
+
+Fine smoke:
+`object-c-magic123-fine-smoke-retry2` initialized DMTet from the coarse
+checkpoint and completed with `exit_code=0` in `194.61161550499997` seconds.
+Its OBJ contains `24996` vertices and `50000` faces. Copied the smoke
+validation montage to `docs/figures/object_c_magic123_smoke_preview.jpg`; the
+front medicine-box texture and expected view orientation are visible, while
+side and rear views remain rough as expected before full SDS optimization.
+
+Cache cleanup:
+Zero123 downloaded the `932768134`-byte `ViT-L-14.pt` auxiliary checkpoint on
+its first successful initialization. Added
+`scripts/relocate_magic123_clip_cache.sh` and invoked it from the Object C
+generator so `~/.cache/clip` resolves to `/mnt/d/PackageCache/wsl/clip`.
+
+Full-run queue:
+Added `scripts/continue_object_c_full.sh`. It runs the report-quality `5000`
+step coarse and `5000` step fine stages sequentially, validates wrapper JSON
+metadata, checks the coarse checkpoint and final OBJ, and reuses successful
+stages when resumed.
+
+## 2026-05-31 / Object C Magic123 Full Queue Launch
+
+Launch:
+Committed the recovered smoke path and full queue as `8918bb3`, then launched
+`scripts/continue_object_c_full.sh` through a hidden Windows `wsl.exe`
+process. The Windows process ID is `36204`, and the queue log reports
+`Running Object C Magic123 coarse full stage.`
+
+Runtime validation:
+The formal `object-c-magic123-coarse-full` process reused the D-drive SD and
+CLIP caches, loaded Zero123, and entered `Epoch 1/50`. At the first post-load
+inspection, GPU usage was approximately `7864 MiB / 7941 MiB` at `100%`
+utilization. WSL used approximately `12GiB` RAM and `2.7GiB` of its D-drive
+swap. Kernel logs showed no new OOM event.
+
+## 2026-05-31 / Task 1 PDF Requirement Audit and Reproducible Report Scaffold
+
+Assignment audit:
+Rendered all three pages of `HW3_计算机视觉.pdf` with PyMuPDF and visually
+checked the original Chinese PDF after its text layer proved unsuitable for
+reliable extraction. Task 1 requires three independent 3D assets (Object A:
+phone multiview + COLMAP + 2DGS; Object B: threestudio text-to-3D + SDS;
+Object C: foreground-only phone photo + Magic123), one open-source 2DGS
+background scene, reasonable A/B/C insertion, a multiview walkthrough video,
+and a quality report comparing geometry, texture, compute time, and the
+unified representation used for fusion. Submission also requires a PDF report,
+WandB or SwanLab curves, detailed hyperparameters and metrics, a public GitHub
+repository with a runnable README, and a persistent cloud link for best model
+weights.
+
+Report build:
+Added `report/build_report_assets.py`, `report/generate_report.py`,
+`report/render_report.py`, `report/report_data.json`, and `report/README.md`.
+The draft builder exports charts from TensorBoard-compatible scalar logs,
+generates a Chinese PDF with ReportLab, and renders each PDF page to PNG for
+visual inspection. The final mode rejects publication while Object C, fusion,
+or cloud-link placeholders remain. Added the lightweight `reportlab`, `pypdf`,
+and `pymupdf` dependencies to `requirements.txt`; they were installed into the
+D-drive-backed WSL Conda environment.
+
+Object C formal progress:
+The coarse run reached step `100/5000`, completed epoch `1/50`, and entered
+epoch `2/50` without OOM. The first 100 known-view steps reduced total loss
+from `0.2813` at step `20` to `0.0315` at step `100`. GPU utilization remained
+near `100%`, WSL memory remained stable, and the queue should continue into
+the SD + Zero123 guidance regime.
+
+Draft validation:
+Built an eight-page draft PDF under ignored `report/output/pdf/`, rendered all
+pages to PNG, and visually inspected the result. Corrected mixed Chinese and
+English paragraph alignment, bound each image to its caption, and moved the
+final links section to a dedicated page. Verified that
+`python report/generate_report.py --final --publish` exits non-zero while
+formal deliverable placeholders remain.
+
+Guidance transition:
+The report asset exporter observed non-zero `train/loss_sds` and
+`train/loss_zero123` values immediately after the first `100` known-view
+steps. This confirms that the formal coarse run entered its intended
+SD + Zero123 guidance phase. A direct TensorBoard audit found the first
+non-zero guidance event at step `101`; at the observed step `109`,
+`loss_sds=0.8894558` and `loss_zero123=1.3532970`.
+
+## 2026-05-31 / Object C Local-Formal Runtime Adaptation
+
+Official reference:
+The upstream Magic123 shell scripts use `5000` coarse iterations followed by
+`5000` fine DMTet iterations.
+
+Measured local throughput:
+The first ten formal intervals from step `100` through step `110` averaged
+`75.1788` seconds per step on the current 8 GB GPU with `--vram_O`. At that
+rate, the remaining official-reference coarse stage alone would require
+approximately `102.12` hours before the fine stage.
+
+Decision:
+Use `500` iterations per stage as the local-formal default, while preserving
+`ITERS=5000` as an explicit override for a larger GPU. The local-formal budget
+is still `100x` the successful `5`-step smoke validation and retains the
+intended known-view warmup plus SD + Zero123 guidance regime. The upstream
+reference and measured adaptation are both stated in the README, config,
+time-cost table, and report.
+
+Resume point:
+The existing coarse workspace contains a safe epoch-1 checkpoint with
+`global_step=100`. Stop the impractical reference-budget process gently,
+archive its wrapper metadata and terminal log, then resume the same workspace
+from that checkpoint under the local-formal budget.
+
+## 2026-05-31 / Object C Local-Formal Resume Launch
+
+Official-reference archive:
+Sent `SIGTERM` only to the old Magic123 main process after the epoch-1
+checkpoint was present. The tracked wrapper exited cleanly enough to write
+metadata with `exit_code=-15`, `elapsed_seconds=2321.6715`, and
+`tensorboard_steps_imported=113`. Archived the metadata, wrapper terminal log,
+launch log, and a copy of the workspace log under the ignored `logs/`
+directory with suffix `official5000-interrupted-20260531-223931`.
+
+Local-formal resume:
+Launched `scripts/continue_object_c_full.sh` again through hidden Windows
+`wsl.exe` process ID `42540`. The new tracked command passes `--iters 500`.
+Magic123 found
+`checkpoints/object-c-magic123-coarse-full_ep0001.pth`, restored the model,
+EMA, optimizer, scheduler, and scaler, printed `load at epoch 1, global step
+100`, and entered `Epoch 2/5`.
+
+Runtime validation:
+After checkpoint restore, GPU use returned to approximately `7853 MiB / 7941
+MiB` at `100%` utilization. WSL used approximately `13GiB` RAM and `2.6GiB`
+swap with no new kernel OOM event. D-drive free space recovered to
+approximately `49.17G` after sparse swap pages from the interrupted process
+were released.
+
+## 2026-05-31 / Blender Self-Healing Runtime and Fusion Smoke Validation
+
+Blender repair:
+The first bundled Blender extraction contained `3195` zero-byte files,
+including the Python `encodings/__init__.py`, OCIO profile, and bundled font.
+Updated `scripts/setup_blender.sh` so its default cache lives under
+`/mnt/d/PackageCache/wsl/blender`, a cached archive is SHA-256 checked before
+reuse, and an incomplete runtime is detected by a real background Python
+startup rather than `blender --version`. Re-extraction restored the runtime.
+
+Camera path and layout:
+Added `scripts/export_colmap_camera_path.py` and exported all `240` real
+counter COLMAP poses to `configs/counter_camera_path.json`. Blender now samples
+the stable countertop-visible range `152..239` instead of using an arbitrary
+orbit. A/B/C were normalized, rotated `+90` degrees around X so their local
+Z-up axes align with the counter view, and arranged as a compact foreground
+display. Visual calibration used SwanLab-tracked preview-only runs.
+
+Smoke validation:
+Ran `RUN_NAME=task1-fusion-smoke-final-layout MODE=smoke bash
+scripts/render_fusion_tracked.sh`. Blender imported the formal background,
+formal A mesh, formal B OBJ, and verified C smoke OBJ; rendered the preview,
+12-frame walkthrough, and `.blend`; and wrote wrapper metadata with
+`exit_code=0`. The resulting
+`outputs/fusion_smoke/task1-walkthrough-smoke.mp4` is a valid ISO MP4 file.
+Object C local-formal coarse training remained active near `100%` GPU
+utilization throughout the CPU-side Blender calibration.
+
+## 2026-05-31 / Public Best-Weights Release and Final-PDF Automation
+
+Delivery gap audit:
+The first post-Object-C watcher still generated only a draft PDF and did not
+replace `cloud_weights_url=PENDING`. Windows already has an authenticated
+GitHub CLI session for the public `Loong-C/FDU-Computer-Vision` repository, so
+the final deliverable can use a persistent GitHub Release URL without adding
+large weight files to Git history.
+
+Implementation:
+Added `scripts/package_best_weights.py` to stage the formal A/background 2DGS
+point clouds, B OBJ, C coarse/fine checkpoints, and C textured mesh under
+`/mnt/d/PackageCache/cv-hw3-task1-release`; it writes per-file SHA-256 values
+and a compressed archive. Added `scripts/publish_best_weights_release.sh` to
+create or update the public `hw3-task1-weights` GitHub Release idempotently.
+Added `scripts/finalize_task1_metadata.py` to replace report placeholders with
+measured runtimes, local artifact paths, and the public download URL.
+
+Audit hardening:
+Extended `scripts/check_task1_readiness.py` from `13` to `17` checks. The final
+gate now verifies the formal fusion preview, published PDF, `report_data.json`
+final status, and public cloud-weights URL with an HTTP HEAD request. Before
+formal C completes, the expanded audit correctly reports `11/17`.
+
+## 2026-05-31 / Best-Weights Package and GitHub Release Preflight
+
+Package preflight:
+Extended `scripts/package_best_weights.py` with an overridable Object C fine
+root and isolated metadata output. Built a smoke-backed preflight archive under
+`/mnt/d/PackageCache/cv-hw3-task1-release-preflight` without touching formal
+outputs. The archive size was `273244916` bytes. Its outer SHA-256 was
+`afaaad65d7b0fef7047b9743071d8b93441cdb569bb327a48f23ca0f8d83acb4`.
+
+Artifact verification:
+The staged package contained `8` expected artifacts: Object A 2DGS point
+cloud, counter-background 2DGS point cloud, Object B OBJ, Object C coarse
+checkpoint, Object C fine checkpoint, and the Object C textured mesh OBJ, MTL,
+and albedo PNG. Recomputed SHA-256 values for every staged file and confirmed
+that all `8 / 8` matched the generated manifest. Removed the temporary archive
+after verification to recover D-drive space.
+
+GitHub Release probe:
+Created a temporary public release tag
+`hw3-task1-release-preflight-20260531`, uploaded a `63`-byte probe asset,
+fetched its stable public download URL with HTTP HEAD, and received status
+`200` with `Content-Length=63`. Deleted the temporary release, tag, and local
+probe directory afterward. The formal uploader can therefore use the same
+authenticated Windows GitHub CLI path after Object C completes.
+
+## 2026-05-31 / Final-Like PDF Visual Preflight
+
+Goal:
+Validate the final-report path before waiting for the formal Object C mesh.
+
+Method:
+Built an isolated final-like report under
+`/mnt/d/PackageCache/cv-hw3-task1-report-preflight`. The preflight used the
+verified Object C smoke mesh and smoke fusion preview only inside temporary
+metadata, while keeping tracked `report/report_data.json` unchanged. Invoked
+the same `require_final_deliverables` gate and `make_story` implementation used
+by the formal publisher, then rendered every PDF page with PyMuPDF.
+
+Result:
+The final gate passed and produced a `1092699`-byte, `9`-page PDF. Generated a
+page montage and visually inspected all pages, then enlarged the cover,
+fusion-results page, and external-links page. Chinese fonts render correctly;
+tables, charts, representative fusion frame, footer, and long public-release
+URL remain readable without overflow. Removed the temporary PDF directory
+after visual QA.
+
+## 2026-06-01 / Public URL Readiness Reliability Hardening
+
+Observation:
+A WSL-side `curl HEAD` request to a temporary GitHub Release asset hit a
+transient CDN receive failure. A subsequent Python `urllib` probe also
+demonstrated that the WSL NAT path can time out intermittently even though the
+same public URL remains reachable from the Windows host.
+
+Implementation:
+Hardened `scripts/check_task1_readiness.py` so the public cloud-weights URL
+check makes up to four short native Python `HEAD` attempts and records
+failures for audit. Evaluated Windows `curl.exe` and PowerShell interop
+fallbacks, but rejected both because starting those clients through WSL did
+not provide a consistently independent network path. The final `17/17` gate
+therefore stays strict without retaining an unverified fallback branch.
+
+Validation:
+Created another temporary public GitHub Release asset and called the same
+`url_check` function used by final readiness. The probe passed with HTTP
+status `200` and `Content-Length=48` on the second native Python attempt.
+Deleted the temporary release, tag, asset directory, and helper script after
+the test. Re-ran Python bytecode compilation and the draft readiness audit;
+the expected pre-final baseline remains `11/17`.
+
+## 2026-06-01 / Unattended Finalization Retry Hardening
+
+Audit:
+Re-read the post-Object-C queue while the formal coarse run continued on the
+GPU. The queue already reuses completed fine, fusion, and public-release
+metadata, but its strict final readiness audit previously ran only once. A
+single transient GitHub Release CDN timeout could therefore stop the
+unattended queue after otherwise successful work.
+
+Implementation:
+Extended `scripts/continue_after_object_c_full.sh` with three outer strict
+readiness attempts separated by a short delay. Each outer attempt still uses
+the URL checker's four native Python `HEAD` attempts, so the final gate remains
+strict while tolerating short network disturbances. Replaced the hard-coded
+final experiment-log date with the actual local completion date while
+preserving an idempotent marker. The final metadata writer now also refreshes
+the report's `generated_on` field from the local completion date.
+
+Finalizer isolation preflight:
+Built a disposable fixture tree under
+`/mnt/d/PackageCache/cv-hw3-task1-finalizer-preflight` and ran the real
+`finalize_task1_metadata.py` against dummy formal outputs and wrapper
+metadata. The preflight verified final status, local `generated_on`, measured
+runtime propagation, and report-outline placeholder replacement. It also
+revealed that a `time_cost.md` file without a trailing newline could join the
+new Fusion row directly onto the Object C row. Hardened the writer to insert a
+newline before appending Fusion, then removed the disposable fixture tree.
+
+## 2026-06-01 / Failed-Wrapper Recovery Hardening
+
+Audit:
+Reviewed every reuse branch in the unattended Object C and post-Object-C
+queues. The earlier implementation treated a non-empty wrapper metadata file
+as reusable before checking `exit_code`. Because the tracked wrapper writes
+metadata for both success and failure, an interrupted fine, fusion, or release
+stage could leave a failure JSON that prevented an automatic retry.
+
+Implementation:
+Changed the Object C queue to reuse coarse and fine stages only when wrapper
+metadata parses successfully and contains `exit_code=0`. Changed the
+post-Object-C queue to wait for successful fine metadata, reuse Blender output
+only after a successful fusion wrapper, and reuse a public release only after
+both successful release metadata and a live stable download URL check. A
+missing or stale release link now triggers the idempotent package-and-upload
+path again.
+
+Validation:
+Ran `continue_object_c_full.sh` with the completed
+`object-c-magic123-{coarse,fine}-smoke-retry2` fixtures and confirmed both
+successful wrappers and required outputs were reused without launching GPU
+work. Invoked the same URL checker used by release reuse against the public
+repository URL and received HTTP status `200` on the first attempt. Ran Bash
+syntax checks and Git whitespace validation before reloading the post-Object-C
+watcher.
+
+## 2026-06-01 / Public Walkthrough Release Asset
+
+Delivery audit:
+The formal Blender walkthrough was generated locally under ignored outputs,
+while the public GitHub Release contained only the best-weights archive and
+checksum. Added the walkthrough MP4 to the same persistent Release so the
+video deliverable remains downloadable without committing a binary video to
+Git history.
+
+Implementation:
+Extended `publish_best_weights_release.sh` to require the formal MP4, upload
+`task1-walkthrough.mp4` during both release creation and idempotent updates,
+and write `public_walkthrough_url.txt`. Added the stable URL to final report
+metadata, the PDF external-links table, the report outline, and README
+documentation. Expanded strict readiness from `17/17` to `18/18` with an HTTP
+HEAD check for the public walkthrough URL.
+
+Validation:
+Confirmed that the publisher refuses to proceed before the formal MP4 exists,
+so it cannot create an incomplete final Release. Created a disposable
+three-asset GitHub Release containing archive, checksum, and MP4 fixtures;
+both public asset URLs returned HTTP status `200`, and the temporary release
+and tag were deleted afterward. Ran the real finalizer and PDF generator in an
+isolated D-drive fixture. The first preflight exposed that the final PDF gate
+mistook the public video URL for a local filesystem path; restricted local
+existence checks to actual local deliverables and reran successfully. Visually
+inspected the external-links page with the full production-length GitHub URLs:
+both links wrap inside their table cells without overflow.
+
+## 2026-06-01 / Object C Reuse Output Audit
+
+Staging audit:
+Verified with `git check-ignore` and `git ls-files` that the final Object C and
+fusion previews under `docs/figures/` are eligible for commit. The copied
+preview files and manifest under `report/assets/` remain intentionally ignored
+build cache, while tracked charts and the montage are refreshed through
+`git add -u`.
+
+Recovery hardening:
+Tightened the Object C queue's reuse predicates again: a completed coarse run
+is reusable only when both successful wrapper metadata and its checkpoint
+exist, and a completed fine run is reusable only when both successful metadata
+and its mesh OBJ exist. If outputs are deleted after a prior success, the
+resumable generation script now launches the stage again instead of stopping
+after a stale metadata reuse decision.
+
+## 2026-06-01 / Object C Formal Coarse Epoch 2 Checkpoint
+
+Progress audit:
+The resumed formal Magic123 coarse run completed `Epoch 2/5` at step `200/500`
+and wrote
+`outputs/object_c_magic123/object-c-magic123-coarse-full/checkpoints/object-c-magic123-coarse-full_ep0002.pth`
+(`203,909,231` bytes). Evaluation finished at `2026-06-01T00:33:28+08:00`,
+and the same healthy GPU process continued into `Epoch 3/5`.
+
+Visual inspection:
+Reviewed the four-view Lambertian validation sheet for epoch 2. The visible
+medicine-box front remains recognizable with the main printed region preserved.
+The unseen side and rear views are still coarse and soft, which is expected for
+the single-image coarse stage before fine refinement.
+
+Pipeline status:
+Strict readiness remains `11/18`. The post-Object-C watcher is alive and is
+correctly waiting for successful formal fine-wrapper metadata before launching
+fusion, GitHub Release publication, final metadata generation, PDF generation,
+and the closing Git commit and push.
+
+## 2026-06-01 / Object C Formal Coarse Epoch 4 Checkpoint
+
+Progress audit:
+The resumed formal Magic123 coarse run completed `Epoch 4/5` at step `400/500`
+and wrote
+`outputs/object_c_magic123/object-c-magic123-coarse-full/checkpoints/object-c-magic123-coarse-full_ep0004.pth`
+(`252,722,533` bytes). Evaluation finished at `2026-06-01T03:38:29+08:00`,
+and training continued into the final coarse epoch. At the heartbeat audit,
+TensorBoard had advanced to step `468/500` with full GPU utilization.
+
+Visual inspection:
+Reviewed the epoch-4 four-view Lambertian validation sheet. The medicine-box
+front remains recognizable and the overall box shape is more stable than the
+epoch-2 sheet. The unobserved side and rear surfaces remain soft, so the queued
+fine stage is still required before exporting the formal Object C mesh.
+
+Pipeline status:
+Strict readiness remains `11/18`. The Object C continuation queue and the
+post-Object-C watcher are both alive. No restart is required.
+
+## 2026-06-01 / Object C Formal Coarse Training Complete
+
+Training milestone:
+The formal Magic123 coarse optimizer completed `500/500` steps at
+`2026-06-01T05:09:29+08:00` and wrote
+`outputs/object_c_magic123/object-c-magic123-coarse-full/checkpoints/object-c-magic123-coarse-full_ep0005.pth`
+(`252,722,533` bytes). Magic123 reported `423.2054` minutes for the resumed
+formal training run before export rendering.
+
+Visual inspection:
+Reviewed the epoch-5 four-view Lambertian validation sheet after evaluation
+finished at `2026-06-01T05:10:37+08:00`. The observed medicine-box front
+remains stable and recognizable. The soft unobserved surfaces remain a known
+single-image coarse limitation and are the reason the queued dmtet fine stage
+must still run.
+
+Export audit:
+The first official 100-view test render completed at
+`2026-06-01T05:45:05+08:00` and generated Lambertian, depth, and mask MP4
+artifacts. Re-read the upstream `external/Magic123/main.py` tail to verify that
+the remaining activity is expected: after `trainer.train(...)`, the official
+entry point runs another Lambertian test render, a normal-shading test render,
+and `save_mesh()` before the tracked wrapper writes success metadata and the
+continuation queue starts fine refinement. Strict readiness remains `11/18`.
+
+## 2026-06-01 / Object C Formal Coarse Export and Fine Queue Recovery
+
+Coarse export:
+The official post-training export completed successfully. The second
+Lambertian render finished at `2026-06-01T06:19:32+08:00`, the 100-view normal
+render finished at `2026-06-01T06:53:36+08:00`, and marching cubes plus xatlas
+UV unwrap finished at `2026-06-01T06:54:13+08:00`. The coarse mesh contains
+`23,659` vertices and `47,322` faces:
+`outputs/object_c_magic123/object-c-magic123-coarse-full/mesh/mesh.obj`
+(`4,575,072` bytes). The tracked wrapper wrote successful metadata with
+`exit_code=0` and `elapsed_seconds=29639.485576688003`.
+
+Recovery audit:
+The original long-lived `continue_object_c_full.sh` process exited immediately
+after coarse success with an unexpected-EOF parser error before launching fine.
+The tracked script file itself is valid: `bash -n` passes for
+`continue_object_c_full.sh`, `generate_image3d_object_c.sh`, and
+`continue_after_object_c_full.sh`. The failure is consistent with updating the
+runner script in place while the old Bash process was suspended inside the
+multi-hour coarse command, after which that process resumed reading from an old
+file offset.
+
+Recovery action:
+Verified that the successful coarse metadata, coarse checkpoint, and coarse
+mesh are present while formal fine metadata and the formal fine mesh are absent.
+Restarted the idempotent Object C continuation queue with a hidden Windows
+`wsl.exe` launcher. The new queue explicitly reported coarse-output reuse and
+launched only `object-c-magic123-fine-full` at
+`2026-06-01T07:00:54+08:00`, with `--dmtet` and the correct coarse
+`--init_ckpt`. The post-Object-C watcher remains alive and continues waiting
+for successful fine-wrapper metadata.
+
+## 2026-06-01 / Object C Formal Fine Epoch 3 Checkpoint
+
+Progress audit:
+The recovered Magic123 dmtet fine run completed `Epoch 3/5` at step `300/500`
+and wrote
+`outputs/object_c_magic123/object-c-magic123-fine-full/checkpoints/object-c-magic123-fine-full_ep0003.pth`
+(`425,398,499` bytes). Evaluation finished at
+`2026-06-01T07:29:42+08:00`, and the healthy GPU process continued into
+`Epoch 4/5`. The averaged total loss decreased from `0.0119` at step `200` to
+`0.0093` at step `300`.
+
+Visual inspection:
+Reviewed the epoch-3 four-view Lambertian validation sheet. The observed front
+of the medicine box retains its printed text and blue-white product texture.
+The mesh is present without global collapse. The unobserved side and rear
+surfaces remain rough, which is an expected single-image reconstruction
+limitation to discuss in the final report.
+
+Pipeline status:
+Strict readiness remains `11/18`. The fine queue and post-Object-C watcher are
+both alive; no restart is required.
+
+## 2026-06-01 / Object C Formal Fine Export Complete
+
+Fine-stage result:
+The recovered Magic123 dmtet fine run completed all `500/500` optimizer steps
+at `2026-06-01T07:53:40+08:00`. The averaged total loss decreased to `0.0070`,
+and Magic123 reported `51.6084` minutes for fine training. The tracked wrapper
+finished successfully with `exit_code=0` and
+`elapsed_seconds=3399.8184104790053`, including the official Lambertian and
+normal test renders plus mesh export.
+
+Mesh audit:
+The final Object C mesh contains `22,860` vertices and `45,730` faces:
+`outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.obj`
+(`4,316,106` bytes). Reviewed the epoch-5 four-view Lambertian validation
+sheet. The photographed front face remains recognizable and text-rich; the
+unseen surfaces remain rough, documenting the geometric ambiguity of
+single-view reconstruction.
+
+Pipeline handoff:
+The post-Object-C watcher verified the fine wrapper, mesh, and final preview,
+then launched the formal Blender fusion walkthrough automatically. Strict
+readiness advanced to `13/18` while the MP4 stream was still being encoded.
+
+## 2026-06-01 / Object C Formal Mesh and Fusion Auto-Finalization
+
+Completed at `2026-06-01T09:18:45.407199+08:00`.
+
+The unattended queue verified the formal Object C fine-stage OBJ, rendered the Blender walkthrough from the real counter COLMAP camera path, uploaded the public best-weights package, refreshed report assets and the final PDF, and passed the strict Task 1 readiness audit (`18/18`).
+
+Formal walkthrough: `/home/hp/cv_hw3/FDU-Computer-Vision/hw3/task1/outputs/fusion/task1-walkthrough.mp4` (1102438 bytes).
+
+## 2026-06-01 / Windows F: Mirror Reconciliation
+
+Artifact synchronization:
+Reconciled the stale Windows-side Task 1 directory with the completed WSL
+workspace. Copied the complete `outputs/` tree (`3363` files, about `4.15 GiB`)
+plus all logs, SwanLab runs, report assets, notes, configurations, scripts,
+patches, tools, and reproducibility files to
+`F:\Personal\Code\Computer Vision\hw3\task1`. Copied the D-drive release cache
+into local `release/`, including the unpacked best weights, public archive,
+SHA-256 file, manifest, public URLs, and release notes.
+
+Data reconciliation:
+Replaced the Windows zero-byte `data\processed\background_counter` placeholder
+with a junction to `data\raw\mipnerf360\counter`, matching the WSL symlink.
+Reverse-synchronized the locally retained Object A phone photos and COLMAP
+`database.db` into WSL so both workspaces retain the important raw acquisition
+inputs. Verified that Object C raw `c.png`, processed RGBA, MiDaS depth, and
+prepared Magic123 medicine-box files remain available.
+
+Storage policy:
+Mirrored the three external source trees but intentionally kept the
+redownloadable Linux-only Magic123 Zero123 and MiDaS foundation weights and
+portable Blender runtime in WSL. Added `docs/local_mirror_inventory.md` as the
+explicit local-mirror inventory.
+
+## 2026-06-01 / Object A Count Audit and Fusion Walkthrough Lighting Recovery
+
+Object A data audit:
+Rechecked the Windows and WSL mirrors after the user asked where Object A and
+the expected phone captures were stored. The raw acquisition is complete:
+`data/raw/object_a_images` contains `63` phone photos (`260,665,874` bytes).
+The COLMAP workspace retains all `63` input images and its database contains
+`63` image, keypoint, and descriptor records. The sparse reconstruction and
+the 2DGS-ready training directory contain `34` successfully registered views.
+The previous report wording incorrectly made `34` look like the raw capture
+count; documentation now reports `63 captured / 34 registered`.
+
+Walkthrough diagnosis:
+Measured the original formal walkthrough preview before rerendering. Its mean
+luminance was `37.993`, median luminance was `29.205`, and `51.59%` of pixels
+were darker than luminance `32`. The Blender scene used weak ambient lighting
+plus one top fill. Object A was also imported with a `90` degree X rotation,
+which placed the reconstructed doll nearly flat and made it difficult to
+recognize.
+
+Recovery implementation:
+Made scene lighting configurable, enabled world-node strength, and added
+top/front/side area fills aimed at the tabletop. Set exposure to `0.75`.
+Changed Object A to a vertical `0` degree rotation, moved it into the left
+display area, and increased its fusion scale to `0.10`. Added
+`configs/fusion_scene_preview.json` for tracked one-frame Blender layout QA.
+
+Tracked QA:
+Ran SwanLab-local layout previews
+`task1-fusion-layout-preview-balanced-v1`, `v2`, and `v3`, then ran
+`task1-fusion-smoke-balanced-v3`. The final smoke MP4 decodes as `12/12`
+frames at `480x360`; per-frame mean luminance ranges from `94.986` to
+`149.914`, with no black frames. The midpoint preview shows Object A upright
+to the left of the teapot, Object B centered, and Object C on the right.
+
+Formal rerender:
+Ran SwanLab-local formal walkthrough `task1-fusion-render-balanced-v2`. Blender
+completed successfully with `exit_code=0` in `5599.8887` seconds. The refreshed
+`outputs/fusion/task1-walkthrough.mp4` is `1,545,398` bytes and decodes as
+`180/180` frames at `640x480`, `30 fps`. Across the formal video, per-frame
+mean luminance ranges from `88.186` to `152.271` with an average of `128.588`;
+the original dark walkthrough preview average was `37.993`.
+
+Release and final report refresh:
+Republished the GitHub Release through tracked run
+`task1-best-weights-release-balanced-v2`. The refreshed public walkthrough URL
+is
+`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4`
+and returns HTTP `200` with `Content-Length: 1545398`. Refreshed report
+metadata with the named formal render, rebuilt the nine-page final PDF, and
+visually checked every rendered page. The first strict readiness attempt hit a
+transient WSL TLS timeout while probing the large public weights archive; the
+retry passed `18/18`, including HTTP `200` for both public release assets.
+
+Windows mirror refresh:
+Incrementally synchronized updated configs, docs, logs, notes, report assets,
+scripts, SwanLab runs, formal and smoke fusion outputs, and the D-drive release
+cache into `F:\Personal\Code\Computer Vision\hw3\task1`. Verified SHA-256
+equality between WSL and F: for the formal walkthrough MP4, final report PDF,
+fusion preview PNG, and one-frame QA config. Recounted Object A raw phone
+photos on both sides: `63` in WSL and `63` on F:. The F: drive retained
+approximately `495.21 GiB` free space after synchronization.

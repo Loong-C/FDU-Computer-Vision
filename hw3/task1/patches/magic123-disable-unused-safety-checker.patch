@@ -1,0 +1,18 @@
+diff --git a/guidance/sd_utils.py b/guidance/sd_utils.py
+index f8d5f83..308d5f4 100644
+--- a/guidance/sd_utils.py
++++ b/guidance/sd_utils.py
+@@ -148,7 +148,12 @@ class StableDiffusion(nn.Module):
+ 
+         # Create model
+         pipe = StableDiffusionPipeline.from_pretrained(
+-            sd_path, torch_dtype=self.precision_t, local_files_only=False)
++            sd_path,
++            torch_dtype=self.precision_t,
++            safety_checker=None,
++            feature_extractor=None,
++            requires_safety_checker=False,
++            local_files_only=os.environ.get('HF_HUB_OFFLINE') == '1')
+ 
+         if isfile('./unet_traced.pt'):
+             # use jitted unet

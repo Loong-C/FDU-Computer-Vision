@@ -1,0 +1,30 @@
+* text=auto
+
+# Keep scripts and configs portable across Windows and WSL/Linux.
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.tex text eol=lf
+*.txt text eol=lf
+*.toml text eol=lf
+*.patch text eol=lf
+*.svg text eol=lf
+*.gitignore text eol=lf
+.gitattributes text eol=lf
+*.ps1 text eol=crlf
+
+# Binary artifacts.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gz binary
+*.zip binary
+*.pt binary
+*.pth binary
+*.ckpt binary
+*.safetensors binary
+*.bin binary

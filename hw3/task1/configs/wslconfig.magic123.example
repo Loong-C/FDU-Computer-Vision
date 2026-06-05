@@ -1,0 +1,7 @@
+[wsl2]
+# Magic123 loads Stable Diffusion 1.5 and Zero123 together. The default WSL
+# memory cap is too small on a 32 GB host, so keep swap on D and leave Windows
+# enough physical memory for the desktop.
+memory=26GB
+swap=32GB
+swapFile=D:\\WSL\\swap.vhdx

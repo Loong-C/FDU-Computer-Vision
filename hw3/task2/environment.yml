@@ -1,0 +1,17 @@
+name: hw3-calvin-act
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pytorch>=2.7,<2.11
+  - torchvision>=0.22,<0.26
+  - pytorch-cuda=12.8
+  - numpy>=2.0,<2.3
+  - pyyaml>=6.0
+  - matplotlib>=3.8
+  - pytest>=8.0
+  - pip:
+      - swanlab>=0.7,<0.8

@@ -1,0 +1,26 @@
+{
+  "generated_by": "report/build_report_assets.py",
+  "assets": [
+    "2dgs_validation_metrics.png",
+    "asset_preview_montage.jpg",
+    "formal_training_curves.png",
+    "fusion_walkthrough_preview.png",
+    "manifest.json",
+    "object_b_sds_curve.png",
+    "object_c_magic123_losses.png",
+    "runtime_comparison.png",
+    "task1_fusion_pipeline.png",
+    "task1_method_triviews.png",
+    "task2_zero_shot_grouped.png"
+  ],
+  "task2_zero_shot_values": {
+    "b_only": {
+      "first_action_mae": 0.22625148172179857,
+      "chunk_action_mae": 0.2594750017548601
+    },
+    "abc": {
+      "first_action_mae": 0.18771157413721085,
+      "chunk_action_mae": 0.22914512909483165
+    }
+  }
+}

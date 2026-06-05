@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Large data and outputs
+data/raw/
+data/processed/
+outputs/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.ply
+*.obj
+*.fbx
+*.glb
+*.tar.gz
+*.zip
+*.ckpt
+*.pth
+*.pt
+*.bin
+
+# External repositories
+external/2d-gaussian-splatting/
+external/threestudio/
+external/Magic123/
+external/blender/
+
+# System / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+wandb/
+runs/
+logs/
+swanlog/
+
+# Packaged release binaries stay in external storage; keep metadata in Git.
+release/*.tar.gz
+release/*.zip
+release/*-weights/
+
+# Report build artifacts
+tmp/
+report/output/
+report/assets/manifest.json
+report/assets/background_counter_render_preview.png
+report/assets/object_a_render_preview.png
+report/assets/object_b_final_preview.png
+report/assets/object_c_preprocessed_preview.png
+report/assets/object_c_magic123_smoke_preview.jpg
+report/assets/object_c_magic123_final_preview.jpg
+report/assets/fusion_walkthrough_preview.png

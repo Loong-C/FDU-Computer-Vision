@@ -1,0 +1,13 @@
+swanlab[dashboard]
+wandb
+tensorboard
+huggingface_hub
+numpy
+pandas
+matplotlib
+opencv-python
+tqdm
+pyyaml
+reportlab
+pypdf
+pymupdf

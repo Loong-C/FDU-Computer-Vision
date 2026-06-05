@@ -1,0 +1,45 @@
+seed: 7
+
+data:
+  image_size: 64
+  train_split: training
+  test_split: validation
+  max_train_samples: 36
+  max_eval_samples: 12
+  stride: 1
+  validation_fraction: 0.2
+  stats_samples: 36
+
+model:
+  chunk_size: 4
+  n_action_steps: 4
+  vision_backbone: resnet18
+  pretrained_backbone_weights: null
+  dim_model: 64
+  n_heads: 4
+  dim_feedforward: 128
+  n_encoder_layers: 1
+  n_decoder_layers: 1
+  use_vae: true
+  latent_dim: 8
+  n_vae_encoder_layers: 1
+  dropout: 0.1
+  kl_weight: 1.0
+  optimizer_lr: 0.0001
+  optimizer_weight_decay: 0.0001
+  optimizer_lr_backbone: 0.0001
+  use_amp: false
+
+train:
+  batch_size: 2
+  num_workers: 0
+  max_steps: 2
+  log_interval: 1
+  validation_interval: 1
+  checkpoint_interval: 1
+  validation_batches: 1
+  grad_clip_norm: 10.0
+
+swanlab:
+  project: hw3-calvin-act-smoke
+  mode: offline

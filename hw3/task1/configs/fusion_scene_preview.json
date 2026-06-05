@@ -1,0 +1,58 @@
+{
+  "output_blend": "outputs/fusion_smoke/task1-layout-preview.blend",
+  "output_video": "outputs/fusion_smoke/task1-layout-preview.mp4",
+  "output_preview": "outputs/fusion_smoke/task1-layout-preview.png",
+  "preview_frame": 90,
+  "render_animation": false,
+  "resolution_x": 640,
+  "resolution_y": 480,
+  "fps": 30,
+  "frames": 180,
+  "lighting": {
+    "world_color": [0.18, 0.18, 0.18],
+    "world_strength": 0.8,
+    "exposure": 0.75,
+    "sun_energy": 3.0,
+    "target": [0.0, 2.0, -0.3],
+    "area_lights": [
+      {"name": "TopFill", "energy": 1500, "size": 5.0, "location": [0.0, 1.5, 6.0]},
+      {"name": "FrontFill", "energy": 1800, "size": 4.0, "location": [0.0, -3.5, 3.0]},
+      {"name": "SideFill", "energy": 1200, "size": 3.5, "location": [3.5, 1.5, 2.5]}
+    ]
+  },
+  "camera": {
+    "path": "configs/counter_camera_path.json",
+    "start_index": 152,
+    "end_index": 239
+  },
+  "assets": [
+    {
+      "name": "background",
+      "path": "outputs/background_2dgs/background-counter-2dgs-full/train/ours_30000/fuse_post.ply",
+      "location": [0.0, 0.0, 0.0],
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "object_a",
+      "path": "outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply",
+      "location": [-0.620, 1.750, -0.254],
+      "rotation_deg": [0.0, 0.0, 0.0],
+      "scale": [0.10, 0.10, 0.10]
+    },
+    {
+      "name": "object_b",
+      "glob": "outputs/object_b_text3d/object-b-dreamfusion-sd-full/**/*.obj",
+      "location": [-0.013, 1.995, -0.306],
+      "rotation_deg": [90.0, 0.0, 0.0],
+      "scale": [0.40, 0.40, 0.40]
+    },
+    {
+      "name": "object_c",
+      "glob": "outputs/object_c_magic123/object-c-magic123-fine-full/**/*.obj",
+      "location": [0.719, 2.012, -0.315],
+      "rotation_deg": [90.0, 0.0, 0.0],
+      "scale": [0.60, 0.60, 0.60]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "final",
+  "student_name": "\u9648\u5bb6\u9f99",
+  "student_id": "24300980041",
+  "generated_on": "2026-06-01",
+  "github_url": "https://github.com/Loong-C/FDU-Computer-Vision",
+  "github_branch": "hw3",
+  "cloud_weights_url": "https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz",
+  "object_c": {
+    "formal_mesh": "outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.obj",
+    "preview": "docs/figures/object_c_magic123_final_preview.jpg",
+    "coarse_seconds": 29639.4856,
+    "fine_seconds": 3399.8184
+  },
+  "fusion": {
+    "video": "outputs/fusion/task1-walkthrough.mp4",
+    "public_video_url": "https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4",
+    "preview": "docs/figures/fusion_walkthrough_preview.png",
+    "render_seconds": 5599.8887
+  }
+}

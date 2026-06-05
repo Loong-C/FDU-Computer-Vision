@@ -1,0 +1,144 @@
+# CV HW3 Task 1 Report Outline
+
+Status: report scaffold added under `report/`. Replace each `PENDING` marker
+with the final measured result before running
+`python report/generate_report.py --final --publish`.
+
+## 1. Background and Objective
+
+Task 1 builds one unified 3D scene from four sources:
+
+- Object A: real phone multiview images reconstructed with COLMAP and 2DGS.
+- Object B: text-only 3D generation with threestudio DreamFusion and Stable Diffusion SDS loss.
+- Object C: one real phone image with background removal, reconstructed with Magic123.
+- Background: the open-source Mip-NeRF 360 `counter` scene reconstructed with 2DGS.
+
+The final result inserts the three object assets into the reconstructed real background and renders a multiview walkthrough video.
+
+## 2. Dataset Description
+
+| Asset | Source | Size | Preparation |
+|---|---|---:|---|
+| Object A | Phone multiview capture | 63 captured / 34 registered images | COLMAP pose extraction and 2DGS undistortion |
+| Object B | Text prompt only | 1 prompt | threestudio Stable Diffusion SDS optimization |
+| Object C | Phone photo `c.png` | 1448 x 1086 RGB | Checkerboard removal, RGBA alpha mask, Magic123 MiDaS depth |
+| Background | Mip-NeRF 360 `counter` | 240 images | Selective Hugging Face mirror download |
+
+Object A COLMAP sparse model:
+
+| Metric | Value |
+|---|---:|
+| Captured images | 63 |
+| Registered images used by 2DGS | 34 |
+| Sparse points | 1527 |
+| Observations | 5203 |
+| Mean track length | 3.407335 |
+| Mean observations per image | 153.029412 |
+| Mean reprojection error | 1.192686 px |
+
+## 3. Methods
+
+### 3.1 Object A: COLMAP and 2DGS
+
+Describe phone capture, COLMAP registration, undistortion, 2D Gaussian representation, normal regularization, render export, and bounded TSDF mesh export.
+
+### 3.2 Object B: threestudio DreamFusion SDS
+
+Prompt:
+`A studio product photo of a small red ceramic teapot with a round body, short spout, and curved handle`
+
+Describe the public Stable Diffusion 1.5 guidance model, SDS loss, random-camera
+optimization, validation render, and mesh export.
+
+### 3.3 Object C: Magic123
+
+Prompt:
+`A high-resolution DSLR product photo of an amoxicillin capsule medicine box`
+
+Describe checkerboard removal, convex-hull alpha extraction, MiDaS depth estimation, Stable Diffusion prior, Zero123 prior, coarse NeRF optimization, and fine DMTet optimization.
+
+### 3.4 Background: Mip-NeRF 360 Counter and 2DGS
+
+Describe the open-source scene, selective mirror download, COLMAP camera reuse, 2DGS reconstruction, and bounded mesh export.
+
+### 3.5 Unified Representation and Fusion
+
+Use textured meshes as the exchange representation for Object A, Object B, Object C, and the background surface extracted from 2DGS. Compose, scale, and position the meshes in one scene, then render a camera walkthrough. Document the chosen renderer after the local Blender or fallback rendering path is finalized.
+
+## 4. Hyperparameters
+
+| Stage | Iterations | Resolution | Main Parameters |
+|---|---:|---:|---|
+| Object A 2DGS | 30000 | native | `lambda_normal=0.05`, `lambda_dist=0.0`, `depth_ratio=0.0` |
+| Background 2DGS | 30000 | half | `lambda_normal=0.05`, `lambda_dist=0.0`, `depth_ratio=0.0` |
+| Object B threestudio | 10000 | 64 x 64 | Public Stable Diffusion 1.5 SDS, `guidance_scale=100` |
+| Object C Magic123 coarse | 500 local formal (`5000` official reference) | 128 x 128 | SD + Zero123, `lambda_guidance=[1.0, 40]` |
+| Object C Magic123 fine | 500 local formal (`5000` official reference) | DMTet | SD + Zero123, `lambda_guidance=[1e-3, 0.01]` |
+
+## 5. Results
+
+### 5.1 Object A Intermediate Evaluation
+
+| Iteration | Validation PSNR | Validation L1 | Gaussian Points | Patch Total Loss |
+|---:|---:|---:|---:|---:|
+| 7000 | 31.8275299 dB | 0.0156156 | 149488 | not retained at exact evaluation event |
+| 30000 | 33.5198059 dB | 0.0112888 | 212465 | 0.0273208 |
+
+### 5.2 Background Intermediate Evaluation
+
+| Iteration | Validation PSNR | Validation L1 | Gaussian Points | Patch Total Loss |
+|---:|---:|---:|---:|---:|
+| 7000 | 28.0689182 dB | 0.0215513 | 482345 | not retained at exact evaluation event |
+| 30000 | 29.9138107 dB | 0.0169862 | 533358 | 0.0242750 |
+
+### 5.3 Final Asset Outputs
+
+Object B convergence diagnostics:
+
+| Iteration | Preview | Observation |
+|---:|---|---|
+| 20 | `docs/figures/object_b_smoke_preview.png` | Smoke-path density blob; sufficient only for plumbing validation |
+| 1600 | `docs/figures/object_b_full_iter1600_preview.png` | Recognizable teapot silhouette with lid, spout, and handle |
+| 3000 | `docs/figures/object_b_full_iter3000_preview.png` | Red teapot appearance and silhouette continue to stabilize |
+| 10000 | `docs/figures/object_b_final_preview.png` | Formal red-teapot preview with stable lid, spout, round body, and curved handle |
+
+| Asset | Mesh Output | Preview / Video | Time Cost |
+|---|---|---|---:|
+| Object A | `outputs/object_a_2dgs/object-a-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/object_a_render_preview.png` | 4855.77 s training |
+| Background | `outputs/background_2dgs/background-counter-2dgs-full/train/ours_30000/fuse_post.ply` | `docs/figures/background_counter_render_preview.png` | 1368.52 s training |
+| Object B | `outputs/object_b_text3d/object-b-dreamfusion-sd-full/object-b-dreamfusion-sd-full/export@20260531-190339/save/it10000-export/model.obj` | `docs/figures/object_b_final_preview.png` | 3624.22 s training + 35.46 s export |
+| Object C | `outputs/object_c_magic123/object-c-magic123-fine-full/mesh/mesh.obj` | `docs/figures/object_c_magic123_final_preview.jpg` | 29639.49 s coarse + 3399.82 s fine |
+| Fusion | unified scene | `outputs/fusion/task1-walkthrough.mp4` | 5599.89 s |
+
+## 6. Comparative Analysis
+
+Compare geometry accuracy, texture fidelity, compute time, controllability, input burden, and failure modes for multiview reconstruction, text-to-3D generation, and single-image-to-3D generation.
+
+## 7. Experiment Tracking
+
+Insert SwanLab curve screenshots for:
+
+- Object A 2DGS training and validation.
+- Background 2DGS training and validation.
+- Object B SDS training.
+- Object C Magic123 coarse and fine training.
+
+## 8. Reproducibility and Links
+
+- Public GitHub repository: `https://github.com/Loong-C/FDU-Computer-Vision`
+- Branch: `hw3`
+- Best model weights cloud link: `https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz`
+- Public walkthrough video link: `https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4`
+- SwanLab local dashboard command: `swanlab watch hw3/task1/swanlog`
+
+## 9. Reproducible PDF Build
+
+```bash
+conda activate cv_hw3_threestudio
+python report/build_report_assets.py
+python report/generate_report.py
+python report/render_report.py report/output/pdf/cv_hw3_task1_report_draft.pdf
+```
+
+The final generator validates the Object C mesh, fusion video, fusion preview,
+cloud-weights link, and measured runtimes before publishing.
