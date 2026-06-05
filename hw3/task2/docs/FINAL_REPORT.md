@@ -1,170 +1,103 @@
-# HW3 Task 2 Report Draft: Cross-environment Generalization with LeRobot ACT
+# 题目二最终报告草稿
 
-> Submission note: replace the member placeholders below before submitting the
-> PDF. The technical content and experiment links are populated from the
-> verified formal run.
+本文件记录题目二的正式实验内容。最终提交版已整合到 `report/HW3_Report_ChenJialong_24300980041.pdf`。
 
-## Group Information
+## 基本信息
 
-| Item | Value |
+| 项目 | 内容 |
 | --- | --- |
-| Member name(s) | `TODO: fill before submission` |
-| Student ID(s) | `TODO: fill before submission` |
-| Responsibility split | `TODO: fill before submission` |
+| 姓名 | 陈家龙 |
+| 学号 | `24300980041` |
+| 组队情况 | 单人完成 |
+| 分工 | 独立完成 |
 
-## External Links
+## 公开链接
 
-- Public GitHub repository:
-  https://github.com/Loong-C/FDU-Computer-Vision/tree/hw3/hw3/task2
-- Model-weight release:
-  https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/releases/tag/formal-partial-v1
-- SwanLab project:
-  https://swanlab.cn/@Linkukai/hw3-calvin-act
+- 代码：`https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task2`
+- 权重镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`
+- SwanLab：`https://swanlab.cn/@Linkukai/hw3-calvin-act`
 
-## 1. Background
+## 任务
 
-This task evaluates whether visual diversity during policy training improves
-cross-environment generalization. We train a LeRobot ACT policy on CALVIN
-environment B and compare it against the same policy architecture trained on a
-mixed A+B+C dataset. Both policies are evaluated zero-shot on the unseen D
-environment with offline action-error metrics and simulator rollout.
+训练两个 LeRobot ACT 策略：
 
-## 2. Dataset
+| 模型 | 训练环境 | 测试环境 |
+| --- | --- | --- |
+| B-only | B | D |
+| A+B+C | A+B+C | D |
 
-The official CALVIN metadata defines the following inclusive training-frame
-ranges:
+两者使用相同架构、优化器、batch size、学习率和训练步数。差异只来自训练环境分布。
 
-| Environment | Frame range |
+## 数据
+
+完整 CALVIN 数据过大，因此正式实验只下载官方 ZIP 中的均匀抽样帧：
+
+| 用途 | 帧数 |
 | --- | ---: |
-| B | `0..598909` |
-| C | `598910..1191338` |
-| A | `1191339..1795044` |
+| A+B+C 训练源数据 | 2304 |
+| B-only 训练源数据 | 768 |
+| D 零样本评估 | 768 |
 
-The complete A+B+C archive is 517 GB and the D archive is 166 GB. To keep the
-experiment feasible on local hardware, we implement an HTTP-Range downloader
-that fetches only evenly sampled consecutive official frame windows while
-preserving the CALVIN directory format and validating CRC checksums.
+处理后样本数：
 
-The reported run uses 2304 A+B+C training frames and 768 D evaluation frames.
-With `stride: 3` and a 90/10 train-validation split, the B-only policy uses 230
-training samples and the A+B+C policy uses 691 training samples.
+- B-only：230 个训练样本，26 个验证样本。
+- A+B+C：691 个训练样本，77 个验证样本。
 
-## 3. Method
+## 方法
 
-ACT predicts a chunk of future actions from the current visual observation and
-robot state. Instead of selecting a single action independently at each step,
-the policy models a short action sequence. This can reduce sensitivity to
-single-frame noise and support temporally coherent control.
+ACT 从当前图像和机器人状态预测未来一段动作。本实验使用 LeRobot `v0.5.1` 的 `ACTPolicy`。
 
-We use the upstream LeRobot `ACTPolicy` from release `v0.5.1`. Both experiments
-use identical architecture and optimizer settings. Only the selected training
-environments differ.
-
-| Item | Value |
+| 项目 | 值 |
 | --- | --- |
-| Vision backbone | ResNet-18 |
-| Image size | 128 |
-| Transformer model dimension | 256 |
-| Encoder / decoder layers | 3 / 1 |
-| Action chunk size | 20 |
-| VAE latent dimension | 32 |
-| Batch size | 4 |
-| Optimizer | AdamW |
-| Learning rate | `1e-5` |
-| Weight decay | `1e-4` |
-| Training steps | 5000 |
+| 视觉骨干 | ResNet-18 |
+| 图像大小 | 128 |
+| Transformer 维度 | 256 |
+| 编码器/解码器层数 | 3 / 1 |
+| 动作块长度 | 20 |
+| batch size | 4 |
+| 优化器 | AdamW |
+| 学习率 | `1e-5` |
+| weight decay | `1e-4` |
+| 训练步数 | 5000 |
 | GPU | NVIDIA GeForce RTX 4060 Ti, 8 GB |
 
-## 4. Results
+## 结果
 
-![Formal training and validation curves](images/formal_training_curves.svg)
-
-| Run | Final held-out validation L1 | D first-action MAE | D chunk MAE |
+| 模型 | 验证 L1 | D first-action MAE | D chunk MAE |
 | --- | ---: | ---: | ---: |
 | B-only | 0.324629 | 0.226251 | 0.259475 |
 | A+B+C | 0.386954 | 0.187712 | 0.229145 |
 
-![Formal unseen-D first-action error](images/formal_zero_shot_d_action_error.svg)
+A+B+C 相比 B-only：
 
-CALVIN D simulator rollout used the official 360-step per-subtask horizon and
-three generated five-task evaluation sequences:
+- first-action MAE 降低 `17.0%`。
+- chunk-action MAE 降低 `11.7%`。
 
-| Run | Evaluated D sequences | Avg solved subtasks | SR@1 | SR@5 |
+CALVIN D simulator rollout：
+
+| 模型 | 序列数 | 平均完成子任务 | SR@1 | SR@5 |
 | --- | ---: | ---: | ---: | ---: |
 | B-only | 3 | 0.0 | 0.0% | 0.0% |
 | A+B+C | 3 | 0.0 | 0.0% | 0.0% |
 
-Formal SwanLab runs:
+## 分析
 
-| Run | URL |
-| --- | --- |
-| B-only training | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/y34dmlyk6ol06me1f1ig0 |
-| A+B+C training | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/t3kfag5dsiipp3wwxy4te |
-| B-only to D evaluation | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/b1hdsdo4vgrodwkk3syr7 |
-| A+B+C to D evaluation | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/5ooypxeqhgp4xja928tpk |
-| B-only to D simulator rollout | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/kcbgr0rmn3jokevjmxlyj |
-| A+B+C to D simulator rollout | https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/mqrmkx48ojvthl5gm0u2y |
+A+B+C 的验证损失更高，因为模型要同时拟合三个视觉场景。但它在 D 环境的动作误差更低，说明多环境训练增强了局部动作预测的视觉泛化。
 
-## 5. Analysis
+rollout 成功率仍为 0，原因是该 ACT 输入没有语言指令，只根据图像和状态预测动作块。CALVIN 长时任务要求执行语言指定的子任务序列，闭环误差会持续累积。因此，离线 MAE 改善说明局部动作更接近专家动作，但还不足以转化为完整任务成功。
 
-The A+B+C model has a higher held-out validation L1 loss than the B-only model
-because it must fit three visually distinct scenes. Despite this more difficult
-training distribution, it generalizes better to unseen D: first-action MAE
-drops from 0.226251 to 0.187712 (`17.0%`), and chunk-action MAE drops from
-0.259475 to 0.229145 (`11.7%`).
-
-The chunk-level improvement is smaller than the first-action improvement. This
-is expected: longer-horizon predictions accumulate more uncertainty under
-visual distribution shift. However, the A+B+C model still improves at chunk
-level, indicating that its 20-step action chunks remain robust on the sampled D
-frames instead of becoming brittle.
-
-The simulator rollout success rates are 0 in the small 3-sequence protocol for
-both policies. This is not inconsistent with the action-MAE improvement: the
-trained ACT policies are goal-agnostic visual/state-to-action models, while the
-official CALVIN long-horizon benchmark asks the policy to execute a
-language-specified task sequence.
-
-## 6. Limitations
-
-This resource-aware experiment evaluates action error on sampled official D
-frames and a small CALVIN simulator rollout on three D sequences. The rollout
-uses the official 360-step horizon, but it is much smaller than the full 1000
-sequence CALVIN benchmark. The sampled subset is intentionally much smaller
-than the complete archives, so the conclusions apply to the reported protocol.
-
-## 7. Reproducibility
-
-Run:
+## 复现
 
 ```powershell
 .\scripts\bootstrap.ps1
 .\scripts\run_partial_formal.ps1
-```
-
-The formal wrapper downloads the bounded subset, trains both policies with the
-same config, resumes from `latest.pt` when present, evaluates D action error,
-and regenerates plots.
-
-Run the D simulator rollout:
-
-```powershell
 .\scripts\bootstrap.ps1 -WithCalvinRollout
-.\scripts\run_zero_shot_d_rollout.ps1 `
-  -MaxSequences 3 `
-  -EpisodeLength 360 `
-  -Device cuda
+.\scripts\run_zero_shot_d_rollout.ps1 -MaxSequences 3 -EpisodeLength 360 -Device cuda
 ```
 
-Final checkpoints:
+## 权重
 
-| Run | Download | SHA256 |
+| 模型 | 文件 | SHA256 |
 | --- | --- | --- |
-| B-only | [best.pt](https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/releases/download/formal-partial-v1/hw3-task2-act-b-only-best.pt) | `58AFAE052EF2CE029F92C9258E1B5012A9C44FAC5753C1C8330B7D196A976131` |
-| A+B+C | [best.pt](https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/releases/download/formal-partial-v1/hw3-task2-act-abc-joint-best.pt) | `1B1F182E61026929F0A5FFDC5EE096D15E4771FEBD111D9EFE3D88BC4A9ADCFF` |
-
-The source tree is consolidated in `FDU-Computer-Vision`. These verified weight
-files remain on the legacy release temporarily until the assets are copied to
-an FDU repository release.
-The migration helper is `scripts/publish_fdu_release.ps1`; run it after
-GitHub CLI authentication is restored.
+| B-only | `hw3-task2-act-b-only-best.pt` | `58AFAE052EF2CE029F92C9258E1B5012A9C44FAC5753C1C8330B7D196A976131` |
+| A+B+C | `hw3-task2-act-abc-joint-best.pt` | `1B1F182E61026929F0A5FFDC5EE096D15E4771FEBD111D9EFE3D88BC4A9ADCFF` |

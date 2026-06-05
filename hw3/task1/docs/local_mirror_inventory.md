@@ -1,61 +1,33 @@
-# Windows Local Mirror Inventory
+# Windows 本地镜像清单
 
-Generated on `2026-06-01` after the Task 1 finalization run.
+生成时间：`2026-06-01`，对应题目一最终整理版本。
 
-## Locations
+## 路径
 
-- Canonical Git workspace in WSL:
-  `/home/hp/cv_hw3/FDU-Computer-Vision/hw3/task1`
-- Browsable Windows mirror:
-  `F:\Personal\Code\Computer Vision\hw3\task1`
-- Release-package source cache:
-  `D:\PackageCache\cv-hw3-task1-release`
+- WSL 主工作区：`/home/hp/cv_hw3/FDU-Computer-Vision/hw3/task1`
+- Windows 镜像：`F:\Personal\Code\Computer Vision\hw3\task1`
+- Release 打包缓存：`D:\PackageCache\cv-hw3-task1-release`
 
-## Mirrored to Windows
+## 已镜像到 Windows 的内容
 
-The Windows mirror contains the complete reviewable and reproducible Task 1
-artifact set:
+- `outputs/`：正式训练、smoke 测试、导出 Mesh、渲染图和融合视频。
+- `logs/`：运行日志、readiness 检查和恢复记录。
+- `swanlog/`：本地 SwanLab 记录。
+- `data/`：手机图片、COLMAP 输入、Mip-NeRF 360 背景和物体 C 图片。
+- `report/`、`docs/`、`notes/`：PDF、图表、预览、实验记录和耗时统计。
+- `configs/`、`scripts/`、`patches/`：复现配置和脚本。
+- `release/`：权重包、SHA256、manifest、公开链接和发布说明。
 
-- `outputs/`: all formal runs, smoke runs, exported meshes, renders, and fusion
-  outputs (`3363` files, about `4.15 GiB`).
-- `logs/`: all wrapper metadata, terminal logs, readiness audits, and recovery
-  records.
-- `swanlog/`: local SwanLab runs and imported metric histories.
-- `data/`: phone images, COLMAP inputs, Mip-NeRF360 counter data, and Object C
-  raw/processed images.
-- `report/`, `docs/`, and `notes/`: final PDF, plots, previews, report metadata,
-  experiment log, runtime table, and report outline.
-- `configs/`, `scripts/`, `patches/`, and `tools/`: reproducibility helpers and
-  tracked configurations.
-- `external/`: source mirrors for `2d-gaussian-splatting`, `threestudio`, and
-  `Magic123`, plus the prepared Object C medicine-box input.
-- `release/`: unpacked best weights, the public release archive, SHA-256,
-  manifest, public URLs, and release notes.
+## 未重复镜像的内容
 
-The Windows path
-`data\processed\background_counter` is a junction to
-`data\raw\mipnerf360\counter`, matching the WSL symlink without duplicating the
-background dataset.
+以下依赖体积较大或可重新下载，保留在 WSL：
 
-## Deliberately Kept in WSL
+- Magic123 的 Zero123 与 MiDaS 预训练模型。
+- Linux 版 Blender 便携运行时。
+- 第三方仓库的 `.git`、编译缓存和临时文件。
 
-The following Linux-specific or redownloadable dependencies remain in WSL to
-avoid redundant copies:
+## 直接交付物
 
-- `external/Magic123/pretrained/zero123` (about `15 GiB`)
-- `external/Magic123/pretrained/midas` (about `1.5 GiB`)
-- `external/blender` portable Linux runtime (about `1.3 GiB`)
-- vendored repository `.git` metadata, build caches, and temporary files
-
-These are dependencies rather than Task 1 submission artifacts. Setup and
-download helpers remain available under `scripts/`.
-
-## Direct Deliverables
-
-- Final PDF:
-  `F:\Personal\Code\Computer Vision\hw3\task1\report\cv_hw3_task1_report.pdf`
-- Walkthrough MP4:
-  `F:\Personal\Code\Computer Vision\hw3\task1\outputs\fusion\task1-walkthrough.mp4`
-- Release package:
-  `F:\Personal\Code\Computer Vision\hw3\task1\release\cv-hw3-task1-best-weights.tar.gz`
-
+- 最终 PDF：`task1/report/cv_hw3_task1_report.pdf`
+- 漫游视频：`task1/outputs/fusion/task1-walkthrough.mp4`
+- 权重包：`task1/release/cv-hw3-task1-best-weights.tar.gz`

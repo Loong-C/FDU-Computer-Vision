@@ -1,53 +1,30 @@
-# HW3 Task 2: LeRobot ACT on CALVIN
+# 题目二：LeRobot ACT 在 CALVIN 上的跨环境泛化
 
-This repository implements the second computer vision homework task: compare a
-CALVIN environment-B-only ACT policy against an A+B+C jointly trained ACT policy,
-then evaluate both policies zero-shot on the unseen D environment.
+本目录完成 HW3 题目二：比较只在 CALVIN 环境 B 训练的 ACT 策略，和在 A+B+C 混合环境训练的 ACT 策略，并在未见过的 D 环境上做零样本评估。
 
-The model is the upstream LeRobot `ACTPolicy` from the pinned `v0.5.1` release.
-The local code adds a lazy adapter for the official CALVIN `.npz` frame format,
-SwanLab experiment tracking, resumable checkpoints, zero-shot action-error
-evaluation, CALVIN simulator rollout evaluation, plotting, and a small
-end-to-end smoke workflow.
+## 核心结论
 
-## Design Notes
+- 两个模型使用相同 ACT 架构、优化器和训练步数。
+- A+B+C 联合训练提高了训练分布复杂度，验证 L1 更高。
+- 在 D 环境抽样帧上，A+B+C 的 first-action MAE 降低 `17.0%`，chunk-action MAE 降低 `11.7%`。
+- 两个模型都能在 CALVIN D simulator 中闭环运行，但 3 条五任务序列的 SR@1 到 SR@5 均为 `0.0%`。
+- simulator 结果说明：离线动作误差改善不等于长时任务成功，语言条件缺失和误差累积仍是主要限制。
 
-- Large data stays inside ignored machine-local directories under `task2/`.
-- Defaults point to `data\calvin`, `data\calvin-subset`, and `.cache\hf`.
-- The official 517 GB `task_ABC_D.zip` archive is not downloaded automatically.
-- `scripts/download_calvin_subset.py` fetches official frame windows with HTTP
-  Range requests instead of downloading full archives.
-- Formal experiments can use an evenly sampled subset by editing
-  `configs/calvin_act.yaml`.
-- B-only samples are selected from the official `training/scene_info.npy`
-  metadata, not approximated by task labels.
-- Zero-shot D evaluation is reported at two levels: sampled D-frame action MAE
-  and CALVIN simulator rollout success in the unseen D scene.
-
-The official CALVIN metadata defines these inclusive training-frame ranges:
-
-| Environment | Frame range |
-| --- | ---: |
-| B | `0..598909` |
-| C | `598910..1191338` |
-| A | `1191339..1795044` |
-
-## Repository Layout
+## 目录
 
 ```text
-configs/                 formal and smoke experiment configs
-docs/                    experiment and report checklists
-scripts/                 bootstrap, train, evaluate, and plotting entry points
-src/hw3_calvin_act/      raw CALVIN adapter, ACT construction, and tracking
-tests/                   fast dataset and configuration tests
+configs/             正式和 smoke 配置
+docs/                实验计划、结果记录和提交清单
+scripts/             环境、下载、训练、评估、画图和发布脚本
+src/hw3_calvin_act/  CALVIN 数据适配、ACT 构建和 SwanLab 记录
+tests/               快速单元测试
 ```
 
-Ignored machine-local directories include `data/`, `external/`, `.cache/`,
-`.venv/`, `outputs/`, `swanlog/`, and `artifacts/`.
+本地数据、缓存、输出、权重和 SwanLab 日志由 `.gitignore` 排除。
 
-## Windows Setup
+## 环境
 
-Use PowerShell from this repository root:
+在 PowerShell 中运行：
 
 ```powershell
 .\scripts\bootstrap.ps1
@@ -56,98 +33,24 @@ Use PowerShell from this repository root:
 python .\scripts\check_environment.py
 ```
 
-`bootstrap.ps1` creates `.venv` under `task2/`, uses `.cache\hf` for package
-and Hugging Face caches, and clones these upstream references under ignored
-`external/` directories:
-
-- `https://github.com/huggingface/lerobot.git` at `v0.5.1`
-- `https://github.com/mees/calvin.git`
-
-The CALVIN `calvin_env` submodule is initialized automatically. Install the
-optional PyBullet/Hydra simulator dependencies only when running rollout:
+如需运行 CALVIN simulator rollout：
 
 ```powershell
 .\scripts\bootstrap.ps1 -WithCalvinRollout
 ```
 
-The default bootstrap reuses system PyTorch packages to avoid a large duplicate
-download. Pass `-FreshTorchEnvironment` for a clean environment if needed.
-For formal experiments, prefer the fresh environment and keep the LeRobot
-`v0.5.1` constraints `torch>=2.7,<2.11` and `torchvision>=0.22,<0.26`.
-The local smoke test also passed with the machine's existing
-`torch 2.11.0+cu128` and `torchvision 0.26.0+cu128`, but those versions are
-outside the upstream support range.
+`bootstrap.ps1` 会创建本地 `.venv`，并在 `external/` 中拉取 LeRobot `v0.5.1` 和 CALVIN 代码。
 
-## SwanLab
+## 数据
 
-Offline logging works without credentials and is the default:
+完整 CALVIN 数据很大：
 
-```powershell
-$env:SWANLAB_MODE = "offline"
-```
-
-For cloud dashboards:
-
-```powershell
-swanlab login
-$env:SWANLAB_MODE = "cloud"
-```
-
-Every training run also writes a plain `metrics.csv` file so results remain
-inspectable and plottable without a SwanLab account.
-
-Sync an existing offline run on Windows with UTF-8 console handling:
-
-```powershell
-.\scripts\sync_swanlab.ps1 -RunPaths @(
-  ".\swanlog\run-YYYYMMDD_HHMMSS-xxxxxxxxxxxxxxxxxxxxx"
-)
-```
-
-## Smoke Test
-
-The smoke workflow generates a tiny CALVIN-shaped dataset locally and runs both
-training conditions, both D evaluations, and report plots:
-
-```powershell
-.\scripts\run_smoke.ps1
-```
-
-Generated plots appear under `artifacts/smoke/`.
-
-Run the same tiny workflow on HTTP-Range-downloaded official CALVIN frames:
-
-```powershell
-.\scripts\run_official_subset_smoke.ps1
-```
-
-## Official CALVIN Data
-
-The official CALVIN repository documents:
-
-| Split | Archive size | Use in this repository |
+| 数据 | 大小 | 用途 |
 | --- | ---: | --- |
-| `task_ABC_D` | 517 GB | B-only and A+B+C training |
-| `task_D_D` | 166 GB | unseen-D evaluation |
-| `calvin_debug_dataset` | 1.3 GB | optional inspection only |
+| `task_ABC_D` | 517 GB | A/B/C 训练 |
+| `task_D_D` | 166 GB | D 环境评估 |
 
-Place extracted official data under the ignored local data directory:
-
-```text
-data\calvin\
-  task_ABC_D\
-    training\
-      episode_0000000.npz
-      scene_info.npy
-      ...
-  task_D_D\
-    validation\
-      episode_0000000.npz
-      ...
-```
-
-For a practical partial-data experiment, download evenly distributed official
-frame windows without fetching the full 517 GB and 166 GB ZIP archives:
+本实验使用 HTTP Range 下载官方 ZIP 中的均匀抽样帧，不下载完整压缩包：
 
 ```powershell
 .\scripts\set_env.ps1 -DataRoot .\data\calvin-subset
@@ -155,53 +58,22 @@ python .\scripts\download_calvin_subset.py `
   --archive ALL `
   --output-root .\data\calvin-subset `
   --cache-root .\.cache\hf\calvin-remote-index `
-  --windows-per-env 4 `
-  --window-size 24 `
+  --windows-per-env 16 `
+  --window-size 48 `
   --workers 2
 ```
 
-The first run caches the remote ZIP central directories: about 229 MB for ABC
-and 73 MB for D. It then downloads only the selected consecutive frame windows,
-validates CRC checksums, and preserves the official directory layout. Increase
-the number or size of windows gradually when disk space and training time allow.
+正式实验使用 `2304` 帧 A+B+C 训练数据和 `768` 帧 D 评估数据。
 
-Run a 20-step pilot with the formal ACT architecture after the smoke workflow:
+## 训练与评估
 
-```powershell
-.\scripts\run_partial_pilot.ps1
-```
-
-The verified pilot numbers are documented in `docs/PILOT_RESULTS.md`.
-An extended 200-step preliminary run and the final resource-aware 5000-step
-experiment are documented there as well.
-
-Run the resumable partial-data formal experiment with a larger but still
-bounded HTTP-Range subset:
+正式部分数据实验：
 
 ```powershell
 .\scripts\run_partial_formal.ps1
 ```
 
-The default formal wrapper requests `16` windows of `48` frames per
-environment, trains both policies for `5000` steps with the same config, resumes
-from each `latest.pt` checkpoint when present, evaluates unseen D action error,
-and refreshes the report plots. Pass `-SkipDownload` when resuming without
-changing the cached subset.
-
-The verified formal experiment used `2304` ABC training frames and `768` D
-evaluation frames. The final unseen-D action errors are:
-
-| Run | D first-action MAE | D chunk-action MAE |
-| --- | ---: | ---: |
-| B-only | 0.226251 | 0.259475 |
-| A+B+C | 0.187712 | 0.229145 |
-
-ABC joint training reduces first-action MAE by `17.0%` and chunk-action MAE by
-`11.7%` relative to B-only on the sampled unseen-D frames.
-
-The same two trained policies were also deployed in the CALVIN D simulator with
-the official 360-step per-subtask horizon and three generated five-task
-evaluation sequences:
+D 环境 simulator rollout：
 
 ```powershell
 .\scripts\run_zero_shot_d_rollout.ps1 `
@@ -210,153 +82,41 @@ evaluation sequences:
   -Device cuda
 ```
 
-| Run | D rollout sequences | Avg solved subtasks | SR@1 | SR@5 |
+快速 smoke 测试：
+
+```powershell
+.\scripts\run_smoke.ps1
+.\scripts\run_official_subset_smoke.ps1
+```
+
+## 正式结果
+
+| 模型 | 验证 L1 | D first-action MAE | D chunk MAE |
+| --- | ---: | ---: | ---: |
+| B-only | 0.324629 | 0.226251 | 0.259475 |
+| A+B+C | 0.386954 | 0.187712 | 0.229145 |
+
+| 模型 | D rollout 序列数 | 平均完成子任务 | SR@1 | SR@5 |
 | --- | ---: | ---: | ---: | ---: |
 | B-only | 3 | 0.0 | 0.0% | 0.0% |
 | A+B+C | 3 | 0.0 | 0.0% | 0.0% |
 
-SwanLab rollout runs: B-only
-https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/kcbgr0rmn3jokevjmxlyj and
-A+B+C https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/mqrmkx48ojvthl5gm0u2y.
+详细记录见：
 
-The simulator result is harsher than action MAE because this ACT policy is not
-language-conditioned: it receives RGB/state observations and predicts actions,
-while the official CALVIN long-horizon benchmark asks the policy to execute a
-language-specified subtask sequence. The result still satisfies the deployment
-check: both trained checkpoints run end-to-end in the unseen D environment, and
-their zero-shot rollout success is explicitly recorded.
+- `docs/PILOT_RESULTS.md`
+- `docs/FINAL_REPORT.md`
+- `docs/images/formal_training_curves.svg`
+- `docs/images/formal_zero_shot_d_action_error.svg`
 
-Install the small official scene metadata file after extracting data:
+## 公开链接
 
-```powershell
-.\scripts\download_scene_info.ps1 -Split ABC -DataRoot .\data\calvin
-```
+- 代码：`https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task2`
+- 权重镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`
+- SwanLab 项目：`https://swanlab.cn/@Linkukai/hw3-calvin-act`
 
-The formal config defaults to a bounded subset:
+权重文件：
 
-```yaml
-data:
-  max_train_samples: 50000
-  stride: 3
-```
+- `hw3-task2-act-b-only-best.pt`
+- `hw3-task2-act-abc-joint-best.pt`
 
-This keeps the experiment practical on an 8 GB GPU while preserving the exact
-environment split. Increase the sample count only after a successful smoke run.
-
-## Train and Evaluate
-
-Run the complete B-only versus A+B+C comparison:
-
-```powershell
-.\scripts\run_experiments.ps1 -DataRoot .\data\calvin
-```
-
-Equivalent explicit commands:
-
-```powershell
-python .\scripts\train.py `
-  --config .\configs\calvin_act.yaml `
-  --dataset-root .\data\calvin\task_ABC_D `
-  --environments B `
-  --run-name act_b_only
-
-python .\scripts\train.py `
-  --config .\configs\calvin_act.yaml `
-  --dataset-root .\data\calvin\task_ABC_D `
-  --environments ABC `
-  --run-name act_abc_joint
-
-python .\scripts\evaluate_action_error.py `
-  --config .\configs\calvin_act.yaml `
-  --dataset-root .\data\calvin\task_D_D `
-  --checkpoint .\outputs\act_b_only\checkpoints\best.pt `
-  --run-name act_b_only_to_d
-
-python .\scripts\evaluate_calvin_rollout.py `
-  --config .\configs\calvin_act.yaml `
-  --dataset-root .\data\calvin\task_D_D `
-  --checkpoint .\outputs\act_b_only\checkpoints\best.pt `
-  --run-name act_b_only_to_d_rollout `
-  --max-sequences 10 `
-  --ep-len 360
-```
-
-Resume a stopped run:
-
-```powershell
-python .\scripts\train.py `
-  --config .\configs\calvin_act.yaml `
-  --dataset-root .\data\calvin\task_ABC_D `
-  --environments B `
-  --run-name act_b_only `
-  --resume .\outputs\act_b_only\checkpoints\latest.pt
-```
-
-## WSL
-
-CALVIN simulator rollout now works from the Windows `.venv` in PyBullet DIRECT
-mode. Use WSL only as a fallback if a future simulator or rendering dependency
-requires Linux, and operate on the same checkout through the mounted drive
-instead of making a second clone:
-
-```bash
-cd "/mnt/f/Personal/Code/Computer Vision/hw3/task2"
-git status
-```
-
-This keeps Windows and WSL synchronized because both environments operate on the
-same files. Keep WSL-side caches under the mounted repository's
-`task2/.cache/hf` directory as well.
-
-## Report Checklist
-
-The final report should include:
-
-- ACT action-chunking mechanism and expected robustness under visual shift.
-- Dataset ranges, subset size, batch size, learning rate, optimizer, number of
-  steps, loss function, and GPU.
-- SwanLab-exported Action L1 Loss and held-out validation curves.
-- D-environment zero-shot first-action and chunk-action MAE.
-- D-environment simulator rollout success rate and its language-conditioning
-  limitation.
-- A discussion of why joint A+B+C training helps or hurts relative to B-only.
-- Public GitHub URL and cloud-storage URL for final weights.
-
-See `docs/REPORT_CHECKLIST.md` for the full submission checklist.
-Generate the technical report draft locally at
-`docs/HW3_Task2_Report_Draft.pdf`; edit the member placeholders before
-submission and rebuild it with:
-
-```powershell
-python .\scripts\build_report.py
-```
-
-## Submission Links
-
-- Public GitHub repository:
-  `https://github.com/Loong-C/FDU-Computer-Vision/tree/hw3/hw3/task2`
-- Model weights release (temporary legacy host):
-  `https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/releases/tag/formal-partial-v1`
-- B-only best checkpoint:
-  `https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/releases/download/formal-partial-v1/hw3-task2-act-b-only-best.pt`
-- A+B+C best checkpoint:
-  `https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/releases/download/formal-partial-v1/hw3-task2-act-abc-joint-best.pt`
-- SwanLab project dashboard: `https://swanlab.cn/@Linkukai/hw3-calvin-act`
-
-The source tree is consolidated in `FDU-Computer-Vision`. The verified weight
-files remain on the legacy release temporarily so the download links stay
-usable until the same assets are uploaded to an FDU repository release.
-After `gh auth login -h github.com` is available on a machine with GitHub API
-write access, publish the same verified assets with:
-
-```powershell
-.\scripts\publish_fdu_release.ps1
-```
-
-## Upstream References
-
-- LeRobot: https://github.com/huggingface/lerobot
-- LeRobot ACT source:
-  https://github.com/huggingface/lerobot/tree/v0.5.1/src/lerobot/policies/act
-- CALVIN: https://github.com/mees/calvin
-- ACT paper: https://arxiv.org/abs/2304.13705
+SHA256 记录在 `outputs/official_subset_formal/release/SHA256SUMS.txt`，大权重不提交到 Git。

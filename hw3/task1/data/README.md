@@ -1,47 +1,41 @@
-# Data Layout
+# 数据目录
 
-Large datasets are intentionally excluded from Git. Keep the following layout:
+`data/` 只保存本机数据，不提交到 Git。
+
+## 推荐结构
 
 ```text
 data/
   raw/
-    object_a_images/              phone-captured multi-view photos
-    object_c_image/               one foreground-only phone photo
-    mipnerf360/                   downloaded open-source scenes
+    object_a_images/          物体 A 手机多视角照片
+    object_c_image/           物体 C 单张输入图
+    mipnerf360/counter/       背景场景原始数据
   processed/
-    object_a_2dgs_ready/          undistorted COLMAP dataset for Object A
-    background_counter/           selected Mip-NeRF 360 background scene
-    object_c_image/c_rgba.png     checkerboard-free Object C input
+    object_a_2dgs_ready/      COLMAP 与 2DGS 处理后的物体 A 数据
+    background_counter/       背景场景链接或处理结果
+    object_c_image/c_rgba.png 去背景后的物体 C 输入
 ```
 
-For Object A, place the captured photos in `data/raw/object_a_images/`, then run:
+## 常用命令
+
+物体 A：
 
 ```bash
 bash scripts/prepare_colmap_object_a.sh --force
 ```
 
-The script copies the input images to `data/processed/object_a_2dgs_ready/input/`
-and invokes the official 2DGS `convert.py` pipeline to run COLMAP and undistort
-the images into the ideal pinhole camera format expected by 2DGS.
-
-For Object C, add a photo of a different real object to
-`data/raw/object_c_image/`. The current input contains a baked RGB checkerboard,
-so prepare an RGBA image before running Magic123:
+物体 C：
 
 ```bash
 python scripts/prepare_object_c_image.py --swanlab-mode local
 bash scripts/download_magic123_models.sh
-COPY_ONLY=1 bash scripts/prepare_magic123_object_c.sh
+bash scripts/prepare_magic123_object_c.sh
 ```
 
-Run `bash scripts/prepare_magic123_object_c.sh` without `COPY_ONLY=1` after the
-Magic123 environment is installed to generate the MiDaS depth map.
-
-For the background, download only the Mip-NeRF 360 `counter` scene from the
-`nvs-bench/mipnerf360` Hugging Face mirror and create the processed-data link:
+背景：
 
 ```bash
 bash scripts/download_background_counter.sh
 ```
 
-The Hugging Face client caches completed files and resumes partial downloads.
+下载和中间结果会被缓存，重复运行时会尽量复用已有文件。

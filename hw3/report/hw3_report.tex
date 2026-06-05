@@ -38,7 +38,7 @@
 \newcommand{\code}[1]{\texttt{\small #1}}
 \newcommand{\taskoneweights}{https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz}
 \newcommand{\taskonevideo}{https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4}
-\newcommand{\tasktworelease}{https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/releases/tag/formal-partial-v1}
+\newcommand{\tasktwocode}{https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task2}
 \newcommand{\clouddrive}{https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link}
 
 \pagestyle{fancy}
@@ -81,8 +81,8 @@
     姓名 & 陈家龙 \\
     学号 & 24300980041 \\
     组队情况 & 单人完成 \\
-    具体分工 & 独立完成两道题目的环境配置、数据准备、训练与推理、实验记录、结果分析、代码整理及报告撰写。 \\
-    报告日期 & 2026 年 6 月 2 日 \\
+    具体分工 & 独立完成 \\
+    报告日期 & 2026 年 6 月 4 日 \\
     \bottomrule
   \end{tabularx}
 
@@ -94,15 +94,15 @@
     项目 & 可公开访问地址 \\
     \midrule
     题目一代码仓库 &
-    \href{https://github.com/Loong-C/FDU-Computer-Vision/tree/hw3/hw3/task1}{github.com/Loong-C/FDU-Computer-Vision（hw3 分支）} \\
+    \href{https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task1}{github.com/Loong-C/FDU-Computer-Vision（main/hw3）} \\
     题目一模型权重 &
     \href{\taskoneweights}{GitHub Release：cv-hw3-task1-best-weights.tar.gz} \\
     题目一漫游视频 &
     \href{\taskonevideo}{GitHub Release：task1-walkthrough.mp4} \\
     题目二代码仓库 &
-    \href{https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act}{github.com/Loong-C/computer-vision-hw3-task2-calvin-act} \\
+    \href{\tasktwocode}{github.com/Loong-C/FDU-Computer-Vision（main/hw3/task2）} \\
     题目二模型权重 &
-    \href{\tasktworelease}{GitHub Release：formal-partial-v1} \\
+    \href{\clouddrive}{Google Drive：hw3-task2-act-*.pt} \\
     题目二 SwanLab &
     \href{https://swanlab.cn/@Linkukai/hw3-calvin-act}{swanlab.cn/@Linkukai/hw3-calvin-act} \\
     网盘镜像 &
@@ -116,7 +116,8 @@
     \textbf{提交说明。}
     题目一包含 2DGS、AIGC 与 Blender 融合流程；题目二包含资源约束下基于官方
     CALVIN 帧的 ACT 对比实验。训练曲线由 SwanLab 记录导出。模型权重和视频提供
-    GitHub Release 下载地址，并在 Google Drive 中保留镜像。
+    公开下载地址；题目一资产包与漫游视频提供 GitHub Release，题目二权重保存在
+    Google Drive 镜像目录中。
   \end{minipage}
   \vspace{0.7cm}
 \end{titlepage}
@@ -128,9 +129,12 @@
 单图生成三种来源构建 3D 资产，使用 2D Gaussian Splatting（2DGS）重建真实物体与
 Mip-NeRF 360 背景，并将异构表示统一为 Mesh 后在 Blender 中完成融合渲染。题目二使用
 LeRobot 中的 ACT 策略，在 CALVIN 环境 B 与混合环境 A+B+C 上分别训练模型，再在未见过的
-环境 D 上比较零样本动作误差。实验表明：多视角重建在几何可靠性上最强，文本到 3D 输入成本
+环境 D 上比较离线零样本动作误差，并补充 CALVIN simulator rollout 成功率。实验表明：
+多视角重建在几何可靠性上最强，文本到 3D 输入成本
 最低，单图到 3D 则在真实外观保持与采集成本之间折中；ACT 的多环境训练虽然提高了同分布
 验证损失，却使环境 D 的 first-action MAE 和 chunk-action MAE 分别下降 17.0\% 和 11.7\%。
+两个策略在 3 条环境 D simulator 五任务序列上的 SR@1--SR@5 均为 0，说明离线动作误差与
+长时闭环成功率反映的是不同层次的泛化能力。
 \end{abstract}
 
 \section{作业目标与实验组织}
@@ -140,8 +144,50 @@ LeRobot 中的 ACT 策略，在 CALVIN 环境 B 与混合环境 A+B+C 上分别�
 环境分布，用于观察视觉分布偏移下的零样本行为。
 
 所有长时间实验均由可追踪脚本启动。题目一将 2DGS TensorBoard 标量与 AIGC 训练指标导入
-SwanLab 本地运行；题目二在 SwanLab 中记录 Action L1、KL、验证损失和环境 D 动作误差，同时
-保留 CSV 备份。报告中的曲线均由记录指标生成。
+SwanLab 本地运行；题目二在 SwanLab 中记录 Action L1、KL、验证损失、环境 D 动作误差和
+simulator rollout 成功率，同时保留 CSV/JSON 备份。报告中的曲线均由记录指标生成。
+
+\begin{table*}[t]
+\centering
+\caption{HW3 明确要求与本报告对应位置。}
+\label{tab:requirement-checklist}
+\small
+\begin{tabularx}{0.98\textwidth}{p{2.45cm}p{4.65cm}Y}
+\toprule
+类别 & 作业要求 & 报告与交付位置 \\
+\midrule
+全局信息 &
+首页标明姓名、学号、组队与具体分工；提供 GitHub 与模型权重下载地址 &
+首页已列出陈家龙、24300980041、单人完成与独立完成；首页和表~\ref{tab:deliverables}
+列出统一 GitHub 仓库、GitHub Release、Google Drive 与权重 SHA256 \\
+题目一资产 A &
+手机采集真实物体，多视角/COLMAP 位姿，使用 2DGS 重建 &
+表~\ref{tab:task1-data} 写明 63 张手机照片与 34 张注册图；2.2 节给出 COLMAP 与 2DGS 方法；
+表~\ref{tab:2dgs-results} 和图~\ref{fig:2dgs-metrics} 给出验证指标 \\
+题目一资产 B/C &
+B 使用 threestudio、SDS 与文本 Prompt；C 使用去背景单图与 Magic123 &
+2.3 节给出 DreamFusion/SDS Prompt 与导出规模；2.4 节给出去背景、MiDaS、Magic123 coarse/fine
+流程；图~\ref{fig:aigc-curves} 展示 AIGC 优化曲线 \\
+背景与融合 &
+开源 3D 场景使用 2DGS 重建；将 A/B/C 按合理比例插入并生成多视角漫游视频 &
+选择 Mip-NeRF 360 \code{counter}；2.5 节说明 Mesh 统一、Blender 位姿与相机路径；
+图~\ref{fig:fusion-pipeline} 和图~\ref{fig:fusion-runtime} 展示流程与融合帧，视频链接见首页 \\
+题目一分析 &
+比较多视角重建、文本生成、单图生成在几何准确度、纹理细节、计算耗时上的差异；说明异构表达统一方式 &
+图~\ref{fig:task1-triviews} 展示三种方法的三视图；2.7.2 节逐项分析几何、纹理与耗时；
+表~\ref{tab:task1-analysis} 汇总边界，2.5 节说明由 2DGS/隐式场统一到 Mesh 后融合渲染 \\
+题目二训练与测试 &
+使用 LeRobot ACT 分别训练 B-only 与 A+B+C；架构和超参数一致；比较训练收敛、D 环境 zero-shot &
+表~\ref{tab:task2-hyper} 给出相同 ACT 超参数；图~\ref{fig:act-curves} 展示 Action L1 与验证损失；
+表~\ref{tab:act-results}、图~\ref{fig:act-zeroshot} 与表~\ref{tab:rollout-results} 给出 D 动作误差和
+simulator 成功率 \\
+提交材料 &
+报告需含背景、数据集、方法、结果、深度分析、SwanLab/WandB 图表、超参数表、代码 README 与权重 &
+正文按任务组织；表~\ref{tab:swanlab} 列出 SwanLab 项目和各运行链接；代码位于
+\code{hw3/task1} 与 \code{hw3/task2}，README 含环境、数据、训练与测试命令 \\
+\bottomrule
+\end{tabularx}
+\end{table*}
 
 \section{题目一：2DGS 与 AIGC 多源资产融合}
 
@@ -376,9 +422,32 @@ SDS 优化能够从纯文本产生可用于融合渲染的完整虚拟资产。�
 可见面由照片提供强约束，不可见面只能依赖生成先验补全。受本实验 coarse/fine 优化预算限制，
 Magic123 结果适合在融合场景中提供身份线索，但不适合需要精确侧后面结构的应用。
 
-横向比较可见，输入信息越充分，跨视角一致性通常越可靠：多视角路线最适合真实对象还原；文本路线
-适合快速扩充语义正确的虚拟资产；单图路线能够保留特定对象的正面身份信息，但不可见区域仍有较大
-不确定性。三视图分析也说明，仅检查一张最优正面预览容易高估 AIGC 资产的几何质量。
+\subsubsection{几何准确度、纹理细节与计算耗时对比}
+
+从几何准确度看，三种方法的差异主要来自输入信息量。多视角重建有真实图像和相机位姿作为约束，
+物体 A 的 34 个注册视角形成了可闭合的稀疏模型，平均重投影误差为 1.192686 像素；随后 2DGS
+在 30000 步达到 33.5198 dB PSNR 和 0.011289 验证 L1。图~\ref{fig:task1-triviews} 中
+手办的正面、侧面和背面都能保持同一主体轮廓，这一点优于另外两种生成路线。导出 Mesh 时仍能看到
+局部粘连和 TSDF 残片，说明多视角结果在真实还原上最可靠，但网格化质量还会受到拍摄覆盖、反光和
+表面细节尺度的影响。文本生成的物体 B 没有真实对象作为几何目标，它得到的是符合 Prompt 的类别
+形状：壶身、壶盖、壶嘴和把手在环绕视图中基本稳定，局部比例和连接处则更依赖扩散先验。单图生成
+的物体 C 介于两者之间，正面由照片直接约束，侧面和背面需要推断；三视图中药盒背向视角的形变最
+明显，也最能体现单图输入的几何不确定性。
+
+纹理细节方面，多视角重建保留了实拍手办的发色、服装颜色和整体材质关系，细小边缘处会因为 Mesh
+提取而变得粗糙。文本生成路线的纹理受 Prompt 控制，红色陶瓷材质整体一致，适合作为风格明确的
+虚拟道具；它无法保证与某个现实茶壶完全对应。单图生成路线在药盒正面表现最好，文字区域、蓝白配色
+和盒面分区都能保留下来；转到侧后方后，纹理开始拉伸并出现补全痕迹。由此看，单图方法适合保存
+可见面的身份特征，完整纹理一致性仍弱于多视角实拍。
+
+计算耗时与输入成本也需要分开看。图~\ref{fig:fusion-runtime} 和表~\ref{tab:task1-runtime}
+显示，物体 A 的 COLMAP 后 2DGS 用时 4855.77 s，约 1.35 h；这还不包含手机环绕拍摄、筛图和
+位姿检查的人力时间。物体 B 的 DreamFusion 训练与 OBJ 导出合计 3659.68 s，输入只需要一条文本，
+是三种物体生成路线中前期准备最轻的一种。物体 C 的 Magic123 coarse 与 fine 合计 33039.31 s，
+约 9.18 h，是本实验中最慢的物体生成流程；它需要同时利用二维扩散先验和新视角先验，且本机预算
+已经低于论文推荐的完整迭代数。综合三视图和耗时曲线，三种路线的选择取决于任务目标：需要真实对象
+还原时优先多视角重建，需要快速补充语义资产时优先文本生成，只有单张照片且希望保留对象正面特征时
+可以采用单图生成。仅看一张正面预览会高估生成式 3D 的几何质量，环绕视图更能反映最终融合时的可用性。
 
 \begin{figure*}[t]
   \centering
@@ -431,7 +500,7 @@ Magic123 结果适合在融合场景中提供身份线索，但不适合需要�
 单图到 3D &
 正面由实拍图约束，侧后面依赖新视角先验补全，不可见区域存在歧义 &
 正面纹理保持较好，侧后纹理的真实性较弱 &
-采集简单但优化最慢；本实验 coarse + fine 合计 33039.30 s &
+采集简单但优化最慢；本实验 coarse + fine 合计 33039.31 s &
 适合只有单张图、又希望保留对象身份线索的场景 \\
 \bottomrule
 \end{tabularx}
@@ -444,11 +513,16 @@ Blender 能直接处理尺度、遮挡和相机运动，但代价是无法继续
 \clearpage
 \section{题目二：LeRobot ACT 跨环境泛化}
 
-\subsection{任务定义与 CALVIN 数据}
+\subsection{任务定义、数据规模与评估边界}
 
 题目二要求在 CALVIN 数据集上比较两个 ACT 策略：基线仅使用环境 B 训练；联合模型使用环境
 A、B、C 混合训练。二者必须采用相同网络结构和超参数，随后在训练阶段完全不可见的环境 D 上进行
-zero-shot 评估。根据作业要求，若当前平台难以运行模拟器成功率评估，可以报告动作误差。
+zero-shot 评估。本实验将 D 环境 zero-shot 分成两个层级：第一层在官方 D validation 抽样帧上
+计算 first-action MAE 与 chunk-action MAE；第二层把两个最佳 checkpoint 包装成 CALVIN
+\code{reset}/\code{step} 策略，在 \code{calvin\_scene\_D} simulator 中执行闭环 rollout。
+rollout 使用官方任务 oracle、validation language annotations、3 条自动生成的五任务序列，
+每个子任务最多执行 360 步。该设置能够验证模型是否能部署到未见环境 D，但规模仍小于 CALVIN
+完整长时评测协议。
 
 官方 CALVIN 元数据给出的训练帧范围如表~\ref{tab:calvin-ranges}。完整 A+B+C 压缩包约
 517 GB，D 环境压缩包约 166 GB。为在本机完成可复现实验，项目实现 HTTP Range 下载器：
@@ -474,20 +548,22 @@ A & 1191339--1795044 \\
 \caption{题目二资源约束下的正式子集协议。}
 \label{tab:task2-subset}
 \resizebox{\columnwidth}{!}{
-\begin{tabular}{lrr}
+\begin{tabular}{lccc}
 \toprule
-用途 & 选取帧数 & 处理后样本数 \\
+用途 & 选取帧数 & 本地数据量 & 处理后样本数 \\
 \midrule
-A+B+C 训练源数据 & 2304 & 691 训练 / 77 验证 \\
-B-only 训练源数据 & 768 & 230 训练 / 26 验证 \\
-D 环境 zero-shot 评估 & 768 & 768 \\
+A+B+C 训练源数据 & 2304 & 634.01 MiB & 691 训练 / 77 验证 \\
+B-only 训练源数据 & 768 & 包含于上行 & 230 训练 / 26 验证 \\
+D 环境 zero-shot 评估 & 768 & 212.78 MiB & 768 离线帧；3 条 rollout 序列 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-训练数据使用 stride 3 与 90/10 训练验证划分。B-only 与 A+B+C 模型的样本数量不同，
-联合训练模型能够接触三种场景的视觉多样性；二者的网络、优化器、步数和评估脚本
-完全一致，因此差异可以归因于训练环境分布变化。
+本地实际使用的 CALVIN 帧数据合计 887929630 bytes，约 846.8 MiB，其中 A+B+C 训练源数据
+约 634.01 MiB，D 环境离线评估数据约 212.78 MiB。另有约 287.97 MiB 的
+\code{.cache} 索引文件，用于定位远程 ZIP 中的条目。训练数据使用 stride 3 与 90/10
+训练验证划分。B-only 与 A+B+C 模型的样本数量不同，联合训练模型能够接触三种场景的视觉多样性；
+二者的网络、优化器、步数和评估脚本完全一致，因此差异主要来自训练环境分布变化。
 
 \subsection{ACT 策略与动作分块机制}
 
@@ -534,7 +610,7 @@ Transformer 维度 & 256 & attention heads & 8 & feedforward 维度 1024 \\
 \end{tabularx}
 \end{table*}
 
-\subsection{收敛情况与 zero-shot 结果}
+\subsection{收敛情况、动作误差与 simulator rollout}
 
 \begin{figure*}[t]
   \centering
@@ -562,10 +638,27 @@ A+B+C & 0.386954 & \textbf{0.187712} & \textbf{0.229145} \\
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.98\columnwidth]{task2_zero_shot_grouped.png}
-  \caption{环境 D 上的 zero-shot 动作误差。与 B-only 相比，A+B+C 联合训练使 first-action
+  \caption{环境 D 抽样帧上的离线 zero-shot 动作误差。与 B-only 相比，A+B+C 联合训练使 first-action
   MAE 下降 17.0\%，chunk-action MAE 下降 11.7\%。}
   \label{fig:act-zeroshot}
 \end{figure}
+
+\begin{table*}[t]
+\centering
+\caption{环境 D simulator rollout 结果。每个模型评估 3 条五任务序列，每个子任务最多 360 步。}
+\label{tab:rollout-results}
+\small
+\begin{tabularx}{0.98\textwidth}{p{2.0cm}p{1.45cm}p{2.3cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.2cm}Y}
+\toprule
+训练环境 & 序列数 & 平均完成子任务数 & SR@1 & SR@2 & SR@3 & SR@4 & SR@5 & 记录位置 \\
+\midrule
+B-only & 3 & 0.0 / 5 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 &
+对应 rollout 输出目录中的 metrics JSON \\
+A+B+C & 3 & 0.0 / 5 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 &
+对应 rollout 输出目录中的 metrics JSON \\
+\bottomrule
+\end{tabularx}
+\end{table*}
 
 \subsection{现象分析：视觉偏移与动作分块}
 
@@ -580,18 +673,37 @@ first-action MAE 的改善幅度为 17.0\%，而 chunk-action MAE 的改善幅�
 同时改善了立即决策和整段 20 步预测。动作分块为短期轨迹提供时间一致性，多环境视觉训练则降低了
 错误视觉线索对整个动作块的传播。
 
+表~\ref{tab:rollout-results} 给出的 simulator rollout 结果更严格。两个模型都能加载到
+CALVIN D 场景中并完成 \code{reset}/\code{step} 闭环调用，说明 zero-shot 部署链路已经打通；
+但 3 条五任务序列的 SR@1--SR@5 均为 0。这个结果与离线 action-error 的改善并不矛盾。
+离线 MAE 衡量的是给定一帧观测时预测动作与专家动作的平均距离，数值下降说明模型在 D 环境的局部
+动作回归更接近数据分布。CALVIN rollout 成功率衡量的是长时闭环任务：策略必须根据当前图像、状态
+和任务序列连续推动环境变化，任一早期子任务失败都会使后续任务无法继续计入。
+
+本实验使用的 ACT 输入为图像和机器人状态，没有显式语言指令输入；rollout adapter 会接收官方
+validation annotations，但模型内部并不使用语言条件。因此，模型更接近一个从观测到动作块的
+模仿策略，尚未具备完整语言条件长时任务策略的输入结构。动作分块在这种闭环评估中也会放大偏差：一旦某次
+观测产生了偏离目标的 20 步动作块，错误会在一段时间内连续作用到环境，随后再用已经偏移的状态
+预测下一个动作块。多环境训练能降低视觉偏移造成的局部动作误差，但在小规模数据、无语言条件和
+长时任务链条同时存在时，还不足以把这种局部改善转化为非零成功率。
+
 \subsection{题目二局限性}
 
-题目二使用官方 CALVIN 帧的均匀抽样子集，尚未覆盖完整的 517 GB / 166 GB 数据归档。评估指标
-采用环境 D 上的动作 MAE，未运行 Linux CALVIN 模拟器 rollout 成功率。该指标符合题目允许的
-替代方案，可以衡量离线动作接近程度，但无法完整反映长时间闭环任务成功率。因此，本实验结论
-限定在报告所述资源约束协议内：多环境联合训练提升了未见环境 D 的离线动作泛化能力。
+题目二使用官方 CALVIN 帧的均匀抽样子集，覆盖 846.8 MiB 本地帧数据，未使用完整的
+517 GB / 166 GB 数据归档。simulator rollout 已经完成，但只评估了 3 条五任务序列，远小于
+完整 CALVIN 长时 benchmark 的规模；因此成功率只能作为小规模部署验证结果，而不能代表充分训练
+后的最终任务能力。离线 action-error 可以衡量模型输出动作与数据集中专家动作的接近程度，也能
+反映一定的跨环境泛化差异；rollout success 则进一步考察闭环执行、误差累积和任务链条恢复能力。
+因此，本实验结论限定在报告所述资源约束协议内：多环境联合训练提升了未见环境 D 的离线动作泛化，
+但在当前小规模 simulator rollout 中尚未产生可统计的成功子任务。
 
+\clearpage
+\onecolumn
 \section{复现、SwanLab 与交付物}
 
 \subsection{SwanLab 记录}
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
 \caption{实验记录与公开链接。}
 \label{tab:swanlab}
@@ -613,40 +725,51 @@ SwanLab local runs；报告图由记录标量导出。本地查看命令：
 \url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/b1hdsdo4vgrodwkk3syr7} \\
 题目二 A+B+C $\rightarrow$ D 评估 &
 \url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/5ooypxeqhgp4xja928tpk} \\
+题目二 B-only $\rightarrow$ D rollout &
+\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/kcbgr0rmn3jokevjmxlyj} \\
+题目二 A+B+C $\rightarrow$ D rollout &
+\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/mqrmkx48ojvthl5gm0u2y} \\
 \bottomrule
 \end{tabularx}
-\end{table*}
+\end{table}
 
 \subsection{关键复现入口}
 
-题目一和题目二仓库根目录均提供 README、环境依赖、数据准备说明、训练命令与测试命令。下面仅列出
-主入口；完整命令、兼容性说明与缓存设置见对应仓库 README。
+题目一与题目二均整理在统一仓库 \url{https://github.com/Loong-C/FDU-Computer-Vision} 的
+\code{main/hw3} 路径下，分别位于 \code{hw3/task1} 与 \code{hw3/task2}。两个目录均提供
+README、环境依赖、数据准备说明、训练命令与测试命令。下面仅列出主入口；完整命令、兼容性说明与
+缓存设置见对应目录 README。
 
 \begin{lstlisting}[language=bash,caption={题目一主要复现入口。}]
-# Object A and background: COLMAP + 2DGS
+# 物体 A 与背景：COLMAP + 2DGS
 bash scripts/prepare_colmap_object_a.sh --force
 bash scripts/train_2dgs_object_a.sh
 bash scripts/train_2dgs_background.sh
 
-# Text-to-3D and image-to-3D
+# 文本到 3D 与单图到 3D
 MODE=full bash scripts/generate_text3d_object_b.sh
 MODE=full STAGE=coarse bash scripts/generate_image3d_object_c.sh
 MODE=full STAGE=fine bash scripts/generate_image3d_object_c.sh
 
-# Unified mesh rendering
+# 统一 Mesh 后融合渲染
 MODE=formal bash scripts/render_fusion_tracked.sh
 \end{lstlisting}
 
 \begin{lstlisting}[language={},caption={题目二主要复现入口（PowerShell）。}]
 .\scripts\bootstrap.ps1
 .\scripts\run_partial_formal.ps1
+.\scripts\bootstrap.ps1 -WithCalvinRollout
+.\scripts\run_zero_shot_d_rollout.ps1 `
+  -MaxSequences 3 `
+  -EpisodeLength 360 `
+  -Device cuda
 \end{lstlisting}
 
 \subsection{公开下载与校验}
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
-\caption{公开交付物。GitHub Release 提供直接下载，Google Drive 文件夹提供镜像。}
+\caption{公开交付物。题目一使用 FDU 仓库 GitHub Release；题目二权重使用 Google Drive 镜像目录。}
 \label{tab:deliverables}
 \small
 \begin{tabularx}{0.98\textwidth}{p{3.2cm}p{2.4cm}Y}
@@ -668,15 +791,15 @@ MODE=formal bash scripts/render_fusion_tracked.sh
 题目二 A+B+C 最佳权重 &
 196370804 bytes &
 \code{1b1f182e61026929f0a5ffdc5ee096d15e4771febd111d9efe3d88bc4a9adcff} \\
-题目二 Release 页面 &
+题目二权重镜像目录 &
 -- &
-\url{https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/releases/tag/formal-partial-v1} \\
+\href{\clouddrive}{Google Drive：hw3-task2-act-b-only-best.pt 与 hw3-task2-act-abc-joint-best.pt} \\
 Google Drive 镜像目录 &
 -- &
 \href{\clouddrive}{Google Drive 镜像文件夹} \\
 \bottomrule
 \end{tabularx}
-\end{table*}
+\end{table}
 
 \clearpage
 \section{结论}
@@ -684,9 +807,10 @@ Google Drive 镜像目录 &
 题目一完成了从真实采集、文本生成、单图生成到真实场景融合的完整链路。实验说明，多视角重建、
 文本到 3D 和单图到 3D 各自适合不同的信息条件；当原生表示不一致时，将资产转换为 Mesh 再进入
 Blender 是一种工程上直接、稳定且便于控制的统一方案。题目二完成了相同 ACT 架构下的训练分布
-对照：A+B+C 联合训练虽然增加了拟合难度，却显著降低了未见环境 D 上的动作误差。该现象支持
-视觉多样性训练与动作分块有助于提高跨环境鲁棒性；chunk horizon 增大后，不确定性累积仍需要
-重点关注。
+对照：A+B+C 联合训练虽然增加了拟合难度，却降低了未见环境 D 上的离线动作误差。进一步的
+CALVIN D simulator rollout 表明，两个模型都可以在未见 D 场景中完成闭环部署，但当前 3 条
+五任务序列的成功率仍为 0。该现象支持视觉多样性训练有助于局部动作泛化，同时也说明动作分块、
+语言条件缺失和长时误差累积仍是闭环成功率的主要限制。
 
 \begin{thebibliography}{9}
 \small

@@ -14,6 +14,8 @@ from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSET_DIR = ROOT / "report" / "assets"
+plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei", "SimSun", "DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
 
 
 def copy_asset(source: str, target: str | None = None) -> None:
@@ -21,7 +23,17 @@ def copy_asset(source: str, target: str | None = None) -> None:
     target_path = ASSET_DIR / (target or source_path.name)
     if not source_path.exists():
         raise FileNotFoundError(source_path)
+    if source_path.resolve() == target_path.resolve():
+        return
     shutil.copy2(source_path, target_path)
+
+
+def copy_first_existing_asset(sources: list[str], target: str | None = None) -> None:
+    for source in sources:
+        if (ROOT / source).exists():
+            copy_asset(source, target)
+            return
+    raise FileNotFoundError(" | ".join(str(ROOT / source) for source in sources))
 
 
 def build_fusion_pipeline() -> None:
@@ -31,10 +43,10 @@ def build_fusion_pipeline() -> None:
     ax.axis("off")
 
     groups = [
-        (0.35, 3.75, 3.0, 1.05, "#dbeafe", "Object A: real capture", "Phone multiview + COLMAP + 2DGS"),
-        (0.35, 2.45, 3.0, 1.05, "#fee2e2", "Object B: text-to-3D", "Prompt + threestudio + SD SDS"),
-        (0.35, 1.15, 3.0, 1.05, "#fef3c7", "Object C: image-to-3D", "Foreground RGBA + Magic123"),
-        (0.35, -0.15, 3.0, 1.05, "#dcfce7", "Background: counter scene", "Mip-NeRF 360 + 2DGS"),
+        (0.35, 3.75, 3.0, 1.05, "#dbeafe", "物体 A：真实采集", "手机多视角 + COLMAP + 2DGS"),
+        (0.35, 2.45, 3.0, 1.05, "#fee2e2", "物体 B：文本生成", "Prompt + threestudio + SD SDS"),
+        (0.35, 1.15, 3.0, 1.05, "#fef3c7", "物体 C：单图生成", "RGBA 前景 + Magic123"),
+        (0.35, -0.15, 3.0, 1.05, "#dcfce7", "背景：counter 场景", "Mip-NeRF 360 + 2DGS"),
     ]
     for x, y, w, h, color, title, subtitle in groups:
         box = FancyBboxPatch(
@@ -60,10 +72,10 @@ def build_fusion_pipeline() -> None:
         facecolor="#ede9fe",
     )
     ax.add_patch(middle)
-    ax.text(6.825, 2.99, "Unified exchange representation", ha="center", fontsize=12, fontweight="bold")
-    ax.text(6.825, 2.53, "Textured / colored mesh", ha="center", fontsize=15, fontweight="bold", color="#6d28d9")
-    ax.text(6.825, 2.08, "2DGS surfaces: bounded TSDF extraction", ha="center", fontsize=9.5)
-    ax.text(6.825, 1.73, "AIGC assets: OBJ export from generation frameworks", ha="center", fontsize=9.5)
+    ax.text(6.825, 2.99, "统一交换表示", ha="center", fontsize=12, fontweight="bold")
+    ax.text(6.825, 2.53, "带纹理 / 颜色的 Mesh", ha="center", fontsize=15, fontweight="bold", color="#6d28d9")
+    ax.text(6.825, 2.08, "2DGS：有界 TSDF 提取表面", ha="center", fontsize=9.5)
+    ax.text(6.825, 1.73, "AIGC：从生成框架导出 OBJ", ha="center", fontsize=9.5)
 
     right = FancyBboxPatch(
         (10.2, 1.44),
@@ -75,10 +87,10 @@ def build_fusion_pipeline() -> None:
         facecolor="#e0f2fe",
     )
     ax.add_patch(right)
-    ax.text(11.925, 2.98, "Blender composition", ha="center", fontsize=12, fontweight="bold")
-    ax.text(11.925, 2.51, "Scale + pose + camera path", ha="center", fontsize=11)
-    ax.text(11.925, 2.08, "Occlusion-aware mesh rendering", ha="center", fontsize=10)
-    ax.text(11.925, 1.72, "180 frames, 640 x 480, 30 fps", ha="center", fontsize=10)
+    ax.text(11.925, 2.98, "Blender 场景合成", ha="center", fontsize=12, fontweight="bold")
+    ax.text(11.925, 2.51, "尺度 + 位姿 + 相机路径", ha="center", fontsize=11)
+    ax.text(11.925, 2.08, "支持遮挡关系的 Mesh 渲染", ha="center", fontsize=10)
+    ax.text(11.925, 1.72, "180 帧，640 x 480，30 fps", ha="center", fontsize=10)
 
     for y in [4.275, 2.975, 1.675, 0.375]:
         arrow = FancyArrowPatch(
@@ -101,14 +113,14 @@ def build_fusion_pipeline() -> None:
             color="#475569",
         )
     )
-    ax.set_title("Task 1 fusion pipeline: heterogeneous assets are unified as meshes before rendering", fontsize=15)
+    ax.set_title("题目一融合流程：异构资产先统一为 Mesh，再进入 Blender 渲染", fontsize=15)
     fig.tight_layout()
     fig.savefig(ASSET_DIR / "task1_fusion_pipeline.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
 
 
 def build_zero_shot_chart() -> None:
-    labels = ["First-action MAE", "Chunk-action MAE"]
+    labels = ["第一步动作 MAE", "动作块 MAE"]
     b_only = np.array([0.22625148172179857, 0.2594750017548601])
     abc = np.array([0.18771157413721085, 0.22914512909483165])
     improvement = (b_only - abc) / b_only * 100
@@ -116,10 +128,10 @@ def build_zero_shot_chart() -> None:
     x = np.arange(len(labels))
     width = 0.34
     fig, ax = plt.subplots(figsize=(9.5, 5.4))
-    bars_b = ax.bar(x - width / 2, b_only, width, label="B-only", color="#3b82f6")
+    bars_b = ax.bar(x - width / 2, b_only, width, label="仅 B 训练", color="#3b82f6")
     bars_abc = ax.bar(x + width / 2, abc, width, label="A+B+C", color="#10b981")
-    ax.set_ylabel("Mean absolute error (lower is better)")
-    ax.set_title("Zero-shot CALVIN environment D: action-error comparison")
+    ax.set_ylabel("平均绝对误差，越低越好")
+    ax.set_title("CALVIN 环境 D 零样本动作误差对比")
     ax.set_xticks(x, labels)
     ax.set_ylim(0, 0.30)
     ax.grid(axis="y", alpha=0.28)
@@ -135,7 +147,7 @@ def build_zero_shot_chart() -> None:
                 fontsize=9.5,
             )
     for index, percent in enumerate(improvement):
-        ax.text(index, 0.285, f"A+B+C improves {percent:.1f}%", ha="center", fontsize=10, fontweight="bold")
+        ax.text(index, 0.285, f"A+B+C 降低 {percent:.1f}%", ha="center", fontsize=10, fontweight="bold")
     fig.tight_layout()
     fig.savefig(ASSET_DIR / "task2_zero_shot_grouped.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
@@ -275,9 +287,9 @@ def build_task1_triviews() -> None:
     ]
 
     rows = [
-        ("A: cropped PLY mesh", object_a),
-        ("B: text-to-3D", object_b),
-        ("C: image-to-3D", object_c),
+        ("A：裁剪 PLY Mesh", object_a),
+        ("B：文本到 3D", object_b),
+        ("C：单图到 3D", object_c),
     ]
     fig, axes = plt.subplots(3, 3, figsize=(11.5, 10.2))
     for row_index, (row_label, images) in enumerate(rows):
@@ -290,11 +302,11 @@ def build_task1_triviews() -> None:
                 spine.set_color("#cbd5e1")
                 spine.set_linewidth(1.2)
             if row_index == 0:
-                ax.set_title(f"Representative view {column_index + 1}", fontsize=12, fontweight="bold")
+                ax.set_title(f"代表视角 {column_index + 1}", fontsize=12, fontweight="bold")
             if column_index == 0:
                 ax.set_ylabel(row_label, fontsize=11, fontweight="bold", labelpad=12)
     fig.suptitle(
-        "Task 1 representative three-view comparison from formal outputs",
+        "题目一正式输出的三视角代表性对比",
         fontsize=15,
         fontweight="bold",
         y=0.995,
@@ -325,7 +337,13 @@ def main() -> None:
     copy_asset("task1/report/assets/object_c_magic123_losses.png")
     copy_asset("task1/report/assets/fusion_walkthrough_preview.png")
     copy_asset("task1/report/assets/runtime_comparison.png")
-    copy_asset("task2/docs/images/formal_training_curves.png")
+    copy_first_existing_asset(
+        [
+            "task2/docs/images/formal_training_curves.png",
+            "task2/artifacts/archived-report-images/formal_training_curves.png",
+            "report/assets/formal_training_curves.png",
+        ]
+    )
     build_fusion_pipeline()
     build_task1_triviews()
     build_zero_shot_chart()

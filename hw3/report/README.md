@@ -1,34 +1,26 @@
-# HW3 Unified Report
+# HW3 统一报告
 
-This directory contains the submission report for:
+本目录保存 HW3 最终报告和图表构建脚本。
 
-- Student: 陈家龙
-- Student ID: `24300980041`
+- 学生：陈家龙
+- 学号：`24300980041`
+- 报告文件：`HW3_Report_ChenJialong_24300980041.pdf`
 
-The report was rewritten as one unified technical document. Existing Task 1
-and Task 2 drafts are treated only as experiment evidence; they are not merged
-or reused as report prose.
+## 构建
 
-## Build
-
-From the `hw3` directory:
+在 `hw3` 目录运行：
 
 ```powershell
 .\report\build_report.ps1
 ```
 
-The final PDF is written to:
+脚本会先刷新图表，再用 XeLaTeX 生成最终 PDF。
 
-```text
-report/HW3_Report_ChenJialong_24300980041.pdf
-```
+## 文件说明
 
-## Files
-
-- `hw3_report.tex`: report source.
-- `build_report_assets.py`: copies verified experiment figures and generates
-  the fusion-pipeline, Mesh three-view, and zero-shot comparison figures.
-- `build_report.ps1`: reproducible asset and PDF build.
-- `UPLOAD_CHECKLIST.md`: files mirrored to the Google Drive submission folder.
-- `assets/`: figures used by the report.
-- `build/`: XeLaTeX intermediate files.
+- `hw3_report.tex`：报告源码。
+- `build_report_assets.py`：复制实验图并生成汇总图。
+- `build_report.ps1`：一键构建脚本。
+- `UPLOAD_CHECKLIST.md`：网盘上传和检查清单。
+- `assets/`：报告使用的图表。
+- `build/`：XeLaTeX 中间文件，未纳入 Git。

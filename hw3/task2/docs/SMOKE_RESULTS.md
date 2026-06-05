@@ -1,52 +1,43 @@
-# Synthetic Smoke Results
+# Smoke 测试结果
 
-These numbers are implementation checks only. They come from the generated
-CALVIN-shaped synthetic dataset and must not be reported as formal homework
-results.
+本文件只记录实现检查结果，不作为正式实验结论。
 
-## Verification environment
+## 环境
 
-| Item | Value |
+| 项目 | 值 |
 | --- | --- |
 | GPU | NVIDIA GeForce RTX 4060 Ti, 8 GB |
 | Python | 3.12.9 |
 | PyTorch | 2.11.0+cu128 |
 | Torchvision | 0.26.0+cu128 |
 | LeRobot | 0.5.1 |
-| SwanLab | 0.7.16, offline mode |
+| SwanLab | 0.7.16，offline |
 
-## End-to-end checks
+## 已通过检查
 
-- B-only ACT optimization: passed.
-- A+B+C ACT optimization: passed.
-- SwanLab offline logging: passed.
-- Best and latest checkpoint writing: passed.
-- D zero-shot action-error evaluation: passed.
-- Training and evaluation plot generation: passed.
+- B-only ACT 训练。
+- A+B+C ACT 训练。
+- SwanLab offline 记录。
+- best/latest checkpoint 写入。
+- D 环境动作误差评估。
+- 训练和评估图表生成。
 
-## Two-step synthetic metrics
+## 合成数据 smoke
 
-| Run | Held-out L1 loss at step 2 | D first-action MAE | D chunk MAE |
+| 模型 | step 2 验证 L1 | D first-action MAE | D chunk MAE |
 | --- | ---: | ---: | ---: |
 | B-only | 0.907972 | 0.287660 | 0.285675 |
 | A+B+C | 0.994025 | 0.337615 | 0.323337 |
 
-The smoke run is deliberately tiny, so the relative ordering is not meaningful.
-Its purpose is to prove that the complete workflow executes before spending
-time or disk space on official CALVIN data.
+合成数据规模很小，只用于证明代码链路能跑通。
 
-## Official-frame subset smoke
+## 官方帧子集 smoke
 
-`scripts/run_official_subset_smoke.ps1` was also verified against HTTP-Range
-downloads from the official CALVIN ZIP files. This second check used one
-consecutive four-frame window per environment: 12 ABC frames and 4 unseen-D
-frames.
+`scripts/run_official_subset_smoke.ps1` 使用官方 CALVIN ZIP 中的极小抽样帧。
 
-| Run | Held-out L1 loss at step 2 | D first-action MAE | D chunk MAE |
+| 模型 | step 2 验证 L1 | D first-action MAE | D chunk MAE |
 | --- | ---: | ---: | ---: |
 | B-only | 0.941828 | 0.083004 | 0.102024 |
 | A+B+C | 1.387035 | 0.073969 | 0.085186 |
 
-These official-frame values remain smoke metrics, not final report results. The
-subset and two optimization steps are intentionally too small for scientific
-interpretation.
+该结果仍是 smoke 指标，不能代表正式结论。
