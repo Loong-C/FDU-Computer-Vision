@@ -12,10 +12,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCS_ROOT = REPO_ROOT / "docs"
 IMAGES_ROOT = DOCS_ROOT / "images"
 RELEASE_URL = (
-    "https://github.com/Loong-C/computer-vision-hw3-task2-calvin-act/"
-    "releases/tag/formal-partial-v1"
+    "https://github.com/Loong-C/FDU-Computer-Vision/"
+    "releases/tag/hw3-task2-formal-partial-v1"
 )
-GITHUB_URL = "https://github.com/Loong-C/FDU-Computer-Vision/tree/hw3/hw3/task2"
+GITHUB_URL = "https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task2"
 SWANLAB_URL = "https://swanlab.cn/@Linkukai/hw3-calvin-act"
 
 

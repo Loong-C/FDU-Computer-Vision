@@ -6,6 +6,10 @@
 
 代码链接统一指向 `Loong-C/FDU-Computer-Vision` 的 `main` 分支。
 
+题目二权重主下载：
+
+[https://github.com/Loong-C/FDU-Computer-Vision/releases/tag/hw3-task2-formal-partial-v1](https://github.com/Loong-C/FDU-Computer-Vision/releases/tag/hw3-task2-formal-partial-v1)
+
 ## 必须上传
 
 | 用途 | 本地文件 | SHA256 |
@@ -26,7 +30,8 @@
 
 ## 上传后检查
 
-1. 使用隐私窗口打开分享链接。
-2. 确认三个权重文件和最终 PDF 均可下载。
+1. 使用隐私窗口打开 FDU GitHub Release 和 Google Drive 镜像。
+2. 确认题目一资产包、题目二两个权重和最终 PDF 均可下载。
 3. 确认报告中的 GitHub 链接指向 `main/hw3`。
-4. 若网盘设置提取码，将提取码记录到提交说明中。
+4. 确认题目二 Release 中两个权重均为 `196370804` bytes，且 `SHA256SUMS.txt` 可下载。
+5. 若网盘设置提取码，将提取码记录到提交说明中。

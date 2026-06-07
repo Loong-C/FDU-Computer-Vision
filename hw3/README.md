@@ -16,7 +16,7 @@ task2/    LeRobot ACT 在 CALVIN 上的跨环境泛化实验
 - 题目一代码：`task1/`
 - 题目二代码：`task2/`
 - 题目一权重与视频：GitHub Release `hw3-task1-weights`
-- 题目二权重：Google Drive 镜像目录
+- 题目二权重：GitHub Release `hw3-task2-formal-partial-v1`，Google Drive 提供镜像
 
 大数据集、训练输出、缓存、模型权重和视频不直接提交到 Git；仓库只保留源码、配置、报告、图表和校验信息。
 
@@ -55,5 +55,8 @@ cd task2
 - 代码仓库：`https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3`
 - 题目一权重：`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz`
 - 题目一视频：`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4`
+- 题目二权重 Release：`https://github.com/Loong-C/FDU-Computer-Vision/releases/tag/hw3-task2-formal-partial-v1`
+- 题目二 B-only 权重：`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-b-only-best.pt`
+- 题目二 A+B+C 权重：`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-abc-joint-best.pt`
 - 题目二权重镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`
 - 题目二 SwanLab：`https://swanlab.cn/@Linkukai/hw3-calvin-act`

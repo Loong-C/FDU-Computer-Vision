@@ -24,3 +24,8 @@
 - `UPLOAD_CHECKLIST.md`：网盘上传和检查清单。
 - `assets/`：报告使用的图表。
 - `build/`：XeLaTeX 中间文件，未纳入 Git。
+
+## 公开下载
+
+- 题目二权重 Release：`https://github.com/Loong-C/FDU-Computer-Vision/releases/tag/hw3-task2-formal-partial-v1`
+- 题目二权重网盘镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`

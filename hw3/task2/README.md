@@ -111,7 +111,10 @@ D 环境 simulator rollout：
 ## 公开链接
 
 - 代码：`https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task2`
-- 权重镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`
+- 权重 Release：`https://github.com/Loong-C/FDU-Computer-Vision/releases/tag/hw3-task2-formal-partial-v1`
+- B-only 权重：`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-b-only-best.pt`
+- A+B+C 权重：`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-abc-joint-best.pt`
+- 权重网盘镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`
 - SwanLab 项目：`https://swanlab.cn/@Linkukai/hw3-calvin-act`
 
 权重文件：
@@ -120,3 +123,4 @@ D 环境 simulator rollout：
 - `hw3-task2-act-abc-joint-best.pt`
 
 SHA256 记录在 `outputs/official_subset_formal/release/SHA256SUMS.txt`，大权重不提交到 Git。
+旧独立仓库的迁移核对见 `docs/LEGACY_REPOSITORY_MIGRATION.md`。

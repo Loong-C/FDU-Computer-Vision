@@ -14,7 +14,8 @@
 ## 公开链接
 
 - 代码：`https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task2`
-- 权重镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`
+- 权重 Release：`https://github.com/Loong-C/FDU-Computer-Vision/releases/tag/hw3-task2-formal-partial-v1`
+- 权重网盘镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`
 - SwanLab：`https://swanlab.cn/@Linkukai/hw3-calvin-act`
 
 ## 任务
@@ -99,5 +100,5 @@ rollout 成功率仍为 0，原因是该 ACT 输入没有语言指令，只根�
 
 | 模型 | 文件 | SHA256 |
 | --- | --- | --- |
-| B-only | `hw3-task2-act-b-only-best.pt` | `58AFAE052EF2CE029F92C9258E1B5012A9C44FAC5753C1C8330B7D196A976131` |
-| A+B+C | `hw3-task2-act-abc-joint-best.pt` | `1B1F182E61026929F0A5FFDC5EE096D15E4771FEBD111D9EFE3D88BC4A9ADCFF` |
+| B-only | [hw3-task2-act-b-only-best.pt](https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-b-only-best.pt) | `58AFAE052EF2CE029F92C9258E1B5012A9C44FAC5753C1C8330B7D196A976131` |
+| A+B+C | [hw3-task2-act-abc-joint-best.pt](https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-abc-joint-best.pt) | `1B1F182E61026929F0A5FFDC5EE096D15E4771FEBD111D9EFE3D88BC4A9ADCFF` |

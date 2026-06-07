@@ -39,6 +39,9 @@
 \newcommand{\taskoneweights}{https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/cv-hw3-task1-best-weights.tar.gz}
 \newcommand{\taskonevideo}{https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task1-weights/task1-walkthrough.mp4}
 \newcommand{\tasktwocode}{https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task2}
+\newcommand{\tasktworelease}{https://github.com/Loong-C/FDU-Computer-Vision/releases/tag/hw3-task2-formal-partial-v1}
+\newcommand{\tasktwobweights}{https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-b-only-best.pt}
+\newcommand{\tasktwoabcweights}{https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-abc-joint-best.pt}
 \newcommand{\clouddrive}{https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link}
 
 \pagestyle{fancy}
@@ -82,7 +85,7 @@
     学号 & 24300980041 \\
     组队情况 & 单人完成 \\
     具体分工 & 独立完成 \\
-    报告日期 & 2026 年 6 月 4 日 \\
+    报告日期 & 2026 年 6 月 7 日 \\
     \bottomrule
   \end{tabularx}
 
@@ -94,7 +97,7 @@
     项目 & 可公开访问地址 \\
     \midrule
     题目一代码仓库 &
-    \href{https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task1}{github.com/Loong-C/FDU-Computer-Vision（main/hw3）} \\
+    \href{https://github.com/Loong-C/FDU-Computer-Vision/tree/main/hw3/task1}{github.com/Loong-C/FDU-Computer-Vision（main/hw3/task1）} \\
     题目一模型权重 &
     \href{\taskoneweights}{GitHub Release：cv-hw3-task1-best-weights.tar.gz} \\
     题目一漫游视频 &
@@ -102,7 +105,7 @@
     题目二代码仓库 &
     \href{\tasktwocode}{github.com/Loong-C/FDU-Computer-Vision（main/hw3/task2）} \\
     题目二模型权重 &
-    \href{\clouddrive}{Google Drive：hw3-task2-act-*.pt} \\
+    \href{\tasktworelease}{FDU GitHub Release：hw3-task2-formal-partial-v1} \\
     题目二 SwanLab &
     \href{https://swanlab.cn/@Linkukai/hw3-calvin-act}{swanlab.cn/@Linkukai/hw3-calvin-act} \\
     网盘镜像 &
@@ -116,8 +119,8 @@
     \textbf{提交说明。}
     题目一包含 2DGS、AIGC 与 Blender 融合流程；题目二包含资源约束下基于官方
     CALVIN 帧的 ACT 对比实验。训练曲线由 SwanLab 记录导出。模型权重和视频提供
-    公开下载地址；题目一资产包与漫游视频提供 GitHub Release，题目二权重保存在
-    Google Drive 镜像目录中。
+    公开下载地址；题目一资产包、漫游视频和题目二权重均提供 FDU GitHub Release，
+    Google Drive 继续作为镜像目录。
   \end{minipage}
   \vspace{0.7cm}
 \end{titlepage}
@@ -146,48 +149,6 @@ LeRobot 中的 ACT 策略，在 CALVIN 环境 B 与混合环境 A+B+C 上分别�
 所有长时间实验均由可追踪脚本启动。题目一将 2DGS TensorBoard 标量与 AIGC 训练指标导入
 SwanLab 本地运行；题目二在 SwanLab 中记录 Action L1、KL、验证损失、环境 D 动作误差和
 simulator rollout 成功率，同时保留 CSV/JSON 备份。报告中的曲线均由记录指标生成。
-
-\begin{table*}[t]
-\centering
-\caption{HW3 明确要求与本报告对应位置。}
-\label{tab:requirement-checklist}
-\small
-\begin{tabularx}{0.98\textwidth}{p{2.45cm}p{4.65cm}Y}
-\toprule
-类别 & 作业要求 & 报告与交付位置 \\
-\midrule
-全局信息 &
-首页标明姓名、学号、组队与具体分工；提供 GitHub 与模型权重下载地址 &
-首页已列出陈家龙、24300980041、单人完成与独立完成；首页和表~\ref{tab:deliverables}
-列出统一 GitHub 仓库、GitHub Release、Google Drive 与权重 SHA256 \\
-题目一资产 A &
-手机采集真实物体，多视角/COLMAP 位姿，使用 2DGS 重建 &
-表~\ref{tab:task1-data} 写明 63 张手机照片与 34 张注册图；2.2 节给出 COLMAP 与 2DGS 方法；
-表~\ref{tab:2dgs-results} 和图~\ref{fig:2dgs-metrics} 给出验证指标 \\
-题目一资产 B/C &
-B 使用 threestudio、SDS 与文本 Prompt；C 使用去背景单图与 Magic123 &
-2.3 节给出 DreamFusion/SDS Prompt 与导出规模；2.4 节给出去背景、MiDaS、Magic123 coarse/fine
-流程；图~\ref{fig:aigc-curves} 展示 AIGC 优化曲线 \\
-背景与融合 &
-开源 3D 场景使用 2DGS 重建；将 A/B/C 按合理比例插入并生成多视角漫游视频 &
-选择 Mip-NeRF 360 \code{counter}；2.5 节说明 Mesh 统一、Blender 位姿与相机路径；
-图~\ref{fig:fusion-pipeline} 和图~\ref{fig:fusion-runtime} 展示流程与融合帧，视频链接见首页 \\
-题目一分析 &
-比较多视角重建、文本生成、单图生成在几何准确度、纹理细节、计算耗时上的差异；说明异构表达统一方式 &
-图~\ref{fig:task1-triviews} 展示三种方法的三视图；2.7.2 节逐项分析几何、纹理与耗时；
-表~\ref{tab:task1-analysis} 汇总边界，2.5 节说明由 2DGS/隐式场统一到 Mesh 后融合渲染 \\
-题目二训练与测试 &
-使用 LeRobot ACT 分别训练 B-only 与 A+B+C；架构和超参数一致；比较训练收敛、D 环境 zero-shot &
-表~\ref{tab:task2-hyper} 给出相同 ACT 超参数；图~\ref{fig:act-curves} 展示 Action L1 与验证损失；
-表~\ref{tab:act-results}、图~\ref{fig:act-zeroshot} 与表~\ref{tab:rollout-results} 给出 D 动作误差和
-simulator 成功率 \\
-提交材料 &
-报告需含背景、数据集、方法、结果、深度分析、SwanLab/WandB 图表、超参数表、代码 README 与权重 &
-正文按任务组织；表~\ref{tab:swanlab} 列出 SwanLab 项目和各运行链接；代码位于
-\code{hw3/task1} 与 \code{hw3/task2}，README 含环境、数据、训练与测试命令 \\
-\bottomrule
-\end{tabularx}
-\end{table*}
 
 \section{题目一：2DGS 与 AIGC 多源资产融合}
 
@@ -296,6 +257,10 @@ $(0.719,2.012,-0.315)$，尺度分别设为 0.10、0.40 和 0.60。相机路径�
 光照和相机运动。
 
 \subsection{题目一实验设置}
+
+正式实验的设置集中在表~\ref{tab:task1-hyper} 中。2DGS 部分沿用官方优化参数，并分别记录
+物体 A 与背景场景的验证指标；DreamFusion 与 Magic123 记录实际迭代数、渲染分辨率、
+优化器和 guidance 权重。后续的验证曲线、三视图比较和耗时统计均对应这一组设置。
 
 \begin{table*}[t]
 \centering
@@ -769,7 +734,7 @@ MODE=formal bash scripts/render_fusion_tracked.sh
 
 \begin{table}[H]
 \centering
-\caption{公开交付物。题目一使用 FDU 仓库 GitHub Release；题目二权重使用 Google Drive 镜像目录。}
+\caption{公开交付物。题目一与题目二均使用 FDU 仓库 GitHub Release，Google Drive 作为镜像。}
 \label{tab:deliverables}
 \small
 \begin{tabularx}{0.98\textwidth}{p{3.2cm}p{2.4cm}Y}
@@ -787,13 +752,15 @@ MODE=formal bash scripts/render_fusion_tracked.sh
 \code{4667c06b2e05b4a345f99ae5ee4c2875caaad2f995ad77c6ea813814046ccaec} \\
 题目二 B-only 最佳权重 &
 196370804 bytes &
+\href{\tasktwobweights}{GitHub Release 下载}；
 \code{58afae052ef2ce029f92c9258e1b5012a9c44fac5753c1c8330b7d196a976131} \\
 题目二 A+B+C 最佳权重 &
 196370804 bytes &
+\href{\tasktwoabcweights}{GitHub Release 下载}；
 \code{1b1f182e61026929f0a5ffdc5ee096d15e4771febd111d9efe3d88bc4a9adcff} \\
-题目二权重镜像目录 &
+题目二权重 Release &
 -- &
-\href{\clouddrive}{Google Drive：hw3-task2-act-b-only-best.pt 与 hw3-task2-act-abc-joint-best.pt} \\
+\href{\tasktworelease}{FDU GitHub Release 页面} \\
 Google Drive 镜像目录 &
 -- &
 \href{\clouddrive}{Google Drive 镜像文件夹} \\

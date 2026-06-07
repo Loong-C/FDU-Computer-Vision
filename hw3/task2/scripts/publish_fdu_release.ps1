@@ -1,7 +1,7 @@
 param(
     [string]$Repository = "Loong-C/FDU-Computer-Vision",
     [string]$Tag = "hw3-task2-formal-partial-v1",
-    [string]$Target = "hw3",
+    [string]$Target = "main",
     [string]$ReleaseDir = "",
     [switch]$DryRun
 )
@@ -49,6 +49,7 @@ $Notes = @"
 HW3 Task2 formal partial ACT checkpoints.
 
 - Source: https://github.com/$Repository/tree/$Target/hw3/task2
+- Google Drive mirror: https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link
 - Data protocol: HTTP-Range CALVIN subset, 16 windows of 48 frames per environment.
 - B-only SHA256: $($Expected["hw3-task2-act-b-only-best.pt"])
 - A+B+C SHA256: $($Expected["hw3-task2-act-abc-joint-best.pt"])
@@ -68,8 +69,12 @@ if ($LASTEXITCODE -ne 0) {
     throw "GitHub CLI is not authenticated. Run: gh auth login -h github.com"
 }
 
-gh release view $Tag --repo $Repository *> $null
-if ($LASTEXITCODE -ne 0) {
+$PreviousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+& gh release view $Tag --repo $Repository *> $null
+$ReleaseExists = $LASTEXITCODE -eq 0
+$ErrorActionPreference = $PreviousErrorActionPreference
+if (-not $ReleaseExists) {
     gh release create $Tag --repo $Repository --target $Target --title "HW3 Task2 formal partial ACT checkpoints" --notes $Notes
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to create GitHub Release $Tag in $Repository"
