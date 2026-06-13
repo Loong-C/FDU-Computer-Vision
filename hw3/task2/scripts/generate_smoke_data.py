@@ -35,11 +35,25 @@ def write_scene(
     start_index: int,
     frames: int,
     rng: np.random.Generator,
+    segments: int = 2,
+    segment_gap: int = 20,
 ) -> tuple[int, int]:
     split_root.mkdir(parents=True, exist_ok=True)
     offset = ENVIRONMENT_OFFSETS[environment]
+    if frames < segments:
+        raise ValueError("frames must be greater than or equal to segments.")
+    segment_lengths = [frames // segments] * segments
+    for index in range(frames % segments):
+        segment_lengths[index] += 1
+
+    frame_indices = []
+    next_index = start_index
+    for segment_length in segment_lengths:
+        frame_indices.extend(range(next_index, next_index + segment_length))
+        next_index += segment_length + segment_gap
+
     for local_step in range(frames):
-        frame_index = start_index + local_step
+        frame_index = frame_indices[local_step]
         phase = local_step / max(frames - 1, 1)
         robot_obs = np.linspace(-0.4, 0.4, 15, dtype=np.float32)
         robot_obs += offset + 0.05 * np.sin(phase * np.pi * 2)
@@ -65,7 +79,7 @@ def write_scene(
             actions=rel_actions,
             scene_obs=np.full(24, offset, dtype=np.float32),
         )
-    return start_index, start_index + frames - 1
+    return frame_indices[0], frame_indices[-1]
 
 
 def main() -> None:

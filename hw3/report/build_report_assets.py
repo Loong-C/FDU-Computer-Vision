@@ -121,8 +121,8 @@ def build_fusion_pipeline() -> None:
 
 def build_zero_shot_chart() -> None:
     labels = ["第一步动作 MAE", "动作块 MAE"]
-    b_only = np.array([0.22625148172179857, 0.2594750017548601])
-    abc = np.array([0.18771157413721085, 0.22914512909483165])
+    b_only = np.array([0.25396539266997326, 0.2684600044740364])
+    abc = np.array([0.1981501142727211, 0.22225829815336814])
     improvement = (b_only - abc) / b_only * 100
 
     x = np.arange(len(labels))
@@ -133,7 +133,7 @@ def build_zero_shot_chart() -> None:
     ax.set_ylabel("平均绝对误差，越低越好")
     ax.set_title("CALVIN 环境 D 零样本动作误差对比")
     ax.set_xticks(x, labels)
-    ax.set_ylim(0, 0.30)
+    ax.set_ylim(0, 0.31)
     ax.grid(axis="y", alpha=0.28)
     ax.legend()
     for bars in [bars_b, bars_abc]:
@@ -147,7 +147,7 @@ def build_zero_shot_chart() -> None:
                 fontsize=9.5,
             )
     for index, percent in enumerate(improvement):
-        ax.text(index, 0.285, f"A+B+C 降低 {percent:.1f}%", ha="center", fontsize=10, fontweight="bold")
+        ax.text(index, 0.295, f"A+B+C 降低 {percent:.1f}%", ha="center", fontsize=10, fontweight="bold")
     fig.tight_layout()
     fig.savefig(ASSET_DIR / "task2_zero_shot_grouped.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
@@ -322,8 +322,8 @@ def write_manifest() -> None:
         "generated_by": "report/build_report_assets.py",
         "assets": files,
         "task2_zero_shot_values": {
-            "b_only": {"first_action_mae": 0.22625148172179857, "chunk_action_mae": 0.2594750017548601},
-            "abc": {"first_action_mae": 0.18771157413721085, "chunk_action_mae": 0.22914512909483165},
+            "b_only": {"first_action_mae": 0.25396539266997326, "chunk_action_mae": 0.2684600044740364},
+            "abc": {"first_action_mae": 0.1981501142727211, "chunk_action_mae": 0.22225829815336814},
         },
     }
     (ASSET_DIR / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -339,10 +339,12 @@ def main() -> None:
     copy_asset("task1/report/assets/runtime_comparison.png")
     copy_first_existing_asset(
         [
+            "task2/artifacts/official-subset-formal/training_curves.png",
             "task2/docs/images/formal_training_curves.png",
             "task2/artifacts/archived-report-images/formal_training_curves.png",
             "report/assets/formal_training_curves.png",
-        ]
+        ],
+        target="formal_training_curves.png",
     )
     build_fusion_pipeline()
     build_task1_triviews()

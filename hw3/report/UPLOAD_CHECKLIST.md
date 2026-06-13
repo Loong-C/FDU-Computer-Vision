@@ -15,8 +15,8 @@
 | 用途 | 本地文件 | SHA256 |
 | --- | --- | --- |
 | 题目一最佳资产与权重包 | `task1/release/cv-hw3-task1-best-weights.tar.gz` | `4667c06b2e05b4a345f99ae5ee4c2875caaad2f995ad77c6ea813814046ccaec` |
-| 题目二 B-only 最佳权重 | `task2/outputs/official_subset_formal/release/hw3-task2-act-b-only-best.pt` | `58afae052ef2ce029f92c9258e1b5012a9c44fac5753c1c8330b7d196a976131` |
-| 题目二 A+B+C 最佳权重 | `task2/outputs/official_subset_formal/release/hw3-task2-act-abc-joint-best.pt` | `1b1f182e61026929f0a5ffdc5ee096d15e4771febd111d9efe3d88bc4a9adcff` |
+| 题目二 B-only 最佳权重 | `task2/outputs/official_subset_formal/release/hw3-task2-act-b-only-best.pt` | `49ad38cb15b38fa1ae208caac70da0e41536aa3dadcd6e7408a58647bed06ce5` |
+| 题目二 A+B+C 最佳权重 | `task2/outputs/official_subset_formal/release/hw3-task2-act-abc-joint-best.pt` | `7a1ef8617b7f741c0dd8e73b3a6d6c23b6d03381d543f13e95d7150b61832c5b` |
 | 最终报告 | `report/HW3_Report_ChenJialong_24300980041.pdf` | 以本地最终构建版本为准 |
 
 ## 建议一并上传
@@ -33,5 +33,5 @@
 1. 使用隐私窗口打开 FDU GitHub Release 和 Google Drive 镜像。
 2. 确认题目一资产包、题目二两个权重和最终 PDF 均可下载。
 3. 确认报告中的 GitHub 链接指向 `main/hw3`。
-4. 确认题目二 Release 中两个权重均为 `196370804` bytes，且 `SHA256SUMS.txt` 可下载。
+4. 确认题目二 Release 中两个权重均为 `196370932` bytes，且 `SHA256SUMS.txt` 可下载。
 5. 若网盘设置提取码，将提取码记录到提交说明中。

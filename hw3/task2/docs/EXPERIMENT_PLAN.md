@@ -15,13 +15,15 @@
 2. 用 `scripts/download_calvin_subset.py` 下载官方 CALVIN 抽样帧。
 3. 先用短训练确认显存和速度。
 4. 正式实验保持 `image_size: 128`、`batch_size: 4`、`max_steps: 5000`。
-5. 权重和大数据只放在本地或网盘，不提交到 Git。
+5. 每个环境按连续窗口分层划分训练集和验证集，同一窗口不跨集合。
+6. 运行时检查训练与验证动作监督帧交集为 0，并写入 `split_manifest.json`。
+7. 权重和大数据只放在本地或网盘，不提交到 Git。
 
 ## 指标
 
 - `train/l1_loss`：ACT 动作重建 L1。
 - `train/kld_loss`：VAE 正则项。
-- `validation/loss`：训练场景内验证损失。
+- `validation/loss`：独立连续窗口上的验证损失。
 - `zero_shot/first_action_mae`：D 环境第一步动作误差。
 - `zero_shot/chunk_action_mae`：D 环境动作块误差。
 - `rollout/SR@k`：D simulator 五任务序列成功率。

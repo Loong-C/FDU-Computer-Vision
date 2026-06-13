@@ -6,7 +6,12 @@ from pathlib import Path
 
 import torch
 
-from hw3_calvin_act.data import CalvinRawDataset, fit_normalization_stats, split_sample_indices
+from hw3_calvin_act.data import (
+    CalvinRawDataset,
+    fit_normalization_stats,
+    group_sample_indices_by_sequence,
+    split_sample_indices,
+)
 from hw3_calvin_act.remote_subset import choose_window_frames, parse_frame_filename, safe_output_path
 
 
@@ -40,7 +45,7 @@ def test_b_only_and_abc_scene_filtering(tmp_path: Path) -> None:
 
     assert len(b_dataset) == 6
     assert len(abc_dataset) == 18
-    assert b_dataset.sample_indices == list(range(6))
+    assert b_dataset.sample_indices == [0, 1, 2, 23, 24, 25]
 
 
 def test_batch_shape_and_padding(tmp_path: Path) -> None:
@@ -70,10 +75,30 @@ def test_train_validation_split_is_disjoint(tmp_path: Path) -> None:
         chunk_size=4,
         image_size=64,
     )
-    train_indices, validation_indices = split_sample_indices(dataset.sample_indices, 0.2, seed=7)
+    train_indices, validation_indices = split_sample_indices(
+        dataset.sample_indices,
+        0.2,
+        seed=7,
+        available_frame_indices=dataset.frame_files,
+        scene_ranges=dataset.scene_ranges,
+    )
+    train_action_frames = {
+        action_index for sample_index in train_indices for action_index in dataset.action_frame_indices(sample_index)
+    }
+    validation_action_frames = {
+        action_index
+        for sample_index in validation_indices
+        for action_index in dataset.action_frame_indices(sample_index)
+    }
 
     assert set(train_indices).isdisjoint(validation_indices)
     assert sorted(train_indices + validation_indices) == dataset.sample_indices
+    assert train_action_frames.isdisjoint(validation_action_frames)
+    assert {len(groups) for groups in group_sample_indices_by_sequence(
+        dataset.sample_indices,
+        available_frame_indices=dataset.frame_files,
+        scene_ranges=dataset.scene_ranges,
+    ).values()} == {2}
 
 
 def test_remote_subset_window_selection_and_paths(tmp_path: Path) -> None:

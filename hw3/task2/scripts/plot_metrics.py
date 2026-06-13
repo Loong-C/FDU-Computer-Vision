@@ -25,7 +25,7 @@ def main() -> None:
 
     curves = {
         "B-only": read_csv(args.b_run / "metrics.csv"),
-        "ABC": read_csv(args.abc_run / "metrics.csv"),
+        "A+B+C": read_csv(args.abc_run / "metrics.csv"),
     }
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
     for label, rows in curves.items():
@@ -39,7 +39,7 @@ def main() -> None:
             label=label,
         )
     axes[0].set_title("Training Action L1 Loss")
-    axes[1].set_title("Held-out Validation Loss")
+    axes[1].set_title("Sequence-level Validation Loss")
     for axis in axes:
         axis.set_xlabel("Optimization Step")
         axis.grid(alpha=0.3)
@@ -50,7 +50,7 @@ def main() -> None:
     plt.close(fig)
 
     evaluations = {}
-    for label, eval_dir in {"B-only": args.b_eval, "ABC": args.abc_eval}.items():
+    for label, eval_dir in {"B-only": args.b_eval, "A+B+C": args.abc_eval}.items():
         evaluations[label] = json.loads((eval_dir / "zero_shot_metrics.json").read_text(encoding="utf-8"))
     fig, axis = plt.subplots(figsize=(6, 4))
     labels = list(evaluations)

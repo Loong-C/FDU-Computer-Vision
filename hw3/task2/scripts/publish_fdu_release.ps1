@@ -12,10 +12,6 @@ if (-not $ReleaseDir) {
     $ReleaseDir = Join-Path $RepoRoot "outputs\official_subset_formal\release"
 }
 
-$Expected = @{
-    "hw3-task2-act-b-only-best.pt" = "58afae052ef2ce029f92c9258e1b5012a9c44fac5753c1c8330b7d196a976131"
-    "hw3-task2-act-abc-joint-best.pt" = "1b1f182e61026929f0a5ffdc5ee096d15e4771febd111d9efe3d88bc4a9adcff"
-}
 $RequiredFiles = @(
     "hw3-task2-act-b-only-best.pt",
     "hw3-task2-act-abc-joint-best.pt",
@@ -29,18 +25,22 @@ foreach ($Name in $RequiredFiles) {
     }
 }
 
-foreach ($Name in $Expected.Keys) {
+$Expected = @{}
+$SumsPath = Join-Path $ReleaseDir "SHA256SUMS.txt"
+foreach ($Line in Get-Content -LiteralPath $SumsPath) {
+    if ($Line -match '^([0-9a-fA-F]{64})\s+(.+)$') {
+        $Expected[$Matches[2]] = $Matches[1].ToLowerInvariant()
+    }
+}
+
+foreach ($Name in $RequiredFiles | Where-Object { $_ -ne "SHA256SUMS.txt" }) {
+    if (-not $Expected.ContainsKey($Name)) {
+        throw "SHA256SUMS.txt does not contain an entry for $Name"
+    }
     $Path = Join-Path $ReleaseDir $Name
     $Actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
     if ($Actual -ne $Expected[$Name]) {
         throw "SHA256 mismatch for $Name. Expected $($Expected[$Name]), got $Actual"
-    }
-}
-
-$Sums = Get-Content -LiteralPath (Join-Path $ReleaseDir "SHA256SUMS.txt") -Raw
-foreach ($Name in $Expected.Keys) {
-    if ($Sums -notmatch [regex]::Escape($Expected[$Name]) -or $Sums -notmatch [regex]::Escape($Name)) {
-        throw "SHA256SUMS.txt does not contain the expected entry for $Name"
     }
 }
 
@@ -51,6 +51,7 @@ HW3 Task2 formal partial ACT checkpoints.
 - Source: https://github.com/$Repository/tree/$Target/hw3/task2
 - Google Drive mirror: https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link
 - Data protocol: HTTP-Range CALVIN subset, 16 windows of 48 frames per environment.
+- Validation protocol: environment-stratified continuous-window holdout with zero train/validation action-frame overlap.
 - B-only SHA256: $($Expected["hw3-task2-act-b-only-best.pt"])
 - A+B+C SHA256: $($Expected["hw3-task2-act-abc-joint-best.pt"])
 "@
@@ -78,6 +79,11 @@ if (-not $ReleaseExists) {
     gh release create $Tag --repo $Repository --target $Target --title "HW3 Task2 formal partial ACT checkpoints" --notes $Notes
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to create GitHub Release $Tag in $Repository"
+    }
+} else {
+    gh release edit $Tag --repo $Repository --target $Target --title "HW3 Task2 formal partial ACT checkpoints" --notes $Notes
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to update GitHub Release $Tag in $Repository"
     }
 }
 

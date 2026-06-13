@@ -18,6 +18,7 @@ from hw3_calvin_act.config import load_yaml, resolve_paths
 from hw3_calvin_act.data import (
     CalvinRawDataset,
     fit_normalization_stats,
+    group_sample_indices_by_sequence,
     move_batch_to_device,
     split_sample_indices,
 )
@@ -74,6 +75,65 @@ def make_dataset(config: dict[str, Any], dataset_root: Path, environments: str) 
     )
 
 
+def build_split_manifest(
+    dataset: CalvinRawDataset,
+    train_indices: list[int],
+    validation_indices: list[int],
+    validation_fraction: float,
+    seed: int,
+) -> dict[str, Any]:
+    groups = group_sample_indices_by_sequence(
+        dataset.sample_indices,
+        available_frame_indices=dataset.frame_files,
+        scene_ranges=dataset.scene_ranges,
+    )
+    train_set = set(train_indices)
+    validation_set = set(validation_indices)
+    train_action_frames = {
+        action_index
+        for sample_index in train_indices
+        for action_index in dataset.action_frame_indices(sample_index)
+    }
+    validation_action_frames = {
+        action_index
+        for sample_index in validation_indices
+        for action_index in dataset.action_frame_indices(sample_index)
+    }
+    overlap = sorted(train_action_frames & validation_action_frames)
+    if overlap:
+        raise RuntimeError(f"Train/validation action supervision overlaps, first frame={overlap[0]}.")
+
+    def summarize(environment: str, selected: set[int]) -> list[dict[str, int]]:
+        summaries = []
+        for group in groups.get(environment, []):
+            group_set = set(group)
+            if group_set <= selected:
+                summaries.append({"first_sample": group[0], "last_sample": group[-1], "samples": len(group)})
+            elif group_set & selected:
+                raise RuntimeError(f"Continuous sequence in environment {environment} was split across datasets.")
+        return summaries
+
+    environments = sorted(groups)
+    return {
+        "strategy": "environment_stratified_contiguous_sequences_v1",
+        "seed": seed,
+        "validation_fraction": validation_fraction,
+        "chunk_size": dataset.chunk_size,
+        "train_samples": len(train_indices),
+        "validation_samples": len(validation_indices),
+        "train_action_frames": len(train_action_frames),
+        "validation_action_frames": len(validation_action_frames),
+        "action_frame_overlap": 0,
+        "environments": {
+            environment: {
+                "train_sequences": summarize(environment, train_set),
+                "validation_sequences": summarize(environment, validation_set),
+            }
+            for environment in environments
+        },
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train LeRobot ACT on raw CALVIN frames.")
     parser.add_argument("--config", type=Path, default=REPO_ROOT / "configs" / "calvin_act.yaml")
@@ -101,6 +161,15 @@ def main() -> None:
     raw_dataset = make_dataset(config, args.dataset_root, args.environments)
     train_indices, validation_indices = split_sample_indices(
         raw_dataset.sample_indices,
+        validation_fraction=float(config["data"]["validation_fraction"]),
+        seed=seed,
+        available_frame_indices=raw_dataset.frame_files,
+        scene_ranges=raw_dataset.scene_ranges,
+    )
+    split_manifest = build_split_manifest(
+        raw_dataset,
+        train_indices=train_indices,
+        validation_indices=validation_indices,
         validation_fraction=float(config["data"]["validation_fraction"]),
         seed=seed,
     )
@@ -154,8 +223,11 @@ def main() -> None:
         "device": str(device),
         "train_samples": len(train_dataset),
         "validation_samples": len(validation_dataset),
+        "split_strategy": split_manifest["strategy"],
+        "action_frame_overlap": split_manifest["action_frame_overlap"],
     }
     (run_dir / "run_config.json").write_text(json.dumps(run_config, indent=2), encoding="utf-8")
+    (run_dir / "split_manifest.json").write_text(json.dumps(split_manifest, indent=2), encoding="utf-8")
     stats.save(run_dir / "normalization_stats.json")
     tracker = ExperimentTracker(
         run_dir=run_dir,

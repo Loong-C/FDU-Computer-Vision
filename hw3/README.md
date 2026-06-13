@@ -19,6 +19,7 @@ task2/    LeRobot ACT 在 CALVIN 上的跨环境泛化实验
 - 题目二权重：GitHub Release `hw3-task2-formal-partial-v1`，Google Drive 提供镜像
 
 大数据集、训练输出、缓存、模型权重和视频不直接提交到 Git；仓库只保留源码、配置、报告、图表和校验信息。
+题目二的训练与验证按 CALVIN 连续窗口划分，并在每次训练中审计动作监督帧交集。
 
 ## 快速复现
 

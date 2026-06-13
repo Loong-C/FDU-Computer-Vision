@@ -42,6 +42,8 @@ function Invoke-ResumableTrain {
         [string]$RunName
     )
 
+    $RunDir = Join-Path $OutputRoot $RunName
+    $SplitManifest = Join-Path $RunDir "split_manifest.json"
     $TrainArgs = @(
         "scripts\train.py",
         "--config", "configs\calvin_act.yaml",
@@ -52,9 +54,14 @@ function Invoke-ResumableTrain {
         "--max-steps", $Steps
     )
     $LatestCheckpoint = Join-Path $OutputRoot "$RunName\checkpoints\latest.pt"
-    if (Test-Path $LatestCheckpoint) {
+    if ((Test-Path $LatestCheckpoint) -and (Test-Path $SplitManifest)) {
         Write-Host "Resuming $RunName from $LatestCheckpoint"
         $TrainArgs += @("--resume", $LatestCheckpoint)
+    } elseif (Test-Path $RunDir) {
+        $ArchiveName = "$RunName-frame-split-archived-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        $ArchivePath = Join-Path $OutputRoot $ArchiveName
+        Write-Host "Archiving incompatible prior run to $ArchivePath"
+        Move-Item -LiteralPath $RunDir -Destination $ArchivePath
     }
     Invoke-Python @TrainArgs
 }

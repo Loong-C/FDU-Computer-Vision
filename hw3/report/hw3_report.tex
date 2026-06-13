@@ -85,7 +85,7 @@
     学号 & 24300980041 \\
     组队情况 & 单人完成 \\
     具体分工 & 独立完成 \\
-    报告日期 & 2026 年 6 月 7 日 \\
+    报告日期 & 2026 年 6 月 13 日 \\
     \bottomrule
   \end{tabularx}
 
@@ -134,8 +134,8 @@ Mip-NeRF 360 背景，并将异构表示统一为 Mesh 后在 Blender 中完成�
 LeRobot 中的 ACT 策略，在 CALVIN 环境 B 与混合环境 A+B+C 上分别训练模型，再在未见过的
 环境 D 上比较离线零样本动作误差，并补充 CALVIN simulator rollout 成功率。实验表明：
 多视角重建在几何可靠性上最强，文本到 3D 输入成本
-最低，单图到 3D 则在真实外观保持与采集成本之间折中；ACT 的多环境训练虽然提高了同分布
-验证损失，却使环境 D 的 first-action MAE 和 chunk-action MAE 分别下降 17.0\% 和 11.7\%。
+最低，单图到 3D 则在真实外观保持与采集成本之间折中；ACT 的多环境训练具有略高的序列验证损失，
+并使环境 D 的 first-action MAE 和 chunk-action MAE 分别下降 22.0\% 和 17.2\%。
 两个策略在 3 条环境 D simulator 五任务序列上的 SR@1--SR@5 均为 0，说明离线动作误差与
 长时闭环成功率反映的是不同层次的泛化能力。
 \end{abstract}
@@ -517,8 +517,8 @@ A & 1191339--1795044 \\
 \toprule
 用途 & 选取帧数 & 本地数据量 & 处理后样本数 \\
 \midrule
-A+B+C 训练源数据 & 2304 & 634.01 MiB & 691 训练 / 77 验证 \\
-B-only 训练源数据 & 768 & 包含于上行 & 230 训练 / 26 验证 \\
+A+B+C 训练源数据 & 2304 & 634.01 MiB & 672 训练 / 96 验证 \\
+B-only 训练源数据 & 768 & 包含于上行 & 224 训练 / 32 验证 \\
 D 环境 zero-shot 评估 & 768 & 212.78 MiB & 768 离线帧；3 条 rollout 序列 \\
 \bottomrule
 \end{tabular}}
@@ -526,9 +526,11 @@ D 环境 zero-shot 评估 & 768 & 212.78 MiB & 768 离线帧；3 条 rollout 序
 
 本地实际使用的 CALVIN 帧数据合计 887929630 bytes，约 846.8 MiB，其中 A+B+C 训练源数据
 约 634.01 MiB，D 环境离线评估数据约 212.78 MiB。另有约 287.97 MiB 的
-\code{.cache} 索引文件，用于定位远程 ZIP 中的条目。训练数据使用 stride 3 与 90/10
-训练验证划分。B-only 与 A+B+C 模型的样本数量不同，联合训练模型能够接触三种场景的视觉多样性；
-二者的网络、优化器、步数和评估脚本完全一致，因此差异主要来自训练环境分布变化。
+\code{.cache} 索引文件，用于定位远程 ZIP 中的条目。每个环境包含 16 个连续的 48 帧窗口，
+stride 3 后每个窗口产生 16 个训练样本。划分时以连续窗口为单位，并在 A、B、C 内分别固定留出
+2 个窗口作为验证集；同一窗口内的样本始终归入同一集合。20 步动作块仅在所属连续窗口内取监督，
+经运行时审计，训练集与验证集使用的动作帧交集为 0。B-only 与 A+B+C 的 B 环境验证窗口一致，
+二者的网络、优化器、步数和评估脚本也完全一致。
 
 \subsection{ACT 策略与动作分块机制}
 
@@ -554,34 +556,34 @@ ACT（Action Chunking with Transformers）根据当前图像和机器人状态�
 
 \subsection{题目二实验设置}
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
 \caption{题目二 ACT 正式实验超参数。两个训练条件完全一致，仅训练环境不同。}
 \label{tab:task2-hyper}
 \small
-\begin{tabularx}{0.98\textwidth}{p{2.55cm}p{2.05cm}p{2.7cm}p{2.05cm}Y}
+\begin{tabularx}{\columnwidth}{p{2.25cm}p{1.45cm}Y}
 \toprule
-项目 & 取值 & 项目 & 取值 & 说明 \\
+项目 & 取值 & 说明 \\
 \midrule
-视觉骨干 & ResNet-18 & 图像尺寸 & $128\times128$ & 不加载预训练 backbone 权重 \\
-Transformer 维度 & 256 & attention heads & 8 & feedforward 维度 1024 \\
-编码器 / 解码器层数 & 3 / 1 & 动作块长度 & 20 & 推理时输出 20 步动作 \\
-状态 / 动作维度 & 15 / 7 & VAE latent 维度 & 32 & VAE 编码器 2 层，KL 权重 10 \\
-优化器 & AdamW & 学习率 & $1\times10^{-5}$ & backbone 使用相同学习率 \\
-权重衰减 & $1\times10^{-4}$ & batch size & 4 & AMP 开启，梯度裁剪范数 10 \\
-训练步数 & 5000 & 验证间隔 & 250 & 每次验证 30 batches \\
-设备 & RTX 4060 Ti & 显存 & 8 GB & Windows 本地 CUDA 环境 \\
+视觉输入 & $128\times128$ & ResNet-18，不加载预训练 backbone 权重 \\
+Transformer & 256 维 & 8 heads，feedforward 维度 1024 \\
+编码器 / 解码器 & 3 / 1 层 & VAE 编码器 2 层，latent 维度 32 \\
+状态 / 动作 & 15 / 7 维 & 动作块长度 20，KL 权重 10 \\
+优化器 & AdamW & 学习率 $1\times10^{-5}$，权重衰减 $1\times10^{-4}$ \\
+batch size & 4 & AMP 开启，梯度裁剪范数 10 \\
+训练与验证 & 5000 步 & 每 250 步验证 30 batches \\
+设备 & RTX 4060 Ti & 8 GB 显存，Windows 本地 CUDA 环境 \\
 \bottomrule
 \end{tabularx}
-\end{table*}
+\end{table}
 
 \subsection{收敛情况、动作误差与 simulator rollout}
 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.96\textwidth]{formal_training_curves.png}
-  \caption{由 SwanLab 记录指标导出的 ACT 训练 Action L1 与 held-out 验证曲线。
-  A+B+C 联合模型面对更复杂的视觉分布，因此验证损失更高；两个条件均呈下降趋势。}
+  \caption{由 SwanLab 记录指标导出的 ACT 训练 Action L1 与连续窗口验证曲线。训练损失持续下降；
+  验证损失在早期达到最低值后出现波动，反映了小规模训练窗口上的过拟合。}
   \label{fig:act-curves}
 \end{figure*}
 
@@ -592,10 +594,10 @@ Transformer 维度 & 256 & attention heads & 8 & feedforward 维度 1024 \\
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{lrrr}
 \toprule
-训练环境 & 验证 L1 & D first-action MAE & D chunk MAE \\
+训练环境 & 最佳序列验证 L1 & D first-action MAE & D chunk MAE \\
 \midrule
-B-only & 0.324629 & 0.226251 & 0.259475 \\
-A+B+C & 0.386954 & \textbf{0.187712} & \textbf{0.229145} \\
+B-only & \textbf{0.505717} & 0.253965 & 0.268460 \\
+A+B+C & 0.561016 & \textbf{0.198150} & \textbf{0.222258} \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -604,7 +606,7 @@ A+B+C & 0.386954 & \textbf{0.187712} & \textbf{0.229145} \\
   \centering
   \includegraphics[width=0.98\columnwidth]{task2_zero_shot_grouped.png}
   \caption{环境 D 抽样帧上的离线 zero-shot 动作误差。与 B-only 相比，A+B+C 联合训练使 first-action
-  MAE 下降 17.0\%，chunk-action MAE 下降 11.7\%。}
+  MAE 下降 22.0\%，chunk-action MAE 下降 17.2\%。}
   \label{fig:act-zeroshot}
 \end{figure}
 
@@ -627,21 +629,22 @@ A+B+C & 3 & 0.0 / 5 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 &
 
 \subsection{现象分析：视觉偏移与动作分块}
 
-表~\ref{tab:act-results} 中最值得注意的现象是：A+B+C 模型的 held-out 验证 L1 为
-0.386954，高于 B-only 的 0.324629，但它在未见环境 D 上的误差更低。B-only 验证集仍来自
-单一环境 B，视觉分布窄，模型更容易拟合；联合模型需要同时处理 A、B、C
-中的外观变化，优化问题更难，因此同分布验证误差较高。然而，这种训练阶段的视觉多样性减少了
-模型对环境 B 背景细节的依赖，使它迁移到 D 时更加稳健。
+图~\ref{fig:act-curves} 中，两个模型的训练 Action L1 均随优化推进而下降，连续窗口验证损失则在
+早期达到最低值：B-only 在第 250 步取得 0.505717，A+B+C 在第 500 步取得 0.561016。
+后续训练损失继续降低，验证曲线整体升高并伴随波动，说明当前 14 个 B 训练窗口和 42 个 A+B+C
+训练窗口仍不足以支撑 5000 步持续拟合。正式权重按最低验证损失选取。
 
-first-action MAE 的改善幅度为 17.0\%，而 chunk-action MAE 的改善幅度为 11.7\%。后者较小，
-说明在视觉分布偏移下，长 horizon 预测仍会累积不确定性。chunk MAE 同样下降，表明多环境训练
-同时改善了立即决策和整段 20 步预测。动作分块为短期轨迹提供时间一致性，多环境视觉训练则降低了
-错误视觉线索对整个动作块的传播。
+B-only 验证集只含 B 环境窗口，A+B+C 验证集同时覆盖 A、B、C，因此两项验证 L1 的绝对值
+反映了不同难度的数据分布。两种策略的跨环境能力使用同一组 D 环境帧评估。A+B+C 的
+first-action MAE 从 0.253965 降至 0.198150，改善 22.0\%；chunk-action MAE 从
+0.268460 降至 0.222258，改善 17.2\%。动作块指标的改善幅度较小，说明视觉分布偏移仍会在
+长 horizon 预测中累积不确定性。两项 D 指标同步下降，表明多环境视觉训练同时改善了立即决策
+和整段 20 步预测。
 
 表~\ref{tab:rollout-results} 给出的 simulator rollout 结果更严格。两个模型都能加载到
 CALVIN D 场景中并完成 \code{reset}/\code{step} 闭环调用，说明 zero-shot 部署链路已经打通；
-但 3 条五任务序列的 SR@1--SR@5 均为 0。这个结果与离线 action-error 的改善并不矛盾。
-离线 MAE 衡量的是给定一帧观测时预测动作与专家动作的平均距离，数值下降说明模型在 D 环境的局部
+但 3 条五任务序列的 SR@1--SR@5 均为 0。离线 MAE 衡量给定单帧观测时预测动作与专家动作的
+平均距离，数值下降说明模型在 D 环境的局部
 动作回归更接近数据分布。CALVIN rollout 成功率衡量的是长时闭环任务：策略必须根据当前图像、状态
 和任务序列连续推动环境变化，任一早期子任务失败都会使后续任务无法继续计入。
 
@@ -654,13 +657,11 @@ validation annotations，但模型内部并不使用语言条件。因此，模�
 
 \subsection{题目二局限性}
 
-题目二使用官方 CALVIN 帧的均匀抽样子集，覆盖 846.8 MiB 本地帧数据，未使用完整的
-517 GB / 166 GB 数据归档。simulator rollout 已经完成，但只评估了 3 条五任务序列，远小于
-完整 CALVIN 长时 benchmark 的规模；因此成功率只能作为小规模部署验证结果，而不能代表充分训练
-后的最终任务能力。离线 action-error 可以衡量模型输出动作与数据集中专家动作的接近程度，也能
-反映一定的跨环境泛化差异；rollout success 则进一步考察闭环执行、误差累积和任务链条恢复能力。
-因此，本实验结论限定在报告所述资源约束协议内：多环境联合训练提升了未见环境 D 的离线动作泛化，
-但在当前小规模 simulator rollout 中尚未产生可统计的成功子任务。
+题目二使用 846.8 MiB 的 CALVIN 均匀抽样帧，未覆盖完整的 517 GB / 166 GB 数据归档。
+simulator rollout 仅评估 3 条五任务序列，成功率用于验证部署链路，不能代表充分训练后的最终能力。
+离线 action-error 衡量单帧动作与专家动作的接近程度；rollout success 进一步考察闭环执行、
+误差累积和任务链恢复。本实验据此将结论限定在当前资源协议：多环境训练改善了环境 D 的离线动作泛化，
+3 条小规模 rollout 中尚无成功子任务。
 
 \clearpage
 \onecolumn
@@ -683,17 +684,17 @@ SwanLab local runs；报告图由记录标量导出。本地查看命令：
 题目二项目页 &
 \url{https://swanlab.cn/@Linkukai/hw3-calvin-act} \\
 题目二 B-only 训练 &
-\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/y34dmlyk6ol06me1f1ig0} \\
+\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/5604rx1q61tfydytkh9eo} \\
 题目二 A+B+C 训练 &
-\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/t3kfag5dsiipp3wwxy4te} \\
+\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/42di3m9zyj2321v11e3xb} \\
 题目二 B-only $\rightarrow$ D 评估 &
-\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/b1hdsdo4vgrodwkk3syr7} \\
+\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/dq0p2cm8j0ypczffatbj6} \\
 题目二 A+B+C $\rightarrow$ D 评估 &
-\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/5ooypxeqhgp4xja928tpk} \\
+\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/6dbyoupmdn0c9loq5p9dv} \\
 题目二 B-only $\rightarrow$ D rollout &
-\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/kcbgr0rmn3jokevjmxlyj} \\
+\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/yeltzn7w84t477i0pyme1} \\
 题目二 A+B+C $\rightarrow$ D rollout &
-\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/mqrmkx48ojvthl5gm0u2y} \\
+\url{https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/05wghj2bt442shmdzxijj} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -751,13 +752,13 @@ MODE=formal bash scripts/render_fusion_tracked.sh
 -- &
 \code{4667c06b2e05b4a345f99ae5ee4c2875caaad2f995ad77c6ea813814046ccaec} \\
 题目二 B-only 最佳权重 &
-196370804 bytes &
+196370932 bytes &
 \href{\tasktwobweights}{GitHub Release 下载}；
-\code{58afae052ef2ce029f92c9258e1b5012a9c44fac5753c1c8330b7d196a976131} \\
+\code{49ad38cb15b38fa1ae208caac70da0e41536aa3dadcd6e7408a58647bed06ce5} \\
 题目二 A+B+C 最佳权重 &
-196370804 bytes &
+196370932 bytes &
 \href{\tasktwoabcweights}{GitHub Release 下载}；
-\code{1b1f182e61026929f0a5ffdc5ee096d15e4771febd111d9efe3d88bc4a9adcff} \\
+\code{7a1ef8617b7f741c0dd8e73b3a6d6c23b6d03381d543f13e95d7150b61832c5b} \\
 题目二权重 Release &
 -- &
 \href{\tasktworelease}{FDU GitHub Release 页面} \\
@@ -774,7 +775,7 @@ Google Drive 镜像目录 &
 题目一完成了从真实采集、文本生成、单图生成到真实场景融合的完整链路。实验说明，多视角重建、
 文本到 3D 和单图到 3D 各自适合不同的信息条件；当原生表示不一致时，将资产转换为 Mesh 再进入
 Blender 是一种工程上直接、稳定且便于控制的统一方案。题目二完成了相同 ACT 架构下的训练分布
-对照：A+B+C 联合训练虽然增加了拟合难度，却降低了未见环境 D 上的离线动作误差。进一步的
+对照。A+B+C 联合训练在独立连续窗口上的最佳验证损失略高，并降低了未见环境 D 上的离线动作误差。进一步的
 CALVIN D simulator rollout 表明，两个模型都可以在未见 D 场景中完成闭环部署，但当前 3 条
 五任务序列的成功率仍为 0。该现象支持视觉多样性训练有助于局部动作泛化，同时也说明动作分块、
 语言条件缺失和长时误差累积仍是闭环成功率的主要限制。

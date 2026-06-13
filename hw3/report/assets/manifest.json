@@ -15,12 +15,12 @@
   ],
   "task2_zero_shot_values": {
     "b_only": {
-      "first_action_mae": 0.22625148172179857,
-      "chunk_action_mae": 0.2594750017548601
+      "first_action_mae": 0.25396539266997326,
+      "chunk_action_mae": 0.2684600044740364
     },
     "abc": {
-      "first_action_mae": 0.18771157413721085,
-      "chunk_action_mae": 0.22914512909483165
+      "first_action_mae": 0.1981501142727211,
+      "chunk_action_mae": 0.22225829815336814
     }
   }
 }

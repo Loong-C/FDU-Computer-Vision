@@ -20,8 +20,8 @@
 
 | 文件 | 大小 | SHA256 |
 | --- | ---: | --- |
-| `hw3-task2-act-b-only-best.pt` | 196370804 bytes | `58afae052ef2ce029f92c9258e1b5012a9c44fac5753c1c8330b7d196a976131` |
-| `hw3-task2-act-abc-joint-best.pt` | 196370804 bytes | `1b1f182e61026929f0a5ffdc5ee096d15e4771febd111d9efe3d88bc4a9adcff` |
+| `hw3-task2-act-b-only-best.pt` | 196370932 bytes | `49ad38cb15b38fa1ae208caac70da0e41536aa3dadcd6e7408a58647bed06ce5` |
+| `hw3-task2-act-abc-joint-best.pt` | 196370932 bytes | `7a1ef8617b7f741c0dd8e73b3a6d6c23b6d03381d543f13e95d7150b61832c5b` |
 
 匿名 GitHub API、校验文件下载和两个大文件的 HTTP `200 OK` /
 `Content-Length` 已于 2026-06-07 验证。

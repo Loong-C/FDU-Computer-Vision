@@ -102,7 +102,7 @@ def create_report(output_path: Path) -> None:
             "action error and a small CALVIN simulator rollout. A bounded HTTP-Range "
             "subset keeps the experiment practical without downloading the complete "
             "517 GB archive. Joint A+B+C training reduces D first-action MAE by "
-            "17.0% and chunk-action MAE by 11.7%; both policies score 0.0% SR@1 in "
+            "22.0% and chunk-action MAE by 17.2%; both policies score 0.0% SR@1 in "
             "the three-sequence D rollout because the trained ACT model is not "
             "language-conditioned.",
             x=0.08,
@@ -167,8 +167,9 @@ def create_report(output_path: Path) -> None:
         )
         add_wrapped_text(
             fig,
-            "After stride 3 and a 90/10 train-validation split, B-only training "
-            "uses 230 samples and A+B+C training uses 691 samples.",
+            "After stride 3 and an environment-stratified continuous-window split, "
+            "B-only uses 224/32 train-validation samples and A+B+C uses 672/96. "
+            "The train-validation action-frame overlap is zero.",
             x=0.08,
             y=0.28,
         )
@@ -205,7 +206,7 @@ def create_report(output_path: Path) -> None:
         fig.text(0.08, 0.42, "Evaluation metrics", fontsize=13, weight="bold")
         add_wrapped_text(
             fig,
-            "We report training Action L1 loss, held-out validation loss, unseen-D "
+            "We report training Action L1 loss, sequence-level validation loss, unseen-D "
             "first-action MAE, unseen-D chunk-action MAE, and CALVIN simulator rollout "
             "success. The rollout wraps each ACT checkpoint as a CALVIN reset/step "
             "policy and projects the gripper action back to the required -1/1 space.",
@@ -224,9 +225,9 @@ def create_report(output_path: Path) -> None:
         ax.axis("off")
         add_wrapped_text(
             fig,
-            "The mixed A+B+C condition is noisier and has a higher held-out "
-            "validation loss because it fits three visual scenes. Both conditions "
-            "show decreasing training and validation trends over 5000 steps.",
+            "Training Action L1 decreases throughout optimization. Sequence-level "
+            "validation loss reaches its minimum early and then fluctuates upward, "
+            "showing overfitting on the bounded set of continuous training windows.",
             x=0.08,
             y=0.30,
         )
@@ -241,8 +242,8 @@ def create_report(output_path: Path) -> None:
             bbox=(0.08, 0.77, 0.84, 0.11),
             columns=["Training scenes", "Validation L1", "D first-action MAE", "D chunk MAE"],
             rows=[
-                ["B only", "0.324629", "0.226251", "0.259475"],
-                ["A+B+C", "0.386954", "0.187712", "0.229145"],
+                ["B only", "0.505717", "0.253965", "0.268460"],
+                ["A+B+C", "0.561016", "0.198150", "0.222258"],
             ],
         )
         image = plt.imread(IMAGES_ROOT / "formal_zero_shot_d_action_error.jpg")
@@ -251,8 +252,8 @@ def create_report(output_path: Path) -> None:
         ax.axis("off")
         add_wrapped_text(
             fig,
-            "Joint A+B+C training lowers first-action MAE by 17.0% and chunk-action "
-            "MAE by 11.7% relative to B-only training. The chunk-level improvement "
+            "Joint A+B+C training lowers first-action MAE by 22.0% and chunk-action "
+            "MAE by 17.2% relative to B-only training. The chunk-level improvement "
             "is smaller because longer-horizon predictions accumulate more uncertainty "
             "under visual shift. However, the A+B+C model still improves at chunk "
             "level, indicating that the 20-step action chunks remain robust on sampled D frames.",
@@ -312,8 +313,8 @@ def create_report(output_path: Path) -> None:
         add_wrapped_text(
             fig,
             f"Release page: {RELEASE_URL}\n"
-            "B-only SHA256: 58AFAE052EF2CE029F92C9258E1B5012A9C44FAC5753C1C8330B7D196A976131\n"
-            "A+B+C SHA256: 1B1F182E61026929F0A5FFDC5EE096D15E4771FEBD111D9EFE3D88BC4A9ADCFF",
+            "B-only SHA256: 49AD38CB15B38FA1AE208CAAC70DA0E41536AA3DADCD6E7408A58647BED06CE5\n"
+            "A+B+C SHA256: 7A1EF8617B7F741C0DD8E73B3A6D6C23B6D03381D543F13E95D7150B61832C5B",
             x=0.08,
             y=y - 0.08,
             width=108,

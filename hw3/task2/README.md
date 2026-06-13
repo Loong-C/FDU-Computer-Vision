@@ -5,10 +5,11 @@
 ## 核心结论
 
 - 两个模型使用相同 ACT 架构、优化器和训练步数。
-- A+B+C 联合训练提高了训练分布复杂度，验证 L1 更高。
-- 在 D 环境抽样帧上，A+B+C 的 first-action MAE 降低 `17.0%`，chunk-action MAE 降低 `11.7%`。
+- 训练和验证按环境内连续窗口划分，动作监督帧交集为 `0`。
+- A+B+C 联合训练的最佳序列验证 L1 略高，训练分布包含更多视觉变化。
+- 在 D 环境抽样帧上，A+B+C 的 first-action MAE 降低 `22.0%`，chunk-action MAE 降低 `17.2%`。
 - 两个模型都能在 CALVIN D simulator 中闭环运行，但 3 条五任务序列的 SR@1 到 SR@5 均为 `0.0%`。
-- simulator 结果说明：离线动作误差改善不等于长时任务成功，语言条件缺失和误差累积仍是主要限制。
+- 离线动作误差与长时任务成功反映不同层面的泛化，语言条件缺失和误差累积仍是主要限制。
 
 ## 目录
 
@@ -64,6 +65,9 @@ python .\scripts\download_calvin_subset.py `
 ```
 
 正式实验使用 `2304` 帧 A+B+C 训练数据和 `768` 帧 D 评估数据。
+每个训练环境包含 `16` 个连续 48 帧窗口。划分时每个环境固定留出 `2` 个完整窗口，
+得到 B-only 的 `224/32` 个训练/验证样本，以及 A+B+C 的 `672/96` 个训练/验证样本。
+每次训练都会在 `split_manifest.json` 中记录窗口边界并审计动作帧交集。
 
 ## 训练与评估
 
@@ -91,10 +95,10 @@ D 环境 simulator rollout：
 
 ## 正式结果
 
-| 模型 | 验证 L1 | D first-action MAE | D chunk MAE |
+| 模型 | 最佳序列验证 L1 | D first-action MAE | D chunk MAE |
 | --- | ---: | ---: | ---: |
-| B-only | 0.324629 | 0.226251 | 0.259475 |
-| A+B+C | 0.386954 | 0.187712 | 0.229145 |
+| B-only | 0.505717 | 0.253965 | 0.268460 |
+| A+B+C | 0.561016 | 0.198150 | 0.222258 |
 
 | 模型 | D rollout 序列数 | 平均完成子任务 | SR@1 | SR@5 |
 | --- | ---: | ---: | ---: | ---: |
@@ -116,6 +120,8 @@ D 环境 simulator rollout：
 - A+B+C 权重：`https://github.com/Loong-C/FDU-Computer-Vision/releases/download/hw3-task2-formal-partial-v1/hw3-task2-act-abc-joint-best.pt`
 - 权重网盘镜像：`https://drive.google.com/drive/folders/1v9oc1uTbZS31SaDJaT7sYV8m5dutMo1y?usp=drive_link`
 - SwanLab 项目：`https://swanlab.cn/@Linkukai/hw3-calvin-act`
+- B-only 训练：`https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/5604rx1q61tfydytkh9eo`
+- A+B+C 训练：`https://swanlab.cn/@Linkukai/hw3-calvin-act/runs/42di3m9zyj2321v11e3xb`
 
 权重文件：
 
@@ -123,4 +129,6 @@ D 环境 simulator rollout：
 - `hw3-task2-act-abc-joint-best.pt`
 
 SHA256 记录在 `outputs/official_subset_formal/release/SHA256SUMS.txt`，大权重不提交到 Git。
+当前摘要分别为 `49ad38cb15b38fa1ae208caac70da0e41536aa3dadcd6e7408a58647bed06ce5`
+和 `7a1ef8617b7f741c0dd8e73b3a6d6c23b6d03381d543f13e95d7150b61832c5b`。
 旧独立仓库的迁移核对见 `docs/LEGACY_REPOSITORY_MIGRATION.md`。

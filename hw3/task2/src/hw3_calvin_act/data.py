@@ -193,6 +193,13 @@ class CalvinRawDataset(Dataset):
     def _same_scene(self, source: int, target: int) -> bool:
         return any(scene_range.contains(source) and scene_range.contains(target) for scene_range in self.scene_ranges)
 
+    def action_frame_indices(self, frame_index: int) -> list[int]:
+        return [
+            target_index
+            for target_index in range(frame_index, frame_index + self.chunk_size)
+            if target_index in self.frame_files and self._same_scene(frame_index, target_index)
+        ]
+
     def raw_state_action(self, frame_index: int) -> tuple[np.ndarray, np.ndarray]:
         frame = self._load_frame(frame_index)
         return frame["robot_obs"].astype(np.float32), frame["rel_actions"].astype(np.float32)
@@ -224,9 +231,10 @@ class CalvinRawDataset(Dataset):
         frame = self._load_frame(frame_index)
         actions = []
         is_pad = []
+        action_frame_indices = set(self.action_frame_indices(frame_index))
         for offset in range(self.chunk_size):
             target_index = frame_index + offset
-            if target_index in self.frame_files and self._same_scene(frame_index, target_index):
+            if target_index in action_frame_indices:
                 action = self._load_frame(target_index)["rel_actions"].astype(np.float32)
                 actions.append(self._normalized_action(action))
                 is_pad.append(False)
@@ -253,18 +261,83 @@ def fit_normalization_stats(dataset: CalvinRawDataset, max_samples: int = 2048) 
     return NormalizationStats.from_arrays(np.asarray(states), np.asarray(actions))
 
 
+def group_sample_indices_by_sequence(
+    sample_indices: Sequence[int],
+    available_frame_indices: Sequence[int],
+    scene_ranges: Sequence[SceneRange],
+) -> dict[str, list[list[int]]]:
+    sample_set = set(sample_indices)
+    available_set = set(available_frame_indices)
+    missing = sorted(sample_set - available_set)
+    if missing:
+        raise ValueError(f"Sample indices are missing from the dataset, first={missing[0]}.")
+
+    groups: dict[str, list[list[int]]] = {}
+    for scene_range in scene_ranges:
+        scene_frames = sorted(index for index in available_set if scene_range.contains(index))
+        if not scene_frames:
+            continue
+
+        run_start = 0
+        for position in range(1, len(scene_frames) + 1):
+            run_ended = position == len(scene_frames) or scene_frames[position] != scene_frames[position - 1] + 1
+            if not run_ended:
+                continue
+            run_frames = scene_frames[run_start:position]
+            run_samples = [index for index in run_frames if index in sample_set]
+            if run_samples:
+                groups.setdefault(scene_range.environment, []).append(run_samples)
+            run_start = position
+
+    grouped_samples = {
+        index
+        for environment_groups in groups.values()
+        for group in environment_groups
+        for index in group
+    }
+    ungrouped = sorted(sample_set - grouped_samples)
+    if ungrouped:
+        raise ValueError(f"Samples are outside the requested scene ranges, first={ungrouped[0]}.")
+    return groups
+
+
 def split_sample_indices(
-    sample_indices: Sequence[int], validation_fraction: float, seed: int
+    sample_indices: Sequence[int],
+    validation_fraction: float,
+    seed: int,
+    *,
+    available_frame_indices: Sequence[int],
+    scene_ranges: Sequence[SceneRange],
 ) -> tuple[list[int], list[int]]:
     if not 0.0 < validation_fraction < 1.0:
         raise ValueError("validation_fraction must be between 0 and 1.")
-    rng = np.random.default_rng(seed)
-    indices = np.asarray(sample_indices)
-    rng.shuffle(indices)
-    validation_size = max(1, int(round(len(indices) * validation_fraction)))
-    if validation_size >= len(indices):
-        validation_size = len(indices) - 1
-    return indices[validation_size:].tolist(), indices[:validation_size].tolist()
+
+    groups_by_environment = group_sample_indices_by_sequence(
+        sample_indices,
+        available_frame_indices=available_frame_indices,
+        scene_ranges=scene_ranges,
+    )
+    train_indices = []
+    validation_indices = []
+    for environment in sorted(groups_by_environment):
+        groups = groups_by_environment[environment]
+        if len(groups) < 2:
+            raise ValueError(
+                f"Environment {environment} has only {len(groups)} continuous sequence; "
+                "at least two are required for a sequence-level train/validation split."
+            )
+        rng = np.random.default_rng(np.random.SeedSequence([seed, ord(environment)]))
+        order = rng.permutation(len(groups))
+        validation_group_count = max(1, int(round(len(groups) * validation_fraction)))
+        validation_group_count = min(validation_group_count, len(groups) - 1)
+        validation_groups = {int(index) for index in order[:validation_group_count]}
+        for group_index, group in enumerate(groups):
+            if group_index in validation_groups:
+                validation_indices.extend(group)
+            else:
+                train_indices.extend(group)
+
+    return sorted(train_indices), sorted(validation_indices)
 
 
 def denormalize_actions(actions: torch.Tensor, stats: NormalizationStats) -> torch.Tensor:
